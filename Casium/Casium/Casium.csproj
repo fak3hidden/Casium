@@ -92,6 +92,7 @@
     </Page>
     <Compile Include="Services\ThemeManager.cs" />
     <Compile Include="Services\NavState.cs" />
+    <Compile Include="Services\RoundedClipConverter.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>

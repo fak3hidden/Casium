@@ -51,8 +51,26 @@ namespace Casium.Views
 
         // ---- window chrome ------------------------------------------------------------
 
+        /// <summary>Clicking any non-interactive area drops focus out of the inputs.</summary>
+        private void Root_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var src = e.OriginalSource as DependencyObject;
+            while (src != null)
+            {
+                if (src is TextBox || src is PasswordBox || src is Button)
+                {
+                    return;
+                }
+                src = System.Windows.Media.VisualTreeHelper.GetParent(src);
+            }
+            RootFocusTarget.Focus();
+            Keyboard.ClearFocus();
+        }
+
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            RootFocusTarget.Focus();
+            Keyboard.ClearFocus();
             if (e.ClickCount == 2)
             {
                 MaximizeButton_Click(sender, e);
