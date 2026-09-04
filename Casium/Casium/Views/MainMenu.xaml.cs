@@ -80,6 +80,8 @@ namespace Casium.Views
         private bool _attaching;
         private bool _monacoReady;
         private bool _useMonaco;
+        private readonly QuorumEditorHost _quorum = new QuorumEditorHost();
+        private bool _useQuorum;
         private bool _autoAttach = false;
         private string _username = "—";
 
@@ -129,7 +131,10 @@ namespace Casium.Views
             }
             catch { }
 
-            _ = InitMonacoAsync();
+            if (!InitQuorum())
+            {
+                _ = InitMonacoAsync();
+            }
 
             StartUserRun.Text = string.Format("Signed in as {0}.", _username);
             AccountNameText.Text = _username;
@@ -192,6 +197,24 @@ namespace Casium.Views
                 e.Handled = true;
                 await CloseTabAsync(_selectedTab);
             }
+        }
+
+        // ---------- QuorumMonaco (WinForms control, preferred when the DLL is present) -------
+
+        private bool InitQuorum()
+        {
+            if (!_quorum.TryCreate())
+            {
+                return false;
+            }
+            EditorSurface.Children.Add(_quorum.Host);
+            _quorum.Host.Visibility = Visibility.Visible;
+            EditorScroll.Visibility = Visibility.Collapsed;
+            MonacoView.Visibility = Visibility.Collapsed;
+            _useQuorum = true;
+            _useMonaco = true;   // "external editor" flag for the rest of the code
+            AddLog("ok", "QuorumMonaco editor ready.");
+            return true;
         }
 
         // ---------- monaco editor (WebView2) ------------------------------------------
@@ -286,19 +309,28 @@ namespace Casium.Views
 
         private async Task<string> GetMonacoCodeAsync()
         {
+            if (_useQuorum)
+            {
+                return await _quorum.GetTextAsync();
+            }
             string raw = await MonacoView.ExecuteScriptAsync("window.Bubble.getCode()");
             return DecodeJsString(raw);
         }
 
         private Task SetMonacoCodeAsync(string code)
         {
+            if (_useQuorum)
+            {
+                _quorum.SetText(code);
+                return Task.FromResult(true);
+            }
             return MonacoView.ExecuteScriptAsync(
                 "window.Bubble.setCode(" + EncodeJsString(code ?? string.Empty) + ")");
         }
 
         private async Task SyncMonacoToTabAsync()
         {
-            if (!_monacoReady)
+            if (!_monacoReady && !_useQuorum)
             {
                 return;
             }
@@ -321,7 +353,7 @@ namespace Casium.Views
 
         private async Task SyncTabToMonacoAsync()
         {
-            if (!_monacoReady || _selectedTab == null)
+            if ((!_monacoReady && !_useQuorum) || _selectedTab == null)
             {
                 return;
             }
@@ -334,7 +366,7 @@ namespace Casium.Views
 
         private async Task PollMonacoCursorAsync()
         {
-            if (!_monacoReady || _currentView != "ExecutorView")
+            if (!_monacoReady || _useQuorum || _currentView != "ExecutorView")
             {
                 return;
             }
@@ -1926,6 +1958,11 @@ namespace Casium.Views
 
         private async Task ApplyMonacoThemeAsync()
         {
+            if (_useQuorum)
+            {
+                _quorum.Refresh();
+                return;
+            }
             if (!_monacoReady && MonacoView.CoreWebView2 == null)
             {
                 return;

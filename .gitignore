@@ -3,3 +3,4 @@ obj/
 .vs/
 *.user
 packages/
+Casium/Casium/Libs/*.dll

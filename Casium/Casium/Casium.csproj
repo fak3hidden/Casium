@@ -52,6 +52,13 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="WindowsFormsIntegration" />
+    <!-- Drop QuorumMonaco.dll into Casium\Casium\Libs\ (created on first build if missing) -->
+    <Reference Include="QuorumMonaco" Condition="Exists('$(MSBuildProjectDirectory)\Libs\QuorumMonaco.dll')">
+      <HintPath>Libs\QuorumMonaco.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -92,6 +99,7 @@
     </Page>
     <Compile Include="Services\ThemeManager.cs" />
     <Compile Include="Services\NavState.cs" />
+    <Compile Include="Services\QuorumEditorHost.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -137,5 +145,8 @@
     <Resource Include="Assets\casium.ico" />
     <Resource Include="Assets\casium.png" />
   </ItemGroup>
+  <PropertyGroup Condition="Exists('$(MSBuildProjectDirectory)\Libs\QuorumMonaco.dll')">
+    <DefineConstants>$(DefineConstants);QUORUM</DefineConstants>
+  </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
