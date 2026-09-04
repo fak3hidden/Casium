@@ -10,30 +10,30 @@
         MinHeight="640" MinWidth="1080"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
-        Background="#0B0910"
+        Background="#F3F4F6"
         ResizeMode="CanResize"
         FontFamily="Segoe UI">
 
     <Window.Resources>
         <!-- Volt / Potassium dark palette -->
-        <Color x:Key="AppBgColor">#0B0910</Color>
-        <Color x:Key="PanelColor">#130F1C</Color>
-        <Color x:Key="Panel2Color">#171324</Color>
-        <Color x:Key="InputColor">#1B1626</Color>
-        <Color x:Key="BorderColor">#2B2140</Color>
-        <Color x:Key="BorderLightColor">#3D2F5C</Color>
-        <Color x:Key="AccentColor">#8B5CF6</Color>
-        <Color x:Key="AccentDarkColor">#6D28E9</Color>
-        <Color x:Key="MutedColor">#A79FBF</Color>
-        <Color x:Key="FaintColor">#6E6587</Color>
+        <Color x:Key="AppBgColor">#F3F4F6</Color>
+        <Color x:Key="PanelColor">#FFFFFF</Color>
+        <Color x:Key="Panel2Color">#F9FAFB</Color>
+        <Color x:Key="InputColor">#F3F4F6</Color>
+        <Color x:Key="BorderColor">#D1D5DB</Color>
+        <Color x:Key="BorderLightColor">#9CA3AF</Color>
+        <Color x:Key="AccentColor">#374151</Color>
+        <Color x:Key="AccentDarkColor">#1F2937</Color>
+        <Color x:Key="MutedColor">#6B7280</Color>
+        <Color x:Key="FaintColor">#9CA3AF</Color>
 
         <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}"/>
         <SolidColorBrush x:Key="FaintBrush" Color="{StaticResource FaintColor}"/>
         <SolidColorBrush x:Key="LineBrush" Color="{StaticResource BorderColor}"/>
 
         <LinearGradientBrush x:Key="AccentGradient" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#8B5CF6" Offset="0"/>
-            <GradientStop Color="#6D28E9" Offset="1"/>
+            <GradientStop Color="#374151" Offset="0"/>
+            <GradientStop Color="#1F2937" Offset="1"/>
         </LinearGradientBrush>
 
         <Style x:Key="SectionHeader" TargetType="TextBlock">
@@ -64,10 +64,10 @@
 
         <!-- Dark action button -->
         <Style x:Key="ActionButton" TargetType="Button">
-            <Setter Property="Background" Value="#1B1626"/>
-            <Setter Property="BorderBrush" Value="#2B2140"/>
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#EDE9FE"/>
+            <Setter Property="Foreground" Value="#111827"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Height" Value="40"/>
@@ -84,11 +84,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#241C33"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#3D2F5C"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#E5E7EB"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#9CA3AF"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#2B2140"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#D1D5DB"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -99,7 +99,7 @@
         <!-- Big gradient Execute button -->
         <Style x:Key="GradientButton" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource AccentGradient}"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="#111827"/>
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Height" Value="48"/>
@@ -112,13 +112,13 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#7C3AED"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#111827"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#6D28E9"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#1F2937"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bd" Property="Background" Value="#3F3F46"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#D1D5DB"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -128,7 +128,7 @@
 
         <Style x:Key="TitleBarButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#A79FBF"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Width" Value="42"/>
             <Setter Property="Height" Value="30"/>
@@ -141,8 +141,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#2B2140"/>
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#D1D5DB"/>
+                                <Setter Property="Foreground" Value="#111827"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -154,14 +154,14 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#E81123"/>
-                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Foreground" Value="#111827"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="GhostButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#A79FBF"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="10,5"/>
@@ -175,8 +175,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#2B2140"/>
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#D1D5DB"/>
+                                <Setter Property="Foreground" Value="#111827"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -186,7 +186,7 @@
 
         <Style x:Key="TabButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#A79FBF"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Padding" Value="12,8"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -203,7 +203,7 @@
 
         <!-- Square toggle checkbox -->
         <Style x:Key="ToggleCheckBox" TargetType="CheckBox">
-            <Setter Property="Foreground" Value="#EDE9FE"/>
+            <Setter Property="Foreground" Value="#111827"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -211,9 +211,9 @@
                     <ControlTemplate TargetType="CheckBox">
                         <StackPanel Orientation="Horizontal">
                             <Border x:Name="Box" Width="22" Height="22" CornerRadius="5"
-                                    Background="#1B1626" BorderBrush="#3D2F5C" BorderThickness="1">
+                                    Background="#F3F4F6" BorderBrush="#9CA3AF" BorderThickness="1">
                                 <Path x:Name="Check" Data="M5,12 L10,17 L17,7"
-                                      Stroke="#0B0910" StrokeThickness="2.5"
+                                      Stroke="#F3F4F6" StrokeThickness="2.5"
                                       Visibility="Collapsed"
                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -221,8 +221,8 @@
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Box" Property="Background" Value="#8B5CF6"/>
-                                <Setter TargetName="Box" Property="BorderBrush" Value="#8B5CF6"/>
+                                <Setter TargetName="Box" Property="Background" Value="#374151"/>
+                                <Setter TargetName="Box" Property="BorderBrush" Value="#374151"/>
                                 <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -234,17 +234,17 @@
         <Style x:Key="DarkListBox" TargetType="ListBox">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#EDE9FE"/>
+            <Setter Property="Foreground" Value="#111827"/>
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
         </Style>
     </Window.Resources>
 
     <!-- App card -->
-    <Border Margin="0" Background="#0B0910"
+    <Border Margin="0" Background="#F3F4F6"
             BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
             CornerRadius="0">
         <Border.Effect>
-            <DropShadowEffect Color="Black" Opacity="0.6" BlurRadius="28" ShadowDepth="0"/>
+            <DropShadowEffect Color="Black" Opacity="0.15" BlurRadius="28" ShadowDepth="0"/>
         </Border.Effect>
 
         <Grid>
@@ -264,9 +264,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="⚡" Foreground="#8B5CF6" FontSize="16"
+                        <TextBlock Text="⚡" Foreground="#374151" FontSize="16"
                                    VerticalAlignment="Center"/>
-                        <TextBlock Text="Casium" Foreground="White" FontSize="13"
+                        <TextBlock Text="Casium" Foreground="#111827" FontSize="13"
                                    FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0,0,0"/>
                         <TextBlock Text="v1.0" Foreground="{StaticResource FaintBrush}"
                                    FontSize="11" VerticalAlignment="Center" Margin="8,1,0,0"/>
@@ -293,7 +293,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Left : nav + info + status -->
-                <Border Grid.Column="0" Background="#130F1C"
+                <Border Grid.Column="0" Background="#FFFFFF"
                         BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
                         CornerRadius="10" Padding="12" Margin="0,0,6,0">
                     <Grid>
@@ -304,15 +304,15 @@
                     <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="2,2,2,14">
-                                <TextBlock Text="⚡" Foreground="#8B5CF6" FontSize="22"
+                                <TextBlock Text="⚡" Foreground="#374151" FontSize="22"
                                            FontStyle="Italic" FontWeight="Bold"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Text="CASIUM" FontSize="19" FontWeight="Bold"
                                            FontStyle="Italic" VerticalAlignment="Center" Margin="6,0,0,0">
                                     <TextBlock.Foreground>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#A78BFA" Offset="0"/>
-                                            <GradientStop Color="#7C3AED" Offset="1"/>
+                                            <GradientStop Color="#4B5563" Offset="0"/>
+                                            <GradientStop Color="#111827" Offset="1"/>
                                         </LinearGradientBrush>
                                     </TextBlock.Foreground>
                                 </TextBlock>
@@ -379,27 +379,27 @@
                     </ScrollViewer>
 
                             <!-- Status card -->
-                            <Border Grid.Row="1" Background="#171324" BorderBrush="{StaticResource LineBrush}"
+                            <Border Grid.Row="1" Background="#F9FAFB" BorderBrush="{StaticResource LineBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,10,0,0">
                                 <StackPanel>
                                     <Grid>
                                         <TextBlock Text="Status" FontSize="12"
                                                    Foreground="{StaticResource MutedBrush}"/>
                                         <Ellipse x:Name="StatusDot" Width="8" Height="8"
-                                                 Fill="#71717A" HorizontalAlignment="Right"/>
+                                                 Fill="#9CA3AF" HorizontalAlignment="Right"/>
                                     </Grid>
                                     <TextBlock Text="Attached to" FontSize="12"
                                                Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
                                     <TextBlock x:Name="AttachedText" Text="Not attached"
                                                FontSize="13" FontWeight="SemiBold"
-                                               Foreground="#8B5CF6" TextWrapping="Wrap"/>
+                                               Foreground="#374151" TextWrapping="Wrap"/>
                                     <TextBlock Text="Version" FontSize="12"
                                                Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
-                                    <TextBlock Text="v1.0" FontSize="12" Foreground="#EDE9FE"/>
+                                    <TextBlock Text="v1.0" FontSize="12" Foreground="#111827"/>
                                     <TextBlock Text="User" FontSize="12"
                                                Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
                                     <TextBlock x:Name="NavUserText" Text="—" FontSize="12"
-                                               Foreground="#8B5CF6"/>
+                                               Foreground="#374151"/>
                                     <Button x:Name="DetachButton" Content="Detach"
                                             Style="{StaticResource GhostButton}"
                                             HorizontalAlignment="Left" Margin="-10,6,0,-4"
@@ -443,7 +443,7 @@
                         </Grid>
 
                         <!-- Editor -->
-                        <Border Grid.Row="1" Background="#0E0B14"
+                        <Border Grid.Row="1" Background="#FFFFFF"
                                 BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
                                 CornerRadius="10">
                             <Grid>
@@ -459,11 +459,11 @@
                                         <TextBlock x:Name="LineNumbers" Grid.Column="0"
                                                    FontFamily="Consolas" FontSize="14"
                                                    LineHeight="19" LineStackingStrategy="BlockLineHeight"
-                                                   Foreground="#4B4460" TextAlignment="Right"
+                                                   Foreground="#9CA3AF" TextAlignment="Right"
                                                    Padding="0,10,8,10"/>
                                         <RichTextBox x:Name="EditorBox" Grid.Column="1"
                                                      Background="Transparent" BorderThickness="0"
-                                                     Foreground="#E6E3F0"
+                                                     Foreground="#1F2937"
                                                      FontFamily="Consolas" FontSize="14"
                                                      Padding="8,10,12,10"
                                                      SpellCheck.IsEnabled="False"
@@ -483,7 +483,7 @@
                         </Border>
 
                         <!-- Console -->
-                        <Border Grid.Row="2" Background="#0E0B14"
+                        <Border Grid.Row="2" Background="#FFFFFF"
                                 BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
                                 CornerRadius="10" Margin="0,8,0,0">
                             <Grid Margin="12,8">
@@ -495,7 +495,7 @@
                                 <Grid Grid.Row="0">
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="ConsoleTabButton" Content="Console" Style="{StaticResource TabButton}"
-                                                Foreground="White" FontWeight="SemiBold" Padding="0,4,12,4"
+                                                Foreground="#111827" FontWeight="SemiBold" Padding="0,4,12,4"
                                                 Click="ConsoleTab_Click"/>
                                         <Button x:Name="OutputTabButton" Content="Output" Style="{StaticResource TabButton}"
                                                 Padding="0,4,12,4" Click="OutputTab_Click"/>
@@ -512,7 +512,7 @@
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Time}" Foreground="#6E6587"/>
+                                                <TextBlock Text="{Binding Time}" Foreground="#9CA3AF"/>
                                                 <TextBlock Text="{Binding Message}" Foreground="{Binding Brush}" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </DataTemplate>
@@ -523,11 +523,11 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text=">" Foreground="#8B5CF6" FontFamily="Consolas"
+                                    <TextBlock Text=">" Foreground="#374151" FontFamily="Consolas"
                                                FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                                     <TextBox x:Name="CommandInput" Grid.Column="1"
                                              Background="Transparent" BorderThickness="0"
-                                             Foreground="#EDE9FE" CaretBrush="White"
+                                             Foreground="#111827" CaretBrush="#111827"
                                              FontFamily="Consolas" FontSize="13"
                                              Margin="8,0,0,0" KeyDown="CommandInput_KeyDown"/>
                                 </Grid>
@@ -542,11 +542,11 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Margin="2,2,2,12">
-                            <TextBlock Text="Script Hub" Foreground="White" FontSize="20"
+                            <TextBlock Text="Script Hub" Foreground="#111827" FontSize="20"
                                        FontWeight="Bold"/>
                             <TextBlock Text="Curated scripts — press Get to load one into the editor."
                                        Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,10"/>
-                            <Border Background="#1B1626" BorderBrush="{StaticResource LineBrush}"
+                            <Border Background="#F3F4F6" BorderBrush="{StaticResource LineBrush}"
                                     BorderThickness="1" CornerRadius="8" MaxWidth="340"
                                     HorizontalAlignment="Left">
                                 <Grid>
@@ -558,7 +558,7 @@
                                                FontSize="14" VerticalAlignment="Center" Margin="12,0,0,0"/>
                                     <TextBox x:Name="HubSearch" Grid.Column="1"
                                              Background="Transparent" BorderThickness="0"
-                                             Foreground="White" CaretBrush="White" FontSize="13"
+                                             Foreground="#111827" CaretBrush="#111827" FontSize="13"
                                              Padding="8,9" TextChanged="HubSearch_TextChanged"/>
                                     <TextBlock x:Name="HubSearchHint" Grid.Column="1"
                                                Text="Search scripts..." Foreground="{StaticResource FaintBrush}"
@@ -574,10 +574,10 @@
 
                     <!-- Network view -->
                     <Border x:Name="NetworkView" Visibility="Collapsed"
-                            Background="#130F1C" BorderBrush="{StaticResource LineBrush}"
+                            Background="#FFFFFF" BorderBrush="{StaticResource LineBrush}"
                             BorderThickness="1" CornerRadius="10" Padding="28">
                         <StackPanel MaxWidth="440" HorizontalAlignment="Left">
-                            <TextBlock Text="Network" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="Network" Foreground="#111827" FontSize="20" FontWeight="Bold"/>
                             <TextBlock Text="Live connection stats for this session."
                                        Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
                             <StackPanel x:Name="NetworkPanel"/>
@@ -590,22 +590,22 @@
 
                     <!-- Player view -->
                     <Border x:Name="PlayerView" Visibility="Collapsed"
-                            Background="#130F1C" BorderBrush="{StaticResource LineBrush}"
+                            Background="#FFFFFF" BorderBrush="{StaticResource LineBrush}"
                             BorderThickness="1" CornerRadius="10" Padding="28">
                         <StackPanel MaxWidth="440" HorizontalAlignment="Left">
-                            <TextBlock Text="Player" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="Player" Foreground="#111827" FontSize="20" FontWeight="Bold"/>
                             <TextBlock Text="Tweak the local player. Applied to the console log."
                                        Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
                             <Grid>
-                                <TextBlock Text="WalkSpeed" Foreground="#EDE9FE" FontSize="13"/>
-                                <TextBlock x:Name="SpeedValue" Text="16" Foreground="#8B5CF6"
+                                <TextBlock Text="WalkSpeed" Foreground="#111827" FontSize="13"/>
+                                <TextBlock x:Name="SpeedValue" Text="16" Foreground="#374151"
                                            FontSize="13" FontWeight="Bold" HorizontalAlignment="Right"/>
                             </Grid>
                             <Slider x:Name="SpeedSlider" Minimum="10" Maximum="100" Value="16"
                                     Margin="0,8,0,4" ValueChanged="SpeedSlider_ValueChanged"/>
                             <Grid Margin="0,14,0,0">
-                                <TextBlock Text="JumpPower" Foreground="#EDE9FE" FontSize="13"/>
-                                <TextBlock x:Name="JumpValue" Text="50" Foreground="#8B5CF6"
+                                <TextBlock Text="JumpPower" Foreground="#111827" FontSize="13"/>
+                                <TextBlock x:Name="JumpValue" Text="50" Foreground="#374151"
                                            FontSize="13" FontWeight="Bold" HorizontalAlignment="Right"/>
                             </Grid>
                             <Slider x:Name="JumpSlider" Minimum="10" Maximum="200" Value="50"
@@ -623,11 +623,11 @@
 
                     <!-- Settings view -->
                     <Border x:Name="SettingsView" Visibility="Collapsed"
-                            Background="#130F1C" BorderBrush="{StaticResource LineBrush}"
+                            Background="#FFFFFF" BorderBrush="{StaticResource LineBrush}"
                             BorderThickness="1" CornerRadius="10" Padding="28">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel MaxWidth="520" HorizontalAlignment="Left">
-                                <TextBlock Text="Settings" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                                <TextBlock Text="Settings" Foreground="#111827" FontSize="20" FontWeight="Bold"/>
                                 <TextBlock Text="Tune Casium to your liking."
                                            Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
                                 <StackPanel x:Name="SettingsPanel"/>
@@ -637,16 +637,16 @@
 
                     <!-- Key System view -->
                     <Border x:Name="KeyView" Visibility="Collapsed"
-                            Background="#130F1C" BorderBrush="{StaticResource LineBrush}"
+                            Background="#FFFFFF" BorderBrush="{StaticResource LineBrush}"
                             BorderThickness="1" CornerRadius="10" Padding="28">
                         <StackPanel MaxWidth="440" HorizontalAlignment="Left">
-                            <TextBlock Text="Key System" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="Key System" Foreground="#111827" FontSize="20" FontWeight="Bold"/>
                             <TextBlock Text="Your access key. Keep it secret."
                                        Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
                             <TextBlock Text="ACCESS KEY" Style="{StaticResource SectionHeader}"/>
-                            <Border Background="#1B1626" BorderBrush="{StaticResource LineBrush}"
+                            <Border Background="#F3F4F6" BorderBrush="{StaticResource LineBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="12,10">
-                                <TextBlock x:Name="KeyBox" Text="—" Foreground="White"
+                                <TextBlock x:Name="KeyBox" Text="—" Foreground="#111827"
                                            FontFamily="Consolas" FontSize="14"/>
                             </Border>
                             <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
@@ -665,20 +665,20 @@
 
                     <!-- About view -->
                     <Border x:Name="AboutView" Visibility="Collapsed"
-                            Background="#130F1C" BorderBrush="{StaticResource LineBrush}"
+                            Background="#FFFFFF" BorderBrush="{StaticResource LineBrush}"
                             BorderThickness="1" CornerRadius="10" Padding="28">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                                     MaxWidth="420">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <TextBlock Text="⚡" Foreground="#8B5CF6" FontSize="34"
+                                <TextBlock Text="⚡" Foreground="#374151" FontSize="34"
                                            FontStyle="Italic" FontWeight="Bold"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Text="CASIUM" FontSize="34" FontWeight="Bold"
                                            FontStyle="Italic" VerticalAlignment="Center" Margin="8,0,0,0">
                                     <TextBlock.Foreground>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#A78BFA" Offset="0"/>
-                                            <GradientStop Color="#7C3AED" Offset="1"/>
+                                            <GradientStop Color="#4B5563" Offset="0"/>
+                                            <GradientStop Color="#111827" Offset="1"/>
                                         </LinearGradientBrush>
                                     </TextBlock.Foreground>
                                 </TextBlock>
@@ -689,7 +689,7 @@
                                        Foreground="{StaticResource MutedBrush}" FontSize="13"
                                        HorizontalAlignment="Center" Margin="0,2,0,0"/>
                             <TextBlock x:Name="AboutUserText" Text="Signed in as —"
-                                       Foreground="#8B5CF6" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="#374151" FontSize="13" FontWeight="SemiBold"
                                        HorizontalAlignment="Center" Margin="0,14,0,0"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
                                         Margin="0,22,0,0">
@@ -705,7 +705,7 @@
                 </Grid>
 
                 <!-- Right : hub + execute -->
-                <Border Grid.Column="2" Background="#130F1C"
+                <Border Grid.Column="2" Background="#FFFFFF"
                         BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
                         CornerRadius="10" Padding="12" Margin="6,0,0,0">
                     <Grid>
@@ -721,9 +721,9 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="Script Hub" Foreground="White"
+                            <TextBlock Grid.Row="0" Text="Script Hub" Foreground="#111827"
                                        FontSize="15" FontWeight="Bold"/>
-                            <Border Grid.Row="1" Background="#1B1626"
+                            <Border Grid.Row="1" Background="#F3F4F6"
                                     BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
                                     CornerRadius="8" Margin="0,10,0,8">
                                 <Grid>
@@ -735,7 +735,7 @@
                                                FontSize="13" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                     <TextBox x:Name="MiniHubSearch" Grid.Column="1"
                                              Background="Transparent" BorderThickness="0"
-                                             Foreground="White" CaretBrush="White" FontSize="12.5"
+                                             Foreground="#111827" CaretBrush="#111827" FontSize="12.5"
                                              Padding="6,8" TextChanged="MiniHubSearch_TextChanged"/>
                                     <TextBlock x:Name="MiniHubHint" Grid.Column="1"
                                                Text="Search scripts..." Foreground="{StaticResource FaintBrush}"
@@ -747,7 +747,7 @@
                                      Style="{StaticResource DarkListBox}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="#171324" CornerRadius="8" Padding="10,8"
+                                        <Border Background="#F9FAFB" CornerRadius="8" Padding="10,8"
                                                 Margin="0,0,0,6"
                                                 BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
                                             <Grid>
@@ -757,18 +757,18 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Grid.Column="0">
-                                                    <TextBlock Text="{Binding Name}" Foreground="White"
+                                                    <TextBlock Text="{Binding Name}" Foreground="#111827"
                                                                FontSize="12.5" FontWeight="SemiBold"/>
                                                     <TextBlock Foreground="{StaticResource FaintBrush}"
                                                                FontSize="11" Margin="0,2,0,0">
                                                         <Run Text="by "/><Run Text="{Binding Author}"/>
                                                     </TextBlock>
                                                 </StackPanel>
-                                                <Border Grid.Column="1" BorderBrush="#8B5CF6"
+                                                <Border Grid.Column="1" BorderBrush="#374151"
                                                         BorderThickness="1" CornerRadius="5"
                                                         Padding="7,2" Margin="8,0"
                                                         VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Badge}" Foreground="#A78BFA"
+                                                    <TextBlock Text="{Binding Badge}" Foreground="#4B5563"
                                                                FontSize="10"/>
                                                 </Border>
                                                 <Button Grid.Column="2" Content="▷"
@@ -818,7 +818,7 @@
                                    Foreground="{StaticResource MutedBrush}" FontSize="11.5" Margin="14,0,0,0"/>
                         <TextBlock Text="v1.0" Foreground="{StaticResource FaintBrush}"
                                    FontSize="11.5" Margin="14,0,0,0"/>
-                        <Ellipse x:Name="ReadyDot" Width="7" Height="7" Fill="#71717A"
+                        <Ellipse x:Name="ReadyDot" Width="7" Height="7" Fill="#9CA3AF"
                                  Margin="14,0,0,0"/>
                         <TextBlock x:Name="ExecReadyText" Text="Idle"
                                    Foreground="{StaticResource MutedBrush}" FontSize="11.5" Margin="6,0,0,0"/>

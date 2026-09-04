@@ -56,12 +56,12 @@ namespace Casium.Views
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
 
         private static readonly Random Rnd = new Random();
-        private static readonly SolidColorBrush GrayBrush = new SolidColorBrush(Color.FromRgb(0xA7, 0x9F, 0xBF));
-        private static readonly SolidColorBrush WhiteBrush = new SolidColorBrush(Color.FromRgb(0xED, 0xE9, 0xFE));
-        private static readonly SolidColorBrush GreenBrush = new SolidColorBrush(Color.FromRgb(0x4A, 0xDE, 0x80));
-        private static readonly SolidColorBrush RedBrush = new SolidColorBrush(Color.FromRgb(0xF8, 0x71, 0x71));
-        private static readonly SolidColorBrush YellowBrush = new SolidColorBrush(Color.FromRgb(0xFB, 0xBF, 0x24));
-        private static readonly SolidColorBrush PurpleBrush = new SolidColorBrush(Color.FromRgb(0xA7, 0x8B, 0xFA));
+        private static readonly SolidColorBrush GrayBrush = new SolidColorBrush(Color.FromRgb(0x6B, 0x72, 0x80));
+        private static readonly SolidColorBrush WhiteBrush = new SolidColorBrush(Color.FromRgb(0x11, 0x18, 0x27));
+        private static readonly SolidColorBrush GreenBrush = new SolidColorBrush(Color.FromRgb(0x16, 0xA3, 0x4A));
+        private static readonly SolidColorBrush RedBrush = new SolidColorBrush(Color.FromRgb(0xDC, 0x26, 0x26));
+        private static readonly SolidColorBrush YellowBrush = new SolidColorBrush(Color.FromRgb(0xD9, 0x77, 0x06));
+        private static readonly SolidColorBrush PurpleBrush = new SolidColorBrush(Color.FromRgb(0x37, 0x41, 0x51));
 
         private readonly List<EditorTab> _tabs = new List<EditorTab>();
         private EditorTab _selectedTab;
@@ -104,12 +104,12 @@ namespace Casium.Views
             @"|(?<builtin>\b(game|workspace|script|print|pairs|ipairs|task|wait|tostring|tonumber|require|loadstring|Instance|Vector3|CFrame|Enum|typeof|select|unpack|pcall|tick|os|math|string|table)\b)",
             RegexOptions.Compiled);
 
-        private static readonly SolidColorBrush LuaDefault = new SolidColorBrush(Color.FromRgb(0xE6, 0xE3, 0xF0));
-        private static readonly SolidColorBrush LuaComment = new SolidColorBrush(Color.FromRgb(0x6E, 0x65, 0x87));
-        private static readonly SolidColorBrush LuaString = new SolidColorBrush(Color.FromRgb(0x9E, 0xCE, 0x6A));
-        private static readonly SolidColorBrush LuaKeyword = new SolidColorBrush(Color.FromRgb(0xBB, 0x9A, 0xF7));
-        private static readonly SolidColorBrush LuaNumber = new SolidColorBrush(Color.FromRgb(0xFF, 0x9E, 0x64));
-        private static readonly SolidColorBrush LuaBuiltin = new SolidColorBrush(Color.FromRgb(0x7A, 0xA2, 0xF7));
+        private static readonly SolidColorBrush LuaDefault = new SolidColorBrush(Color.FromRgb(0x1F, 0x29, 0x37));
+        private static readonly SolidColorBrush LuaComment = new SolidColorBrush(Color.FromRgb(0x9C, 0xA3, 0xAF));
+        private static readonly SolidColorBrush LuaString = new SolidColorBrush(Color.FromRgb(0x0F, 0x76, 0x6E));
+        private static readonly SolidColorBrush LuaKeyword = new SolidColorBrush(Color.FromRgb(0x6D, 0x28, 0xD9));
+        private static readonly SolidColorBrush LuaNumber = new SolidColorBrush(Color.FromRgb(0xB4, 0x53, 0x09));
+        private static readonly SolidColorBrush LuaBuiltin = new SolidColorBrush(Color.FromRgb(0x1D, 0x4E, 0xD8));
 
         private const string DefaultScript =
 @"-- Casium Executor
@@ -566,7 +566,7 @@ end
                 bool active = tab == _selectedTab;
                 var border = new Border
                 {
-                    Background = active ? gradient : new SolidColorBrush(Color.FromRgb(0x17, 0x13, 0x24)),
+                    Background = active ? gradient : new SolidColorBrush(Color.FromRgb(0xF9, 0xFA, 0xFB)),
                     CornerRadius = new CornerRadius(6),
                     Padding = new Thickness(12, 7, 6, 7),
                     Margin = new Thickness(0, 0, 6, 0),
@@ -909,7 +909,7 @@ end
         private void ConsoleTab_Click(object sender, RoutedEventArgs e)
         {
             _outputOnly = false;
-            ConsoleTabButton.Foreground = Brushes.White;
+            ConsoleTabButton.Foreground = WhiteBrush;
             ConsoleTabButton.FontWeight = FontWeights.SemiBold;
             OutputTabButton.Foreground = GrayBrush;
             OutputTabButton.FontWeight = FontWeights.Normal;
@@ -919,7 +919,7 @@ end
         private void OutputTab_Click(object sender, RoutedEventArgs e)
         {
             _outputOnly = true;
-            OutputTabButton.Foreground = Brushes.White;
+            OutputTabButton.Foreground = WhiteBrush;
             OutputTabButton.FontWeight = FontWeights.SemiBold;
             ConsoleTabButton.Foreground = GrayBrush;
             ConsoleTabButton.FontWeight = FontWeights.Normal;
@@ -1016,7 +1016,7 @@ end
                 return;
             }
             _attached = false;
-            StatusDot.Fill = new SolidColorBrush(Color.FromRgb(0x71, 0x71, 0x7A));
+            StatusDot.Fill = new SolidColorBrush(Color.FromRgb(0x9C, 0xA3, 0xAF));
             AttachedText.Text = "Not attached";
             DetachButton.Visibility = Visibility.Collapsed;
             SetExecStatus("Idle", GrayBrush);
@@ -1191,8 +1191,8 @@ print(""WalkSpeed set to 32."")";
             {
                 var card = new Border
                 {
-                    Background = new SolidColorBrush(Color.FromRgb(0x17, 0x13, 0x24)),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(0x2B, 0x21, 0x40)),
+                    Background = new SolidColorBrush(Color.FromRgb(0xF9, 0xFA, 0xFB)),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(0xD1, 0xD5, 0xDB)),
                     BorderThickness = new Thickness(1),
                     CornerRadius = new CornerRadius(10),
                     Padding = new Thickness(14),
@@ -1203,7 +1203,7 @@ print(""WalkSpeed set to 32."")";
                 var stack = new StackPanel();
                 stack.Children.Add(new TextBlock
                 {
-                    Text = script.Name, Foreground = Brushes.White,
+                    Text = script.Name, Foreground = WhiteBrush,
                     FontSize = 14, FontWeight = FontWeights.Bold
                 });
                 stack.Children.Add(new TextBlock
@@ -1374,8 +1374,8 @@ print(""WalkSpeed set to 32."")";
         {
             var row = new Border
             {
-                Background = new SolidColorBrush(Color.FromRgb(0x17, 0x13, 0x24)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(0x2B, 0x21, 0x40)),
+                Background = new SolidColorBrush(Color.FromRgb(0xF9, 0xFA, 0xFB)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(0xD1, 0xD5, 0xDB)),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(14, 12, 14, 12),
