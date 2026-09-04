@@ -1,0 +1,45 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <!-- Nord : cool blue-grey -->
+    <sys:String x:Key="Theme.Name">Nord</sys:String>
+    <sys:String x:Key="Theme.MonacoBase">vs-dark</sys:String>
+
+    <SolidColorBrush x:Key="App.Background"    Color="#242933"/>
+    <SolidColorBrush x:Key="App.Surface"       Color="#2E3440"/>
+    <SolidColorBrush x:Key="App.SurfaceAlt"    Color="#343B49"/>
+    <SolidColorBrush x:Key="App.SurfaceHover"  Color="#3B4252"/>
+    <SolidColorBrush x:Key="App.SurfacePressed" Color="#434C5E"/>
+    <SolidColorBrush x:Key="App.Border"        Color="#3B4252"/>
+    <SolidColorBrush x:Key="App.BorderStrong"  Color="#4C566A"/>
+    <SolidColorBrush x:Key="App.Scrim"         Color="#66000000"/>
+
+    <SolidColorBrush x:Key="Text.Primary"      Color="#ECEFF4"/>
+    <SolidColorBrush x:Key="Text.Secondary"    Color="#AEB7C6"/>
+    <SolidColorBrush x:Key="Text.Tertiary"     Color="#6F7A8D"/>
+    <SolidColorBrush x:Key="Text.OnAccent"     Color="#2E3440"/>
+
+    <SolidColorBrush x:Key="Accent"            Color="#88C0D0"/>
+    <SolidColorBrush x:Key="Accent.Hover"      Color="#9BD0DF"/>
+    <SolidColorBrush x:Key="Accent.Pressed"    Color="#6FAEC1"/>
+    <SolidColorBrush x:Key="Accent.Soft"       Color="#37444F"/>
+    <SolidColorBrush x:Key="Accent.Text"       Color="#88C0D0"/>
+
+    <SolidColorBrush x:Key="Status.Ok"         Color="#A3BE8C"/>
+    <SolidColorBrush x:Key="Status.Warn"       Color="#EBCB8B"/>
+    <SolidColorBrush x:Key="Status.Err"        Color="#BF616A"/>
+    <SolidColorBrush x:Key="Status.Idle"       Color="#4C566A"/>
+
+    <SolidColorBrush x:Key="Editor.Background" Color="#2A303C"/>
+    <SolidColorBrush x:Key="Editor.Gutter"     Color="#4C566A"/>
+    <SolidColorBrush x:Key="Editor.Text"       Color="#D8DEE9"/>
+    <SolidColorBrush x:Key="Editor.LineHighlight" Color="#313846"/>
+    <SolidColorBrush x:Key="Syntax.Comment"    Color="#616E88"/>
+    <SolidColorBrush x:Key="Syntax.String"     Color="#A3BE8C"/>
+    <SolidColorBrush x:Key="Syntax.Keyword"    Color="#81A1C1"/>
+    <SolidColorBrush x:Key="Syntax.Number"     Color="#B48EAD"/>
+    <SolidColorBrush x:Key="Syntax.Builtin"    Color="#88C0D0"/>
+
+    <Color x:Key="Theme.Shadow">#000000</Color>
+    <sys:Double x:Key="Theme.ShadowOpacity">0.5</sys:Double>
+</ResourceDictionary>

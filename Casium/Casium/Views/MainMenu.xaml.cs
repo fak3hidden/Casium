@@ -17,6 +17,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using Casium.Services;
 
 namespace Casium.Views
 {
@@ -56,12 +57,13 @@ namespace Casium.Views
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
 
         private static readonly Random Rnd = new Random();
-        private static readonly SolidColorBrush GrayBrush = new SolidColorBrush(Color.FromRgb(0x6B, 0x72, 0x80));
-        private static readonly SolidColorBrush WhiteBrush = new SolidColorBrush(Color.FromRgb(0x11, 0x18, 0x27));
-        private static readonly SolidColorBrush GreenBrush = new SolidColorBrush(Color.FromRgb(0x16, 0xA3, 0x4A));
-        private static readonly SolidColorBrush RedBrush = new SolidColorBrush(Color.FromRgb(0xDC, 0x26, 0x26));
-        private static readonly SolidColorBrush YellowBrush = new SolidColorBrush(Color.FromRgb(0xD9, 0x77, 0x06));
-        private static readonly SolidColorBrush PurpleBrush = new SolidColorBrush(Color.FromRgb(0x37, 0x41, 0x51));
+        private static Brush GrayBrush   { get { return ThemeManager.GetBrush("Text.Secondary"); } }
+        private static Brush WhiteBrush  { get { return ThemeManager.GetBrush("Text.Primary"); } }
+        private static Brush GreenBrush  { get { return ThemeManager.GetBrush("Status.Ok"); } }
+        private static Brush RedBrush    { get { return ThemeManager.GetBrush("Status.Err"); } }
+        private static Brush YellowBrush { get { return ThemeManager.GetBrush("Status.Warn"); } }
+        private static Brush PurpleBrush { get { return ThemeManager.GetBrush("Accent.Text"); } }
+        private static Brush IdleBrush   { get { return ThemeManager.GetBrush("Status.Idle"); } }
 
         private readonly List<EditorTab> _tabs = new List<EditorTab>();
         private EditorTab _selectedTab;
@@ -104,12 +106,12 @@ namespace Casium.Views
             @"|(?<builtin>\b(game|workspace|script|print|pairs|ipairs|task|wait|tostring|tonumber|require|loadstring|Instance|Vector3|CFrame|Enum|typeof|select|unpack|pcall|tick|os|math|string|table)\b)",
             RegexOptions.Compiled);
 
-        private static readonly SolidColorBrush LuaDefault = new SolidColorBrush(Color.FromRgb(0x1F, 0x29, 0x37));
-        private static readonly SolidColorBrush LuaComment = new SolidColorBrush(Color.FromRgb(0x9C, 0xA3, 0xAF));
-        private static readonly SolidColorBrush LuaString = new SolidColorBrush(Color.FromRgb(0x0F, 0x76, 0x6E));
-        private static readonly SolidColorBrush LuaKeyword = new SolidColorBrush(Color.FromRgb(0x6D, 0x28, 0xD9));
-        private static readonly SolidColorBrush LuaNumber = new SolidColorBrush(Color.FromRgb(0xB4, 0x53, 0x09));
-        private static readonly SolidColorBrush LuaBuiltin = new SolidColorBrush(Color.FromRgb(0x1D, 0x4E, 0xD8));
+        private static Brush LuaDefault { get { return ThemeManager.GetBrush("Editor.Text"); } }
+        private static Brush LuaComment { get { return ThemeManager.GetBrush("Syntax.Comment"); } }
+        private static Brush LuaString  { get { return ThemeManager.GetBrush("Syntax.String"); } }
+        private static Brush LuaKeyword { get { return ThemeManager.GetBrush("Syntax.Keyword"); } }
+        private static Brush LuaNumber  { get { return ThemeManager.GetBrush("Syntax.Number"); } }
+        private static Brush LuaBuiltin { get { return ThemeManager.GetBrush("Syntax.Builtin"); } }
 
         private const string DefaultScript =
 @"-- Casium Executor
@@ -163,6 +165,12 @@ end
 
             TopUserText.Text = _username;
             NavUserText.Text = _username;
+            AvatarInitial.Text = _username.Length > 0 ? _username.Substring(0, 1).ToUpperInvariant() : "?";
+            ThemeStatusText.Text = ThemeManager.CurrentName;
+            ThemeManager.ThemeChanged += OnThemeChanged;
+            Closed += (ss, ee) => ThemeManager.ThemeChanged -= OnThemeChanged;
+            StateChanged += (ss, ee) => MaximizeButton.Content = WindowState == WindowState.Maximized ? "\uE923" : "\uE922";
+            BuildThemePicker();
             AboutUserText.Text = string.Format("Signed in as {0}", _username);
 
             BuildViews();
@@ -261,7 +269,7 @@ end
                     throw new Exception("Monaco engine did not start (internet needed for the CDN)");
                 }
 
-                await MonacoView.ExecuteScriptAsync("window.Bubble.setTheme('bubble-dark')");
+                await ApplyMonacoThemeAsync();
                 await MonacoView.ExecuteScriptAsync("window.Bubble.setLanguage('lua')");
 
                 _monacoReady = true;
@@ -502,12 +510,9 @@ end
                 pair.Value.Visibility = pair.Key == key ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            var gradient = (Brush)FindResource("AccentGradient");
             foreach (var btn in _navButtons)
             {
-                bool active = (string)btn.Tag == key;
-                btn.Background = active ? gradient : Brushes.Transparent;
-                btn.Foreground = active ? Brushes.White : (Brush)FindResource("MutedBrush");
+                NavState.SetIsActive(btn, (string)btn.Tag == key);
             }
 
             if (key == "ExecutorView" && _selectedTab != null)
@@ -559,27 +564,40 @@ end
         private void RefreshTabStrip()
         {
             TabStripPanel.Children.Clear();
-            var gradient = (Brush)FindResource("AccentGradient");
 
             foreach (var tab in _tabs)
             {
                 bool active = tab == _selectedTab;
                 var border = new Border
                 {
-                    Background = active ? gradient : new SolidColorBrush(Color.FromRgb(0xF9, 0xFA, 0xFB)),
-                    CornerRadius = new CornerRadius(6),
-                    Padding = new Thickness(12, 7, 6, 7),
-                    Margin = new Thickness(0, 0, 6, 0),
+                    Background = active ? ThemeManager.GetBrush("App.Surface") : Brushes.Transparent,
+                    BorderBrush = active ? ThemeManager.GetBrush("App.Border") : Brushes.Transparent,
+                    BorderThickness = new Thickness(1, 1, 1, 0),
+                    CornerRadius = new CornerRadius(7, 7, 0, 0),
+                    Padding = new Thickness(12, 0, 4, 0),
+                    Height = active ? 33 : 30,
+                    Margin = new Thickness(0, 0, 2, active ? -1 : 0),
+                    VerticalAlignment = VerticalAlignment.Bottom,
                     Cursor = Cursors.Hand,
                     Tag = tab
                 };
                 border.MouseLeftButtonDown += SelectTab_Click;
 
                 var row = new StackPanel { Orientation = Orientation.Horizontal };
+                if (tab.IsDirty)
+                {
+                    row.Children.Add(new System.Windows.Shapes.Ellipse
+                    {
+                        Width = 6, Height = 6,
+                        Fill = ThemeManager.GetBrush("Accent"),
+                        Margin = new Thickness(0, 0, 8, 0),
+                        VerticalAlignment = VerticalAlignment.Center
+                    });
+                }
                 row.Children.Add(new TextBlock
                 {
-                    Text = tab.Title + (tab.IsDirty ? " •" : string.Empty),
-                    Foreground = active ? Brushes.White : GrayBrush,
+                    Text = tab.Title,
+                    Foreground = active ? WhiteBrush : GrayBrush,
                     FontSize = 12.5,
                     FontWeight = active ? FontWeights.SemiBold : FontWeights.Normal,
                     VerticalAlignment = VerticalAlignment.Center
@@ -587,15 +605,23 @@ end
 
                 var close = new Button
                 {
-                    Content = "✕",
                     Tag = tab,
-                    Background = Brushes.Transparent,
-                    BorderThickness = new Thickness(0),
-                    Foreground = active ? Brushes.White : GrayBrush,
-                    FontSize = 10,
-                    Padding = new Thickness(8, 0, 4, 0),
-                    Cursor = Cursors.Hand
+                    Style = (Style)FindResource("Button.Icon"),
+                    Width = 22, Height = 22,
+                    Margin = new Thickness(6, 0, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    ToolTip = "Close tab"
                 };
+                var closeIcon = new System.Windows.Shapes.Path
+                {
+                    Data = Geometry.Parse("M6,6 L18,18 M18,6 L6,18"),
+                    StrokeThickness = 1.6,
+                    Width = 9, Height = 9,
+                    Stretch = Stretch.Uniform
+                };
+                closeIcon.SetBinding(System.Windows.Shapes.Shape.StrokeProperty,
+                    new System.Windows.Data.Binding("Foreground") { Source = close });
+                close.Content = closeIcon;
                 close.Click += CloseTab_Click;
                 row.Children.Add(close);
 
@@ -702,7 +728,7 @@ end
             var paragraph = new Paragraph
             {
                 Margin = new Thickness(0),
-                LineHeight = 19,
+                LineHeight = 20,
                 LineStackingStrategy = LineStackingStrategy.BlockLineHeight
             };
 
@@ -748,7 +774,7 @@ end
             {
                 viewport = Math.Max(ActualWidth - 560, 320);
             }
-            double contentWidth = Math.Max(viewport - 46 - 20, 120);
+            double contentWidth = Math.Max(viewport - 52 - 28, 120);
             int longest = 0;
             if (!string.IsNullOrEmpty(code))
             {
@@ -807,11 +833,14 @@ end
 
         private void AddInfoRow(StackPanel panel, Dictionary<string, TextBlock> store, string label)
         {
-            var grid = new Grid { Margin = new Thickness(2, 0, 2, 5) };
+            var grid = new Grid { Margin = new Thickness(0, 0, 0, 6) };
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            grid.Children.Add(new TextBlock { Text = label, Foreground = GrayBrush, FontSize = 12 });
-            var value = new TextBlock { Foreground = WhiteBrush, FontSize = 12, TextTrimming = TextTrimming.CharacterEllipsis, MaxWidth = 110 };
+            var lbl = new TextBlock { Text = label, FontSize = 12 };
+            lbl.SetResourceReference(TextBlock.ForegroundProperty, "Text.Secondary");
+            grid.Children.Add(lbl);
+            var value = new TextBlock { FontSize = 12, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, MaxWidth = 110 };
+            value.SetResourceReference(TextBlock.ForegroundProperty, "Text.Primary");
             Grid.SetColumn(value, 1);
             grid.Children.Add(value);
             panel.Children.Add(grid);
@@ -864,15 +893,7 @@ end
 
         private void AddLog(string category, string message)
         {
-            Brush brush = GrayBrush;
-            switch (category)
-            {
-                case "ok": brush = GreenBrush; break;
-                case "err": brush = RedBrush; break;
-                case "warn": brush = YellowBrush; break;
-                case "exec": brush = WhiteBrush; break;
-                case "cmd": brush = PurpleBrush; break;
-            }
+            Brush brush = BrushForCategory(category);
 
             var entry = new LogEntry
             {
@@ -909,20 +930,16 @@ end
         private void ConsoleTab_Click(object sender, RoutedEventArgs e)
         {
             _outputOnly = false;
-            ConsoleTabButton.Foreground = WhiteBrush;
-            ConsoleTabButton.FontWeight = FontWeights.SemiBold;
-            OutputTabButton.Foreground = GrayBrush;
-            OutputTabButton.FontWeight = FontWeights.Normal;
+            NavState.SetIsActive(ConsoleTabButton, true);
+            NavState.SetIsActive(OutputTabButton, false);
             RefreshLogView();
         }
 
         private void OutputTab_Click(object sender, RoutedEventArgs e)
         {
             _outputOnly = true;
-            OutputTabButton.Foreground = WhiteBrush;
-            OutputTabButton.FontWeight = FontWeights.SemiBold;
-            ConsoleTabButton.Foreground = GrayBrush;
-            ConsoleTabButton.FontWeight = FontWeights.Normal;
+            NavState.SetIsActive(OutputTabButton, true);
+            NavState.SetIsActive(ConsoleTabButton, false);
             RefreshLogView();
         }
 
@@ -1000,6 +1017,7 @@ end
                 _attachTime = DateTime.Now;
                 StatusDot.Fill = GreenBrush;
                 AttachedText.Text = "Roblox Player";
+                AttachedText.Foreground = WhiteBrush;
                 DetachButton.Visibility = Visibility.Visible;
                 SetExecStatus("Ready", GreenBrush);
             }
@@ -1016,10 +1034,11 @@ end
                 return;
             }
             _attached = false;
-            StatusDot.Fill = new SolidColorBrush(Color.FromRgb(0x9C, 0xA3, 0xAF));
+            StatusDot.Fill = IdleBrush;
             AttachedText.Text = "Not attached";
+            AttachedText.Foreground = GrayBrush;
             DetachButton.Visibility = Visibility.Collapsed;
-            SetExecStatus("Idle", GrayBrush);
+            SetExecStatus("Idle", IdleBrush);
             AddLog("sys", "Detached.");
         }
 
@@ -1191,44 +1210,43 @@ print(""WalkSpeed set to 32."")";
             {
                 var card = new Border
                 {
-                    Background = new SolidColorBrush(Color.FromRgb(0xF9, 0xFA, 0xFB)),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(0xD1, 0xD5, 0xDB)),
-                    BorderThickness = new Thickness(1),
-                    CornerRadius = new CornerRadius(10),
-                    Padding = new Thickness(14),
-                    Width = 210,
+                    Style = (Style)FindResource("Card"),
+                    Padding = new Thickness(16),
+                    Width = 220,
                     Margin = new Thickness(0, 0, 12, 12)
                 };
 
                 var stack = new StackPanel();
-                stack.Children.Add(new TextBlock
+
+                var head = new Grid();
+                head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                head.Children.Add(new TextBlock
                 {
                     Text = script.Name, Foreground = WhiteBrush,
-                    FontSize = 14, FontWeight = FontWeights.Bold
+                    FontSize = 14, FontWeight = FontWeights.SemiBold,
+                    TextTrimming = TextTrimming.CharacterEllipsis, VerticalAlignment = VerticalAlignment.Center
                 });
+                var badge = new Border { Style = (Style)FindResource("Badge"), Margin = new Thickness(8, 0, 0, 0) };
+                badge.Child = new TextBlock { Text = script.Badge, Foreground = PurpleBrush, FontSize = 10, FontWeight = FontWeights.SemiBold };
+                Grid.SetColumn(badge, 1);
+                head.Children.Add(badge);
+                stack.Children.Add(head);
+
                 stack.Children.Add(new TextBlock
                 {
                     Text = "by " + script.Author, Foreground = GrayBrush,
-                    FontSize = 12, Margin = new Thickness(0, 2, 0, 8)
+                    FontSize = 12, Margin = new Thickness(0, 3, 0, 14)
                 });
-
-                var badge = new Border
-                {
-                    BorderBrush = PurpleBrush, BorderThickness = new Thickness(1),
-                    CornerRadius = new CornerRadius(5), Padding = new Thickness(8, 2, 8, 2),
-                    HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 12)
-                };
-                badge.Child = new TextBlock { Text = script.Badge, Foreground = PurpleBrush, FontSize = 11 };
-                stack.Children.Add(badge);
 
                 var get = new Button
                 {
-                    Content = "Get",
+                    Content = "Load into editor",
                     Tag = script,
-                    Height = 34,
-                    FontSize = 13
+                    Height = 32,
+                    FontSize = 12.5,
+                    Style = (Style)FindResource("Button.Secondary")
                 };
-                get.Style = (Style)FindResource("GradientButton");
                 get.Click += GetScript_Click;
                 stack.Children.Add(get);
 
@@ -1299,11 +1317,11 @@ print(""WalkSpeed set to 32."")";
         {
             foreach (var label in new[] { "Ping", "Server", "Packet Loss", "Uptime" })
             {
-                var grid = new Grid { Margin = new Thickness(0, 0, 0, 12) };
+                var grid = new Grid { Margin = new Thickness(0, 6, 0, 6) };
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                grid.Children.Add(new TextBlock { Text = label, Foreground = WhiteBrush, FontSize = 13 });
-                var value = new TextBlock { Foreground = PurpleBrush, FontSize = 13, FontWeight = FontWeights.SemiBold };
+                grid.Children.Add(new TextBlock { Text = label, Foreground = GrayBrush, FontSize = 13 });
+                var value = new TextBlock { Foreground = WhiteBrush, FontSize = 13, FontWeight = FontWeights.SemiBold, FontFamily = new FontFamily("Cascadia Mono, Consolas") };
                 Grid.SetColumn(value, 1);
                 grid.Children.Add(value);
                 NetworkPanel.Children.Add(grid);
@@ -1374,34 +1392,188 @@ print(""WalkSpeed set to 32."")";
         {
             var row = new Border
             {
-                Background = new SolidColorBrush(Color.FromRgb(0xF9, 0xFA, 0xFB)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(0xD1, 0xD5, 0xDB)),
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(8),
-                Padding = new Thickness(14, 12, 14, 12),
-                Margin = new Thickness(0, 0, 0, 10)
+                BorderBrush = ThemeManager.GetBrush("App.Border"),
+                BorderThickness = new Thickness(0, SettingsPanel.Children.Count == 0 ? 0 : 1, 0, 0),
+                Padding = new Thickness(12, 12, 12, 12)
             };
+            row.SetResourceReference(Border.BorderBrushProperty, "App.Border");
 
             var text = new StackPanel();
-            text.Children.Add(new TextBlock { Text = title, Foreground = WhiteBrush, FontSize = 13.5 });
-            text.Children.Add(new TextBlock
-            {
-                Text = desc, Foreground = GrayBrush, FontSize = 12,
-                Margin = new Thickness(0, 3, 0, 0), TextWrapping = TextWrapping.Wrap
-            });
+            var t1 = new TextBlock { Text = title, FontSize = 13, FontWeight = FontWeights.SemiBold };
+            t1.SetResourceReference(TextBlock.ForegroundProperty, "Text.Primary");
+            var t2 = new TextBlock { Text = desc, FontSize = 12, Margin = new Thickness(0, 2, 0, 0), TextWrapping = TextWrapping.Wrap };
+            t2.SetResourceReference(TextBlock.ForegroundProperty, "Text.Secondary");
+            text.Children.Add(t1);
+            text.Children.Add(t2);
 
             var check = new CheckBox
             {
                 Content = text,
                 Tag = key,
                 IsChecked = def,
-                Style = (Style)FindResource("ToggleCheckBox")
+                Style = (Style)FindResource("Switch")
             };
             check.Checked += SettingToggle_Changed;
             check.Unchecked += SettingToggle_Changed;
 
             row.Child = check;
             SettingsPanel.Children.Add(row);
+        }
+
+        // ---------- themes -------------------------------------------------------------------------------
+
+        private void BuildThemePicker()
+        {
+            ThemePanel.Children.Clear();
+            foreach (var name in ThemeManager.Available)
+            {
+                var dict = new ResourceDictionary
+                {
+                    Source = new Uri(string.Format("pack://application:,,,/Casium;component/Themes/{0}.xaml", name))
+                };
+
+                var swatch = new Border
+                {
+                    Width = 96, Height = 64,
+                    CornerRadius = new CornerRadius(8),
+                    Background = (Brush)dict["App.Background"],
+                    BorderBrush = (Brush)dict["App.BorderStrong"],
+                    BorderThickness = new Thickness(1),
+                    Padding = new Thickness(8),
+                    ClipToBounds = true
+                };
+                var preview = new Grid();
+                preview.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(22) });
+                preview.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                preview.Children.Add(new Border { Background = (Brush)dict["App.Surface"], CornerRadius = new CornerRadius(3), Margin = new Thickness(0, 0, 4, 0) });
+                var right = new StackPanel();
+                right.Children.Add(new Border { Height = 6, Background = (Brush)dict["Accent"], CornerRadius = new CornerRadius(3), Margin = new Thickness(0, 0, 20, 5) });
+                right.Children.Add(new Border { Height = 5, Background = (Brush)dict["Text.Tertiary"], CornerRadius = new CornerRadius(3), Margin = new Thickness(0, 0, 8, 4), Opacity = 0.6 });
+                right.Children.Add(new Border { Height = 5, Background = (Brush)dict["Text.Tertiary"], CornerRadius = new CornerRadius(3), Margin = new Thickness(0, 0, 30, 0), Opacity = 0.6 });
+                Grid.SetColumn(right, 1);
+                preview.Children.Add(right);
+                swatch.Child = preview;
+
+                var label = new TextBlock { Text = name, FontSize = 12, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 6, 0, 0) };
+                label.SetResourceReference(TextBlock.ForegroundProperty, "Text.Secondary");
+
+                var inner = new StackPanel();
+                inner.Children.Add(swatch);
+                inner.Children.Add(label);
+
+                var tile = new Border
+                {
+                    Tag = name,
+                    Child = inner,
+                    Padding = new Thickness(5),
+                    CornerRadius = new CornerRadius(11),
+                    BorderThickness = new Thickness(2),
+                    Margin = new Thickness(0, 0, 10, 10),
+                    Cursor = Cursors.Hand,
+                    Background = Brushes.Transparent
+                };
+                tile.MouseLeftButtonDown += ThemeTile_Click;
+                ThemePanel.Children.Add(tile);
+            }
+            HighlightThemeTile(ThemeManager.CurrentName);
+        }
+
+        private void HighlightThemeTile(string name)
+        {
+            foreach (Border tile in ThemePanel.Children)
+            {
+                bool active = (string)tile.Tag == name;
+                if (active)
+                {
+                    tile.SetResourceReference(Border.BorderBrushProperty, "Accent");
+                }
+                else
+                {
+                    tile.BorderBrush = Brushes.Transparent;
+                }
+            }
+        }
+
+        private void ThemeTile_Click(object sender, MouseButtonEventArgs e)
+        {
+            string name = (string)((Border)sender).Tag;
+            if (name != ThemeManager.CurrentName)
+            {
+                ThemeManager.Apply(name);
+                AddLog("sys", "Theme set to " + name + ".");
+            }
+        }
+
+        private async void OnThemeChanged(string name)
+        {
+            ThemeStatusText.Text = name;
+            HighlightThemeTile(name);
+
+            // repaint anything that captured a brush by value
+            if (_selectedTab != null)
+            {
+                LoadTabContent();
+            }
+            RefreshTabStrip();
+            RefreshHubCards(HubSearch.Text);
+            SetExecStatus(_execValues["Status"].Text, _attached ? GreenBrush : IdleBrush);
+            StatusDot.Fill = _attached ? GreenBrush : IdleBrush;
+            AttachedText.Foreground = _attached ? WhiteBrush : GrayBrush;
+            foreach (var kv in _infoValues) kv.Value.Foreground = WhiteBrush;
+            foreach (var kv in _execValues)
+            {
+                if (kv.Key != "Status") kv.Value.Foreground = WhiteBrush;
+            }
+            foreach (var log in _allLogs) log.Brush = BrushForCategory(log.Category);
+            RefreshLogView();
+
+            await ApplyMonacoThemeAsync();
+        }
+
+        private async Task ApplyMonacoThemeAsync()
+        {
+            if (!_monacoReady && MonacoView.CoreWebView2 == null)
+            {
+                return;
+            }
+            try
+            {
+                string bg = ColorHex(ThemeManager.GetColor("Editor.Background"));
+                string fg = ColorHex(ThemeManager.GetColor("Editor.Text"));
+                string line = ColorHex(ThemeManager.GetColor("Editor.LineHighlight"));
+                string gutter = ColorHex(ThemeManager.GetColor("Editor.Gutter"));
+                string baseTheme = ThemeManager.GetString("Theme.MonacoBase");
+                string js =
+                    "monaco.editor.defineTheme('casium', { base: '" + baseTheme + "', inherit: true, rules: [" +
+                    "{ token: 'comment', foreground: '" + ColorHex(ThemeManager.GetColor("Syntax.Comment")).Substring(1) + "' }," +
+                    "{ token: 'string', foreground: '" + ColorHex(ThemeManager.GetColor("Syntax.String")).Substring(1) + "' }," +
+                    "{ token: 'keyword', foreground: '" + ColorHex(ThemeManager.GetColor("Syntax.Keyword")).Substring(1) + "' }," +
+                    "{ token: 'number', foreground: '" + ColorHex(ThemeManager.GetColor("Syntax.Number")).Substring(1) + "' }" +
+                    "], colors: { 'editor.background': '" + bg + "', 'editor.foreground': '" + fg + "', " +
+                    "'editor.lineHighlightBackground': '" + line + "', 'editorLineNumber.foreground': '" + gutter + "', " +
+                    "'editorGutter.background': '" + bg + "' } });" +
+                    "monaco.editor.setTheme('casium');";
+                await MonacoView.ExecuteScriptAsync(js);
+            }
+            catch { }
+        }
+
+        private static string ColorHex(Color c)
+        {
+            return string.Format("#{0:X2}{1:X2}{2:X2}", c.R, c.G, c.B);
+        }
+
+        private static Brush BrushForCategory(string category)
+        {
+            switch (category)
+            {
+                case "ok": return GreenBrush;
+                case "err": return RedBrush;
+                case "warn": return YellowBrush;
+                case "exec": return WhiteBrush;
+                case "cmd": return PurpleBrush;
+                default: return GrayBrush;
+            }
         }
 
         private async void SettingToggle_Changed(object sender, RoutedEventArgs e)
@@ -1420,7 +1592,7 @@ print(""WalkSpeed set to 32."")";
                     {
                         break;
                     }
-                    GutterColumn.Width = on ? new GridLength(46) : new GridLength(0);
+                    GutterColumn.Width = on ? new GridLength(52) : new GridLength(0);
                     LineNumbers.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
                     break;
                 case "autoattach":
@@ -1495,7 +1667,7 @@ print(""WalkSpeed set to 32."")";
         private async void FpsTimer_Tick(object sender, EventArgs e)
         {
             await PollMonacoCursorAsync();
-            FpsText.Text = _attached ? string.Format("FPS: {0}", Rnd.Next(58, 64)) : "FPS: —";
+            FpsText.Text = _attached ? string.Format("FPS {0}", Rnd.Next(58, 64)) : "FPS —";
 
             TimeSpan uptime = DateTime.Now - _appStart;
             _execValues["Runtime"].Text = string.Format("{0:00}:{1:00}:{2:00}",

@@ -4,827 +4,631 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:svc="clr-namespace:Casium.Services"
         mc:Ignorable="d"
         Title="Casium"
         Height="760" Width="1240"
-        MinHeight="640" MinWidth="1080"
+        MinHeight="620" MinWidth="1040"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
-        Background="#F3F4F6"
+        Background="{DynamicResource App.Background}"
         ResizeMode="CanResize"
-        FontFamily="Segoe UI">
+        FontFamily="Segoe UI"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        UseLayoutRounding="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <!-- Volt / Potassium dark palette -->
-        <Color x:Key="AppBgColor">#F3F4F6</Color>
-        <Color x:Key="PanelColor">#FFFFFF</Color>
-        <Color x:Key="Panel2Color">#F9FAFB</Color>
-        <Color x:Key="InputColor">#F3F4F6</Color>
-        <Color x:Key="BorderColor">#D1D5DB</Color>
-        <Color x:Key="BorderLightColor">#9CA3AF</Color>
-        <Color x:Key="AccentColor">#374151</Color>
-        <Color x:Key="AccentDarkColor">#1F2937</Color>
-        <Color x:Key="MutedColor">#6B7280</Color>
-        <Color x:Key="FaintColor">#9CA3AF</Color>
-
-        <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}"/>
-        <SolidColorBrush x:Key="FaintBrush" Color="{StaticResource FaintColor}"/>
-        <SolidColorBrush x:Key="LineBrush" Color="{StaticResource BorderColor}"/>
-
-        <LinearGradientBrush x:Key="AccentGradient" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#374151" Offset="0"/>
-            <GradientStop Color="#1F2937" Offset="1"/>
-        </LinearGradientBrush>
-
-        <Style x:Key="SectionHeader" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{StaticResource FaintBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
-        </Style>
-
-        <!-- Left nav button -->
-        <Style x:Key="NavButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
-            <Setter Property="FontSize" Value="13.5"/>
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="12,0">
-                            <ContentPresenter VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Dark action button -->
-        <Style x:Key="ActionButton" TargetType="Button">
-            <Setter Property="Background" Value="#F3F4F6"/>
-            <Setter Property="BorderBrush" Value="#D1D5DB"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#111827"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#E5E7EB"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#9CA3AF"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#D1D5DB"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Big gradient Execute button -->
-        <Style x:Key="GradientButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource AccentGradient}"/>
-            <Setter Property="Foreground" Value="#111827"/>
-            <Setter Property="FontSize" Value="15"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Height" Value="48"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#111827"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#1F2937"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bd" Property="Background" Value="#D1D5DB"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="TitleBarButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
+        <!-- Shorthand aliases used by the code-behind via FindResource -->
+        <Style x:Key="GradientButton" TargetType="Button" BasedOn="{StaticResource Button.Primary}"/>
+        <Style x:Key="ActionButton"   TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
+        <Style x:Key="GhostButton"    TargetType="Button" BasedOn="{StaticResource Button.Ghost}"/>
+        <Style x:Key="ToggleCheckBox" TargetType="CheckBox" BasedOn="{StaticResource Switch}"/>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource ScrollBar.Thin}"/>
+        <Style TargetType="ToolTip">
+            <Setter Property="Background" Value="{DynamicResource App.Surface}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource App.BorderStrong}"/>
+            <Setter Property="Padding" Value="8,5"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Width" Value="42"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#D1D5DB"/>
-                                <Setter Property="Foreground" Value="#111827"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="TitleBarCloseButton" BasedOn="{StaticResource TitleBarButton}" TargetType="Button">
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#E81123"/>
-                    <Setter Property="Foreground" Value="#111827"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="GhostButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
-                                CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#D1D5DB"/>
-                                <Setter Property="Foreground" Value="#111827"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="TabButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Square toggle checkbox -->
-        <Style x:Key="ToggleCheckBox" TargetType="CheckBox">
-            <Setter Property="Foreground" Value="#111827"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <StackPanel Orientation="Horizontal">
-                            <Border x:Name="Box" Width="22" Height="22" CornerRadius="5"
-                                    Background="#F3F4F6" BorderBrush="#9CA3AF" BorderThickness="1">
-                                <Path x:Name="Check" Data="M5,12 L10,17 L17,7"
-                                      Stroke="#F3F4F6" StrokeThickness="2.5"
-                                      Visibility="Collapsed"
-                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Box" Property="Background" Value="#374151"/>
-                                <Setter TargetName="Box" Property="BorderBrush" Value="#374151"/>
-                                <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="DarkListBox" TargetType="ListBox">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#111827"/>
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
         </Style>
     </Window.Resources>
 
-    <!-- App card -->
-    <Border Margin="0" Background="#F3F4F6"
-            BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
-            CornerRadius="0">
-        <Border.Effect>
-            <DropShadowEffect Color="Black" Opacity="0.15" BlurRadius="28" ShadowDepth="0"/>
-        </Border.Effect>
+    <!-- Window shell -->
+    <Border Background="{DynamicResource App.Background}"
+            BorderBrush="{DynamicResource App.BorderStrong}" BorderThickness="1">
+        <Border>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="44"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="28"/>
+                </Grid.RowDefinitions>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="46"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="30"/>
-            </Grid.RowDefinitions>
-
-            <!-- Title bar -->
-            <Border Grid.Row="0" Background="Transparent" CornerRadius="12,12,0,0"
-                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                <Grid Margin="16,0,8,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="⚡" Foreground="#374151" FontSize="16"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="Casium" Foreground="#111827" FontSize="13"
-                                   FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0,0,0"/>
-                        <TextBlock Text="v1.0" Foreground="{StaticResource FaintBrush}"
-                                   FontSize="11" VerticalAlignment="Center" Margin="8,1,0,0"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock x:Name="TopUserText" Text="" Foreground="{StaticResource MutedBrush}"
-                                   FontSize="12" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                        <Button x:Name="MinimizeButton" Content="—"
-                                Style="{StaticResource TitleBarButton}" Click="MinimizeButton_Click"/>
-                        <Button x:Name="MaximizeButton" Content="▢"
-                                Style="{StaticResource TitleBarButton}" Click="MaximizeButton_Click"/>
-                        <Button x:Name="CloseButton" Content="✕"
-                                Style="{StaticResource TitleBarCloseButton}" Click="CloseButton_Click"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- Main -->
-            <Grid Grid.Row="1" Margin="12,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="208"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="284"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Left : nav + info + status -->
-                <Border Grid.Column="0" Background="#FFFFFF"
-                        BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
-                        CornerRadius="10" Padding="12" Margin="0,0,6,0">
+                <!-- Title bar -->
+                <Border Grid.Row="0" Background="{DynamicResource App.Surface}"
+                        BorderBrush="{DynamicResource App.Border}" BorderThickness="0,0,0,1"
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="2,2,2,14">
-                                <TextBlock Text="⚡" Foreground="#374151" FontSize="22"
-                                           FontStyle="Italic" FontWeight="Bold"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="CASIUM" FontSize="19" FontWeight="Bold"
-                                           FontStyle="Italic" VerticalAlignment="Center" Margin="6,0,0,0">
-                                    <TextBlock.Foreground>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#4B5563" Offset="0"/>
-                                            <GradientStop Color="#111827" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </TextBlock.Foreground>
-                                </TextBlock>
-                            </StackPanel>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                            <Button x:Name="NavExecutor" Style="{StaticResource NavButton}"
-                                    Tag="ExecutorView" Click="NavButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⚡" Width="24"/>
-                                    <TextBlock Text="Executor"/>
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="NavHub" Style="{StaticResource NavButton}"
-                                    Tag="HubView" Click="NavButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="▤" Width="24"/>
-                                    <TextBlock Text="Script Hub"/>
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="NavNetwork" Style="{StaticResource NavButton}"
-                                    Tag="NetworkView" Click="NavButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⇄" Width="24"/>
-                                    <TextBlock Text="Network"/>
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="NavPlayer" Style="{StaticResource NavButton}"
-                                    Tag="PlayerView" Click="NavButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="☺" Width="24"/>
-                                    <TextBlock Text="Player"/>
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="NavSettings" Style="{StaticResource NavButton}"
-                                    Tag="SettingsView" Click="NavButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⚙" Width="24"/>
-                                    <TextBlock Text="Settings"/>
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="NavKey" Style="{StaticResource NavButton}"
-                                    Tag="KeyView" Click="NavButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="◈" Width="24"/>
-                                    <TextBlock Text="Key System"/>
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="NavAbout" Style="{StaticResource NavButton}"
-                                    Tag="AboutView" Click="NavButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="ⓘ" Width="24"/>
-                                    <TextBlock Text="About"/>
-                                </StackPanel>
-                            </Button>
-
-                            <TextBlock Text="SCRIPT INFO" Style="{StaticResource SectionHeader}"
-                                       Margin="2,18,0,8"/>
-                            <StackPanel x:Name="InfoPanel"/>
-
-                            <TextBlock Text="EXECUTION" Style="{StaticResource SectionHeader}"
-                                       Margin="2,16,0,8"/>
-                            <StackPanel x:Name="ExecPanel"/>
-                        </StackPanel>
-                    </ScrollViewer>
-
-                            <!-- Status card -->
-                            <Border Grid.Row="1" Background="#F9FAFB" BorderBrush="{StaticResource LineBrush}"
-                                    BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,10,0,0">
-                                <StackPanel>
-                                    <Grid>
-                                        <TextBlock Text="Status" FontSize="12"
-                                                   Foreground="{StaticResource MutedBrush}"/>
-                                        <Ellipse x:Name="StatusDot" Width="8" Height="8"
-                                                 Fill="#9CA3AF" HorizontalAlignment="Right"/>
-                                    </Grid>
-                                    <TextBlock Text="Attached to" FontSize="12"
-                                               Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
-                                    <TextBlock x:Name="AttachedText" Text="Not attached"
-                                               FontSize="13" FontWeight="SemiBold"
-                                               Foreground="#374151" TextWrapping="Wrap"/>
-                                    <TextBlock Text="Version" FontSize="12"
-                                               Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
-                                    <TextBlock Text="v1.0" FontSize="12" Foreground="#111827"/>
-                                    <TextBlock Text="User" FontSize="12"
-                                               Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
-                                    <TextBlock x:Name="NavUserText" Text="—" FontSize="12"
-                                               Foreground="#374151"/>
-                                    <Button x:Name="DetachButton" Content="Detach"
-                                            Style="{StaticResource GhostButton}"
-                                            HorizontalAlignment="Left" Margin="-10,6,0,-4"
-                                            Visibility="Collapsed" Click="DetachButton_Click"/>
-                                </StackPanel>
+                        <!-- Brand -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                            <Border Width="22" Height="22" CornerRadius="6" Background="{DynamicResource Accent}">
+                                <Path Data="M13,2 L6,13 L11,13 L10,22 L18,10 L13,10 Z"
+                                      Fill="{DynamicResource Text.OnAccent}" Stretch="Uniform" Margin="5"/>
                             </Border>
+                            <TextBlock Text="Casium" FontSize="13.5" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Text.Primary}"
+                                       VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            <Border Style="{StaticResource Badge}" Margin="8,0,0,0">
+                                <TextBlock Text="v1.0" FontSize="10.5" Foreground="{DynamicResource Text.Secondary}"/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Centre : attach status chip -->
+                        <Border Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Background="{DynamicResource App.SurfaceAlt}" BorderBrush="{DynamicResource App.Border}"
+                                BorderThickness="1" CornerRadius="14" Padding="12,4">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse x:Name="StatusDot" Width="7" Height="7" Fill="{DynamicResource Status.Idle}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock x:Name="AttachedText" Text="Not attached" FontSize="12"
+                                           Foreground="{DynamicResource Text.Secondary}"
+                                           VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Right : user + captions -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+                                <Border Width="24" Height="24" CornerRadius="12" Background="{DynamicResource Accent.Soft}"
+                                        BorderBrush="{DynamicResource App.Border}" BorderThickness="1">
+                                    <TextBlock x:Name="AvatarInitial" Text="?" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource Accent.Text}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TopUserText" Text="" FontSize="12.5"
+                                           Foreground="{DynamicResource Text.Secondary}"
+                                           VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </StackPanel>
+                            <Button x:Name="MinimizeButton" Content="&#xE921;" Style="{StaticResource Button.Caption}"
+                                    Click="MinimizeButton_Click" ToolTip="Minimise"/>
+                            <Button x:Name="MaximizeButton" Content="&#xE922;" Style="{StaticResource Button.Caption}"
+                                    Click="MaximizeButton_Click" ToolTip="Maximise"/>
+                            <Button x:Name="CloseButton" Content="&#xE8BB;" Style="{StaticResource Button.CaptionClose}"
+                                    Click="CloseButton_Click" ToolTip="Close"/>
+                        </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Center : views -->
-                <Grid Grid.Column="1" Margin="6,0">
-                    <!-- Executor view -->
-                    <Grid x:Name="ExecutorView">
+                <!-- Body -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="212"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="280"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Sidebar -->
+                    <Border Grid.Column="0" Background="{DynamicResource App.Surface}"
+                            BorderBrush="{DynamicResource App.Border}" BorderThickness="0,0,1,0">
+                        <Grid Margin="12,14,12,12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel>
+                                    <TextBlock Text="WORKSPACE" Style="{StaticResource Text.Eyebrow}" Margin="10,0,0,6"/>
+
+                                    <Button x:Name="NavExecutor" Style="{StaticResource Button.Nav}" Tag="ExecutorView" Click="NavButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="M8,5 L19,12 L8,19 Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="14" Height="14" Stretch="Uniform"/>
+                                            <TextBlock Text="Executor" Margin="12,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="NavHub" Style="{StaticResource Button.Nav}" Tag="HubView" Click="NavButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="M3,3 H10 V10 H3 Z M14,3 H21 V10 H14 Z M3,14 H10 V21 H3 Z M14,14 H21 V21 H14 Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="14" Height="14" Stretch="Uniform"/>
+                                            <TextBlock Text="Script Hub" Margin="12,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="NavNetwork" Style="{StaticResource Button.Nav}" Tag="NetworkView" Click="NavButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="M12,2 A10,10 0 1,0 12,22 A10,10 0 1,0 12,2 Z M2,12 H22 M12,2 C7,7 7,17 12,22 M12,2 C17,7 17,17 12,22" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" Width="14" Height="14" Stretch="Uniform"/>
+                                            <TextBlock Text="Network" Margin="12,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="NavPlayer" Style="{StaticResource Button.Nav}" Tag="PlayerView" Click="NavButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="M12,12 A4,4 0 1,0 12,4 A4,4 0 1,0 12,12 Z M4,21 C4,16.5 7.5,14 12,14 C16.5,14 20,16.5 20,21" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" Width="14" Height="14" Stretch="Uniform"/>
+                                            <TextBlock Text="Player" Margin="12,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <TextBlock Text="SYSTEM" Style="{StaticResource Text.Eyebrow}" Margin="10,18,0,6"/>
+
+                                    <Button x:Name="NavSettings" Style="{StaticResource Button.Nav}" Tag="SettingsView" Click="NavButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="M12,15.5 A3.5,3.5 0 1,0 12,8.5 A3.5,3.5 0 1,0 12,15.5 Z M19.4,15 A1.65,1.65 0 0,0 19.7,16.8 L19.8,16.9 A2,2 0 1,1 17,19.7 L16.9,19.6 A1.65,1.65 0 0,0 15,19.4 A1.65,1.65 0 0,0 14,20.9 V21 A2,2 0 1,1 10,21 V20.9 A1.65,1.65 0 0,0 8.9,19.4 A1.65,1.65 0 0,0 7.1,19.7 L7,19.8 A2,2 0 1,1 4.2,17 L4.3,16.9 A1.65,1.65 0 0,0 4.6,15 A1.65,1.65 0 0,0 3.1,14 H3 A2,2 0 1,1 3,10 H3.1 A1.65,1.65 0 0,0 4.6,8.9 A1.65,1.65 0 0,0 4.3,7.1 L4.2,7 A2,2 0 1,1 7,4.2 L7.1,4.3 A1.65,1.65 0 0,0 8.9,4.6 H9 A1.65,1.65 0 0,0 10,3.1 V3 A2,2 0 1,1 14,3 V3.1 A1.65,1.65 0 0,0 15,4.6 A1.65,1.65 0 0,0 16.8,4.3 L16.9,4.2 A2,2 0 1,1 19.7,7 L19.6,7.1 A1.65,1.65 0 0,0 19.4,8.9 V9 A1.65,1.65 0 0,0 20.9,10 H21 A2,2 0 1,1 21,14 H20.9 A1.65,1.65 0 0,0 19.4,15 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" Width="14" Height="14" Stretch="Uniform"/>
+                                            <TextBlock Text="Settings" Margin="12,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="NavKey" Style="{StaticResource Button.Nav}" Tag="KeyView" Click="NavButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="M21,2 L19,4 M19,4 L22,7 L19,10 L16,7 M19,4 L11.5,11.5 M8,20 A4,4 0 1,0 8,12 A4,4 0 1,0 8,20 Z M11.5,11.5 L10.8,12.2" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" Width="14" Height="14" Stretch="Uniform"/>
+                                            <TextBlock Text="Key System" Margin="12,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="NavAbout" Style="{StaticResource Button.Nav}" Tag="AboutView" Click="NavButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="M12,22 A10,10 0 1,0 12,2 A10,10 0 1,0 12,22 Z M12,16 V12 M12,8 H12.01" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="14" Height="14" Stretch="Uniform"/>
+                                            <TextBlock Text="About" Margin="12,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <TextBlock Text="SCRIPT" Style="{StaticResource Text.Eyebrow}" Margin="10,20,0,6"/>
+                                    <StackPanel x:Name="InfoPanel" Margin="10,0"/>
+
+                                    <TextBlock Text="EXECUTION" Style="{StaticResource Text.Eyebrow}" Margin="10,16,0,6"/>
+                                    <StackPanel x:Name="ExecPanel" Margin="10,0"/>
+                                </StackPanel>
+                            </ScrollViewer>
+
+                            <!-- Session card -->
+                            <Border Grid.Row="1" Style="{StaticResource CardInset}" Padding="12,10" Margin="0,12,0,0">
+                                <StackPanel>
+                                    <Grid>
+                                        <TextBlock Text="Session" Style="{StaticResource Text.Caption}"/>
+                                        <Button x:Name="DetachButton" Content="Detach" Style="{StaticResource Button.Ghost}"
+                                                Height="20" Padding="6,0" FontSize="11" HorizontalAlignment="Right"
+                                                Margin="0,-3,-6,-3" Visibility="Collapsed" Click="DetachButton_Click"/>
+                                    </Grid>
+                                    <TextBlock x:Name="NavUserText" Text="—" FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource Text.Primary}" Margin="0,4,0,0"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="Casium v1.0" Style="{StaticResource Text.Caption}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Centre views -->
+                    <Grid Grid.Column="1" Margin="16,14,8,14">
+
+                        <!-- Executor -->
+                        <Grid x:Name="ExecutorView">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="8"/>
+                                <RowDefinition Height="200" MinHeight="120"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Editor card -->
+                            <Border Grid.Row="0" Style="{StaticResource Card}" ClipToBounds="True">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="40"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Tab strip -->
+                                    <Border Grid.Row="0" Background="{DynamicResource App.SurfaceAlt}"
+                                            BorderBrush="{DynamicResource App.Border}" BorderThickness="0,0,0,1"
+                                            CornerRadius="10,10,0,0">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                                                          Margin="8,0,0,0">
+                                                <StackPanel x:Name="TabStripPanel" Orientation="Horizontal" VerticalAlignment="Bottom"/>
+                                            </ScrollViewer>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                <Button x:Name="AddTabButton" Style="{StaticResource Button.Icon}" Click="AddTabButton_Click" ToolTip="New tab (Ctrl+T)">
+                                                    <Path Data="M12,5 V19 M5,12 H19" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" Width="12" Height="12" Stretch="Uniform"/>
+                                                </Button>
+                                                <Border Width="1" Height="16" Background="{DynamicResource App.Border}" Margin="4,0"/>
+                                                <Button x:Name="EditorOpenButton" Content="Open" Style="{StaticResource Button.Ghost}" Click="EditorOpenButton_Click"/>
+                                                <Button x:Name="EditorSaveButton" Content="Save" Style="{StaticResource Button.Ghost}" Click="EditorSaveButton_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Editor surface -->
+                                    <Grid Grid.Row="1" Background="{DynamicResource Editor.Background}">
+                                        <ScrollViewer x:Name="EditorScroll"
+                                                      HorizontalScrollBarVisibility="Auto"
+                                                      VerticalScrollBarVisibility="Auto">
+                                            <Grid Width="{Binding ViewportWidth, ElementName=EditorScroll}"
+                                                  MinHeight="{Binding ViewportHeight, ElementName=EditorScroll}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition x:Name="GutterColumn" Width="52"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Background="{DynamicResource App.SurfaceAlt}"
+                                                        BorderBrush="{DynamicResource App.Border}" BorderThickness="0,0,1,0"/>
+                                                <TextBlock x:Name="LineNumbers" Grid.Column="0"
+                                                           FontFamily="Cascadia Mono, Consolas" FontSize="13.5"
+                                                           LineHeight="20" LineStackingStrategy="BlockLineHeight"
+                                                           Foreground="{DynamicResource Editor.Gutter}" TextAlignment="Right"
+                                                           Padding="0,12,12,12"/>
+                                                <RichTextBox x:Name="EditorBox" Grid.Column="1"
+                                                             Background="Transparent" BorderThickness="0"
+                                                             Foreground="{DynamicResource Editor.Text}"
+                                                             CaretBrush="{DynamicResource Editor.Text}"
+                                                             SelectionBrush="{DynamicResource Accent}"
+                                                             FontFamily="Cascadia Mono, Consolas" FontSize="13.5"
+                                                             Padding="12,12,16,12"
+                                                             SpellCheck.IsEnabled="False"
+                                                             AcceptsReturn="True" AcceptsTab="True"
+                                                             VerticalScrollBarVisibility="Disabled"
+                                                             HorizontalScrollBarVisibility="Disabled"
+                                                             TextChanged="EditorBox_TextChanged"
+                                                             KeyUp="EditorBox_KeyUp"
+                                                             PreviewMouseUp="EditorBox_MouseUp"/>
+                                            </Grid>
+                                        </ScrollViewer>
+                                        <wv2:WebView2 x:Name="MonacoView" Visibility="Collapsed"/>
+                                        <Border x:Name="LuaLabel" Style="{StaticResource Badge}"
+                                                HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,14,12">
+                                            <TextBlock Text="Lua" FontSize="10.5" Foreground="{DynamicResource Text.Secondary}"/>
+                                        </Border>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+
+                            <GridSplitter Grid.Row="1" Height="8" HorizontalAlignment="Stretch" Background="Transparent"
+                                          ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" Cursor="SizeNS"/>
+
+                            <!-- Console card -->
+                            <Border Grid.Row="2" Style="{StaticResource Card}" ClipToBounds="True">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="38"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Border Grid.Row="0" BorderBrush="{DynamicResource App.Border}" BorderThickness="0,0,0,1">
+                                        <Grid Margin="8,0">
+                                            <Border Background="{DynamicResource App.SurfaceAlt}" CornerRadius="7" Padding="2"
+                                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Button x:Name="ConsoleTabButton" Content="Console" Style="{StaticResource Button.Segment}"
+                                                            svc:NavState.IsActive="True" Click="ConsoleTab_Click"/>
+                                                    <Button x:Name="OutputTabButton" Content="Output" Style="{StaticResource Button.Segment}"
+                                                            Click="OutputTab_Click"/>
+                                                </StackPanel>
+                                            </Border>
+                                            <Button x:Name="ClearConsoleButton" Content="Clear" Style="{StaticResource Button.Ghost}"
+                                                    HorizontalAlignment="Right" VerticalAlignment="Center" Click="ClearConsoleButton_Click"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <ListBox x:Name="LogList" Grid.Row="1" Style="{StaticResource ListBox.Plain}"
+                                             FontFamily="Cascadia Mono, Consolas" FontSize="12.5" Padding="12,8">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,1.5">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Time}" Foreground="{DynamicResource Text.Tertiary}"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Message}" Foreground="{Binding Brush}" TextWrapping="Wrap"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+
+                                    <Border Grid.Row="2" Background="{DynamicResource App.SurfaceAlt}"
+                                            BorderBrush="{DynamicResource App.Border}" BorderThickness="0,1,0,0">
+                                        <Grid Margin="12,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="›" Foreground="{DynamicResource Accent.Text}" FontFamily="Cascadia Mono, Consolas"
+                                                       FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="CommandInput" Grid.Column="1" Style="{StaticResource TextBox.Bare}"
+                                                     FontFamily="Cascadia Mono, Consolas" FontSize="13" Height="34"
+                                                     Padding="8,0,0,0" KeyDown="CommandInput_KeyDown"/>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <!-- Script Hub -->
+                        <Grid x:Name="HubView" Visibility="Collapsed">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" Margin="2,2,2,16">
+                                <StackPanel>
+                                    <TextBlock Text="Script Hub" Style="{StaticResource Text.PageTitle}"/>
+                                    <TextBlock Text="Curated scripts. Load one into the editor with a single click."
+                                               Style="{StaticResource Text.PageSubtitle}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <Border Style="{StaticResource CardInset}" Width="300" Height="36"
+                                        HorizontalAlignment="Right" VerticalAlignment="Top">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Path Data="M15.5,14 L20,18.5 M10,17 A7,7 0 1,0 10,3 A7,7 0 1,0 10,17 Z"
+                                              Stroke="{DynamicResource Text.Tertiary}" StrokeThickness="1.8" Width="14" Height="14"
+                                              Stretch="Uniform" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBox x:Name="HubSearch" Grid.Column="1" Style="{StaticResource TextBox.Bare}"
+                                                 FontSize="13" Padding="8,0,8,0" TextChanged="HubSearch_TextChanged"/>
+                                        <TextBlock x:Name="HubSearchHint" Grid.Column="1" Text="Search scripts…"
+                                                   Foreground="{DynamicResource Text.Tertiary}" FontSize="13"
+                                                   VerticalAlignment="Center" Margin="8,0,0,0" IsHitTestVisible="False"/>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                <WrapPanel x:Name="HubPanel"/>
+                            </ScrollViewer>
+                        </Grid>
+
+                        <!-- Network -->
+                        <Border x:Name="NetworkView" Visibility="Collapsed" Style="{StaticResource Card}" Padding="28">
+                            <StackPanel MaxWidth="460" HorizontalAlignment="Left">
+                                <TextBlock Text="Network" Style="{StaticResource Text.PageTitle}"/>
+                                <TextBlock Text="Live connection stats for this session." Style="{StaticResource Text.PageSubtitle}"/>
+                                <Border Style="{StaticResource CardInset}" Padding="16,12">
+                                    <StackPanel x:Name="NetworkPanel"/>
+                                </Border>
+                                <Button x:Name="NetRefreshButton" Content="Refresh" Style="{StaticResource Button.Secondary}"
+                                        Width="120" HorizontalAlignment="Left" Margin="0,16,0,0" Click="NetRefreshButton_Click"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Player -->
+                        <Border x:Name="PlayerView" Visibility="Collapsed" Style="{StaticResource Card}" Padding="28">
+                            <StackPanel MaxWidth="460" HorizontalAlignment="Left">
+                                <TextBlock Text="Player" Style="{StaticResource Text.PageTitle}"/>
+                                <TextBlock Text="Tweak the local player. Changes are applied to the console log." Style="{StaticResource Text.PageSubtitle}"/>
+
+                                <Border Style="{StaticResource CardInset}" Padding="16,14">
+                                    <StackPanel>
+                                        <Grid>
+                                            <TextBlock Text="WalkSpeed" Style="{StaticResource Text.Body}"/>
+                                            <Border Style="{StaticResource Badge}" HorizontalAlignment="Right">
+                                                <TextBlock x:Name="SpeedValue" Text="16" FontSize="12" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource Accent.Text}" FontFamily="Cascadia Mono, Consolas"/>
+                                            </Border>
+                                        </Grid>
+                                        <Slider x:Name="SpeedSlider" Style="{StaticResource Slider.Thin}" Minimum="10" Maximum="100" Value="16"
+                                                Margin="0,10,0,0" ValueChanged="SpeedSlider_ValueChanged"/>
+
+                                        <Border Style="{StaticResource Divider}"/>
+
+                                        <Grid>
+                                            <TextBlock Text="JumpPower" Style="{StaticResource Text.Body}"/>
+                                            <Border Style="{StaticResource Badge}" HorizontalAlignment="Right">
+                                                <TextBlock x:Name="JumpValue" Text="50" FontSize="12" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource Accent.Text}" FontFamily="Cascadia Mono, Consolas"/>
+                                            </Border>
+                                        </Grid>
+                                        <Slider x:Name="JumpSlider" Style="{StaticResource Slider.Thin}" Minimum="10" Maximum="200" Value="50"
+                                                Margin="0,10,0,0" ValueChanged="JumpSlider_ValueChanged"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                    <Button x:Name="ApplyPlayerButton" Content="Apply" Style="{StaticResource Button.Primary}" Width="120" Click="ApplyPlayerButton_Click"/>
+                                    <Button x:Name="ResetPlayerButton" Content="Reset" Style="{StaticResource Button.Secondary}" Width="100" Margin="8,0,0,0" Click="ResetPlayerButton_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Settings -->
+                        <Border x:Name="SettingsView" Visibility="Collapsed" Style="{StaticResource Card}" Padding="28">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel MaxWidth="560" HorizontalAlignment="Left">
+                                    <TextBlock Text="Settings" Style="{StaticResource Text.PageTitle}"/>
+                                    <TextBlock Text="Tune Casium to your liking." Style="{StaticResource Text.PageSubtitle}"/>
+
+                                    <TextBlock Text="APPEARANCE" Style="{StaticResource Text.Eyebrow}"/>
+                                    <Border Style="{StaticResource CardInset}" Padding="16,14" Margin="0,0,0,20">
+                                        <StackPanel>
+                                            <TextBlock Text="Theme" Style="{StaticResource Text.Body}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Applied instantly and remembered next launch."
+                                                       Style="{StaticResource Text.Caption}" Margin="0,2,0,12"/>
+                                            <WrapPanel x:Name="ThemePanel"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <TextBlock Text="BEHAVIOUR" Style="{StaticResource Text.Eyebrow}"/>
+                                    <Border Style="{StaticResource CardInset}" Padding="4,2">
+                                        <StackPanel x:Name="SettingsPanel"/>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+
+                        <!-- Key System -->
+                        <Border x:Name="KeyView" Visibility="Collapsed" Style="{StaticResource Card}" Padding="28">
+                            <StackPanel MaxWidth="460" HorizontalAlignment="Left">
+                                <TextBlock Text="Key System" Style="{StaticResource Text.PageTitle}"/>
+                                <TextBlock Text="Your access key. Keep it private." Style="{StaticResource Text.PageSubtitle}"/>
+                                <TextBlock Text="ACCESS KEY" Style="{StaticResource Text.Eyebrow}"/>
+                                <Border Style="{StaticResource CardInset}" Padding="14,12">
+                                    <TextBlock x:Name="KeyBox" Text="—" Foreground="{DynamicResource Text.Primary}"
+                                               FontFamily="Cascadia Mono, Consolas" FontSize="15" FontWeight="SemiBold"/>
+                                </Border>
+                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                    <Button x:Name="CopyKeyButton" Content="Copy key" Style="{StaticResource Button.Primary}" Width="120" Click="CopyKeyButton_Click"/>
+                                    <Button x:Name="ResetKeyButton" Content="Reset key" Style="{StaticResource Button.Secondary}" Width="120" Margin="8,0,0,0" Click="ResetKeyButton_Click"/>
+                                </StackPanel>
+                                <TextBlock x:Name="HwidText" Text="HWID: —" Style="{StaticResource Text.Caption}"
+                                           FontFamily="Cascadia Mono, Consolas" Margin="0,20,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- About -->
+                        <Border x:Name="AboutView" Visibility="Collapsed" Style="{StaticResource Card}" Padding="28">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="400">
+                                <Border Width="56" Height="56" CornerRadius="16" Background="{DynamicResource Accent}" HorizontalAlignment="Center">
+                                    <Path Data="M13,2 L6,13 L11,13 L10,22 L18,10 L13,10 Z" Fill="{DynamicResource Text.OnAccent}" Stretch="Uniform" Margin="14"/>
+                                </Border>
+                                <TextBlock Text="Casium" FontSize="24" FontWeight="SemiBold" Foreground="{DynamicResource Text.Primary}"
+                                           HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                                <TextBlock Text="Version 1.0" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                                <TextBlock x:Name="AboutUserText" Text="Signed in as —" Style="{StaticResource Text.Caption}"
+                                           HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
+                                    <Button x:Name="CheckUpdatesButton" Content="Check for updates" Style="{StaticResource Button.Secondary}" Width="150" Click="CheckUpdatesButton_Click"/>
+                                    <Button x:Name="LogoutButton" Content="Log out" Style="{StaticResource Button.Ghost}" Height="36" Width="90" Margin="8,0,0,0" Click="LogoutButton_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Right rail -->
+                    <Grid Grid.Column="2" Margin="8,14,16,14">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
-                            <RowDefinition Height="196"/>
                         </Grid.RowDefinitions>
 
-                        <!-- Tab strip -->
-                        <Grid Grid.Row="0" Margin="0,0,0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                                          VerticalScrollBarVisibility="Disabled">
-                                <StackPanel x:Name="TabStripPanel" Orientation="Horizontal"/>
-                            </ScrollViewer>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <Button x:Name="AddTabButton" Content="＋"
-                                        Style="{StaticResource GhostButton}"
-                                        FontSize="14" Click="AddTabButton_Click"/>
-                                <Button x:Name="EditorOpenButton" Content="Open"
-                                        Style="{StaticResource GhostButton}"
-                                        Click="EditorOpenButton_Click"/>
-                                <Button x:Name="EditorSaveButton" Content="Save"
-                                        Style="{StaticResource GhostButton}"
-                                        Click="EditorSaveButton_Click"/>
+                        <!-- Actions -->
+                        <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12">
+                            <StackPanel>
+                                <Button x:Name="ExecuteButton" Style="{StaticResource Button.Primary}" Height="42" FontSize="14"
+                                        Click="ExecuteButton_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="M8,5 L19,12 L8,19 Z" Fill="{DynamicResource Text.OnAccent}" Width="11" Height="11" Stretch="Uniform"/>
+                                        <TextBlock Text="Execute" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                </Button>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button x:Name="ClipboardButton" Content="Clipboard" Style="{StaticResource Button.Secondary}"
+                                            Padding="0" ToolTip="Execute clipboard contents" Click="ClipboardButton_Click"/>
+                                    <Button x:Name="OpenFileButton" Grid.Column="2" Content="Open file" Style="{StaticResource Button.Secondary}"
+                                            Padding="0" Click="OpenFileButton_Click"/>
+                                </Grid>
+                                <Button x:Name="InjectButton" Content="Inject" Style="{StaticResource Button.Secondary}"
+                                        Margin="0,8,0,0" Click="InjectButton_Click"/>
                             </StackPanel>
-                        </Grid>
-
-                        <!-- Editor -->
-                        <Border Grid.Row="1" Background="#FFFFFF"
-                                BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
-                                CornerRadius="10">
-                            <Grid>
-                                <ScrollViewer x:Name="EditorScroll"
-                                              HorizontalScrollBarVisibility="Auto"
-                                              VerticalScrollBarVisibility="Auto">
-                                    <Grid Width="{Binding ViewportWidth, ElementName=EditorScroll}"
-                                          MinHeight="{Binding ViewportHeight, ElementName=EditorScroll}">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition x:Name="GutterColumn" Width="46"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock x:Name="LineNumbers" Grid.Column="0"
-                                                   FontFamily="Consolas" FontSize="14"
-                                                   LineHeight="19" LineStackingStrategy="BlockLineHeight"
-                                                   Foreground="#9CA3AF" TextAlignment="Right"
-                                                   Padding="0,10,8,10"/>
-                                        <RichTextBox x:Name="EditorBox" Grid.Column="1"
-                                                     Background="Transparent" BorderThickness="0"
-                                                     Foreground="#1F2937"
-                                                     FontFamily="Consolas" FontSize="14"
-                                                     Padding="8,10,12,10"
-                                                     SpellCheck.IsEnabled="False"
-                                                     AcceptsReturn="True" AcceptsTab="True"
-                                                     VerticalScrollBarVisibility="Disabled"
-                                                     HorizontalScrollBarVisibility="Disabled"
-                                                     TextChanged="EditorBox_TextChanged"
-                                                     KeyUp="EditorBox_KeyUp"
-                                                     PreviewMouseUp="EditorBox_MouseUp"/>
-                                    </Grid>
-                                </ScrollViewer>
-                                <wv2:WebView2 x:Name="MonacoView" Visibility="Collapsed"/>
-                                <TextBlock x:Name="LuaLabel" Text="Lua" Foreground="{StaticResource FaintBrush}"
-                                           FontSize="12" HorizontalAlignment="Right"
-                                           VerticalAlignment="Bottom" Margin="0,0,14,10"/>
-                            </Grid>
                         </Border>
 
-                        <!-- Console -->
-                        <Border Grid.Row="2" Background="#FFFFFF"
-                                BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
-                                CornerRadius="10" Margin="0,8,0,0">
-                            <Grid Margin="12,8">
+                        <!-- Mini hub -->
+                        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,8,0,0" ClipToBounds="True">
+                            <Grid>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Grid Grid.Row="0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="ConsoleTabButton" Content="Console" Style="{StaticResource TabButton}"
-                                                Foreground="#111827" FontWeight="SemiBold" Padding="0,4,12,4"
-                                                Click="ConsoleTab_Click"/>
-                                        <Button x:Name="OutputTabButton" Content="Output" Style="{StaticResource TabButton}"
-                                                Padding="0,4,12,4" Click="OutputTab_Click"/>
-                                    </StackPanel>
-                                    <Button x:Name="ClearConsoleButton" Content="Clear"
-                                            Style="{StaticResource GhostButton}"
-                                            HorizontalAlignment="Right"
-                                            Click="ClearConsoleButton_Click"/>
+                                <Grid Grid.Row="0" Margin="14,12,10,0">
+                                    <TextBlock Text="Script Hub" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource Text.Primary}"/>
+                                    <Button x:Name="BrowseAllButton" Content="See all" Style="{StaticResource Button.Ghost}"
+                                            Height="24" Padding="8,0" Margin="0,-4,-6,0" HorizontalAlignment="Right" Click="BrowseAllButton_Click"/>
                                 </Grid>
-                                <ListBox x:Name="LogList" Grid.Row="1"
-                                         Style="{StaticResource DarkListBox}"
-                                         FontFamily="Consolas" FontSize="12.5"
-                                         Margin="0,4">
+                                <Border Grid.Row="1" Style="{StaticResource CardInset}" Height="32" Margin="12,10,12,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Path Data="M15.5,14 L20,18.5 M10,17 A7,7 0 1,0 10,3 A7,7 0 1,0 10,17 Z"
+                                              Stroke="{DynamicResource Text.Tertiary}" StrokeThickness="1.8" Width="13" Height="13"
+                                              Stretch="Uniform" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBox x:Name="MiniHubSearch" Grid.Column="1" Style="{StaticResource TextBox.Bare}"
+                                                 FontSize="12.5" Padding="6,0,8,0" TextChanged="MiniHubSearch_TextChanged"/>
+                                        <TextBlock x:Name="MiniHubHint" Grid.Column="1" Text="Search…"
+                                                   Foreground="{DynamicResource Text.Tertiary}" FontSize="12.5"
+                                                   VerticalAlignment="Center" Margin="6,0,0,0" IsHitTestVisible="False"/>
+                                    </Grid>
+                                </Border>
+                                <ListBox x:Name="MiniHubList" Grid.Row="2" Style="{StaticResource ListBox.Plain}" Padding="12,0,12,8">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Time}" Foreground="#9CA3AF"/>
-                                                <TextBlock Text="{Binding Message}" Foreground="{Binding Brush}" TextWrapping="Wrap"/>
-                                            </StackPanel>
+                                            <Border Background="Transparent" CornerRadius="8" Padding="10,8" Margin="0,0,0,2">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="{DynamicResource App.SurfaceHover}"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Text.Primary}" FontSize="12.5" FontWeight="SemiBold"/>
+                                                            <Border Style="{StaticResource Badge}" Padding="5,1" Margin="6,0,0,0">
+                                                                <TextBlock Text="{Binding Badge}" Foreground="{DynamicResource Accent.Text}" FontSize="9.5" FontWeight="SemiBold"/>
+                                                            </Border>
+                                                        </StackPanel>
+                                                        <TextBlock Foreground="{DynamicResource Text.Tertiary}" FontSize="11" Margin="0,2,0,0">
+                                                            <Run Text="by "/><Run Text="{Binding Author}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="1" Style="{StaticResource Button.Icon}" Width="26" Height="26"
+                                                            VerticalAlignment="Center" Click="PlayScript_Click" ToolTip="Run">
+                                                        <Path Data="M8,5 L19,12 L8,19 Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="9" Height="9" Stretch="Uniform"/>
+                                                    </Button>
+                                                </Grid>
+                                            </Border>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
-                                <Grid Grid.Row="2" Margin="0,4,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text=">" Foreground="#374151" FontFamily="Consolas"
-                                               FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
-                                    <TextBox x:Name="CommandInput" Grid.Column="1"
-                                             Background="Transparent" BorderThickness="0"
-                                             Foreground="#111827" CaretBrush="#111827"
-                                             FontFamily="Consolas" FontSize="13"
-                                             Margin="8,0,0,0" KeyDown="CommandInput_KeyDown"/>
-                                </Grid>
                             </Grid>
                         </Border>
                     </Grid>
-
-                    <!-- Script Hub view -->
-                    <Grid x:Name="HubView" Visibility="Collapsed">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Margin="2,2,2,12">
-                            <TextBlock Text="Script Hub" Foreground="#111827" FontSize="20"
-                                       FontWeight="Bold"/>
-                            <TextBlock Text="Curated scripts — press Get to load one into the editor."
-                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,10"/>
-                            <Border Background="#F3F4F6" BorderBrush="{StaticResource LineBrush}"
-                                    BorderThickness="1" CornerRadius="8" MaxWidth="340"
-                                    HorizontalAlignment="Left">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="⌕" Foreground="{StaticResource FaintBrush}"
-                                               FontSize="14" VerticalAlignment="Center" Margin="12,0,0,0"/>
-                                    <TextBox x:Name="HubSearch" Grid.Column="1"
-                                             Background="Transparent" BorderThickness="0"
-                                             Foreground="#111827" CaretBrush="#111827" FontSize="13"
-                                             Padding="8,9" TextChanged="HubSearch_TextChanged"/>
-                                    <TextBlock x:Name="HubSearchHint" Grid.Column="1"
-                                               Text="Search scripts..." Foreground="{StaticResource FaintBrush}"
-                                               FontSize="13" VerticalAlignment="Center" Margin="8,0,0,0"
-                                               IsHitTestVisible="False"/>
-                                </Grid>
-                            </Border>
-                        </StackPanel>
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                            <WrapPanel x:Name="HubPanel"/>
-                        </ScrollViewer>
-                    </Grid>
-
-                    <!-- Network view -->
-                    <Border x:Name="NetworkView" Visibility="Collapsed"
-                            Background="#FFFFFF" BorderBrush="{StaticResource LineBrush}"
-                            BorderThickness="1" CornerRadius="10" Padding="28">
-                        <StackPanel MaxWidth="440" HorizontalAlignment="Left">
-                            <TextBlock Text="Network" Foreground="#111827" FontSize="20" FontWeight="Bold"/>
-                            <TextBlock Text="Live connection stats for this session."
-                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
-                            <StackPanel x:Name="NetworkPanel"/>
-                            <Button x:Name="NetRefreshButton" Content="Refresh"
-                                    Style="{StaticResource ActionButton}" Width="140"
-                                    HorizontalAlignment="Left" Margin="0,20,0,0"
-                                    Click="NetRefreshButton_Click"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Player view -->
-                    <Border x:Name="PlayerView" Visibility="Collapsed"
-                            Background="#FFFFFF" BorderBrush="{StaticResource LineBrush}"
-                            BorderThickness="1" CornerRadius="10" Padding="28">
-                        <StackPanel MaxWidth="440" HorizontalAlignment="Left">
-                            <TextBlock Text="Player" Foreground="#111827" FontSize="20" FontWeight="Bold"/>
-                            <TextBlock Text="Tweak the local player. Applied to the console log."
-                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
-                            <Grid>
-                                <TextBlock Text="WalkSpeed" Foreground="#111827" FontSize="13"/>
-                                <TextBlock x:Name="SpeedValue" Text="16" Foreground="#374151"
-                                           FontSize="13" FontWeight="Bold" HorizontalAlignment="Right"/>
-                            </Grid>
-                            <Slider x:Name="SpeedSlider" Minimum="10" Maximum="100" Value="16"
-                                    Margin="0,8,0,4" ValueChanged="SpeedSlider_ValueChanged"/>
-                            <Grid Margin="0,14,0,0">
-                                <TextBlock Text="JumpPower" Foreground="#111827" FontSize="13"/>
-                                <TextBlock x:Name="JumpValue" Text="50" Foreground="#374151"
-                                           FontSize="13" FontWeight="Bold" HorizontalAlignment="Right"/>
-                            </Grid>
-                            <Slider x:Name="JumpSlider" Minimum="10" Maximum="200" Value="50"
-                                    Margin="0,8,0,4" ValueChanged="JumpSlider_ValueChanged"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-                                <Button x:Name="ApplyPlayerButton" Content="Apply"
-                                        Style="{StaticResource GradientButton}" Width="140" Height="40"
-                                        FontSize="13" Click="ApplyPlayerButton_Click"/>
-                                <Button x:Name="ResetPlayerButton" Content="Reset"
-                                        Style="{StaticResource ActionButton}" Width="120" Height="40"
-                                        Margin="10,0,0,0" Click="ResetPlayerButton_Click"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Settings view -->
-                    <Border x:Name="SettingsView" Visibility="Collapsed"
-                            Background="#FFFFFF" BorderBrush="{StaticResource LineBrush}"
-                            BorderThickness="1" CornerRadius="10" Padding="28">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel MaxWidth="520" HorizontalAlignment="Left">
-                                <TextBlock Text="Settings" Foreground="#111827" FontSize="20" FontWeight="Bold"/>
-                                <TextBlock Text="Tune Casium to your liking."
-                                           Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
-                                <StackPanel x:Name="SettingsPanel"/>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Border>
-
-                    <!-- Key System view -->
-                    <Border x:Name="KeyView" Visibility="Collapsed"
-                            Background="#FFFFFF" BorderBrush="{StaticResource LineBrush}"
-                            BorderThickness="1" CornerRadius="10" Padding="28">
-                        <StackPanel MaxWidth="440" HorizontalAlignment="Left">
-                            <TextBlock Text="Key System" Foreground="#111827" FontSize="20" FontWeight="Bold"/>
-                            <TextBlock Text="Your access key. Keep it secret."
-                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
-                            <TextBlock Text="ACCESS KEY" Style="{StaticResource SectionHeader}"/>
-                            <Border Background="#F3F4F6" BorderBrush="{StaticResource LineBrush}"
-                                    BorderThickness="1" CornerRadius="8" Padding="12,10">
-                                <TextBlock x:Name="KeyBox" Text="—" Foreground="#111827"
-                                           FontFamily="Consolas" FontSize="14"/>
-                            </Border>
-                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                                <Button x:Name="CopyKeyButton" Content="Copy Key"
-                                        Style="{StaticResource ActionButton}" Width="130"
-                                        Click="CopyKeyButton_Click"/>
-                                <Button x:Name="ResetKeyButton" Content="Reset Key"
-                                        Style="{StaticResource ActionButton}" Width="130"
-                                        Margin="10,0,0,0" Click="ResetKeyButton_Click"/>
-                            </StackPanel>
-                            <TextBlock x:Name="HwidText" Text="HWID: —"
-                                       Foreground="{StaticResource FaintBrush}" FontFamily="Consolas"
-                                       FontSize="12" Margin="0,18,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- About view -->
-                    <Border x:Name="AboutView" Visibility="Collapsed"
-                            Background="#FFFFFF" BorderBrush="{StaticResource LineBrush}"
-                            BorderThickness="1" CornerRadius="10" Padding="28">
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                    MaxWidth="420">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <TextBlock Text="⚡" Foreground="#374151" FontSize="34"
-                                           FontStyle="Italic" FontWeight="Bold"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="CASIUM" FontSize="34" FontWeight="Bold"
-                                           FontStyle="Italic" VerticalAlignment="Center" Margin="8,0,0,0">
-                                    <TextBlock.Foreground>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#4B5563" Offset="0"/>
-                                            <GradientStop Color="#111827" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </TextBlock.Foreground>
-                                </TextBlock>
-                            </StackPanel>
-                            <TextBlock Text="v1.0" Foreground="{StaticResource MutedBrush}"
-                                       FontSize="13" HorizontalAlignment="Center" Margin="0,6,0,0"/>
-                            <TextBlock Text="A dark, fast desktop environment."
-                                       Foreground="{StaticResource MutedBrush}" FontSize="13"
-                                       HorizontalAlignment="Center" Margin="0,2,0,0"/>
-                            <TextBlock x:Name="AboutUserText" Text="Signed in as —"
-                                       Foreground="#374151" FontSize="13" FontWeight="SemiBold"
-                                       HorizontalAlignment="Center" Margin="0,14,0,0"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
-                                        Margin="0,22,0,0">
-                                <Button x:Name="CheckUpdatesButton" Content="Check Updates"
-                                        Style="{StaticResource ActionButton}" Width="150"
-                                        Click="CheckUpdatesButton_Click"/>
-                                <Button x:Name="LogoutButton" Content="Log out"
-                                        Style="{StaticResource ActionButton}" Width="130"
-                                        Margin="10,0,0,0" Click="LogoutButton_Click"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
                 </Grid>
 
-                <!-- Right : hub + execute -->
-                <Border Grid.Column="2" Background="#FFFFFF"
-                        BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
-                        CornerRadius="10" Padding="12" Margin="6,0,0,0">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Grid Grid.Row="0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="Script Hub" Foreground="#111827"
-                                       FontSize="15" FontWeight="Bold"/>
-                            <Border Grid.Row="1" Background="#F3F4F6"
-                                    BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="8" Margin="0,10,0,8">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="⌕" Foreground="{StaticResource FaintBrush}"
-                                               FontSize="13" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                                    <TextBox x:Name="MiniHubSearch" Grid.Column="1"
-                                             Background="Transparent" BorderThickness="0"
-                                             Foreground="#111827" CaretBrush="#111827" FontSize="12.5"
-                                             Padding="6,8" TextChanged="MiniHubSearch_TextChanged"/>
-                                    <TextBlock x:Name="MiniHubHint" Grid.Column="1"
-                                               Text="Search scripts..." Foreground="{StaticResource FaintBrush}"
-                                               FontSize="12.5" VerticalAlignment="Center" Margin="6,0,0,0"
-                                               IsHitTestVisible="False"/>
-                                </Grid>
-                            </Border>
-                            <ListBox x:Name="MiniHubList" Grid.Row="2"
-                                     Style="{StaticResource DarkListBox}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Background="#F9FAFB" CornerRadius="8" Padding="10,8"
-                                                Margin="0,0,0,6"
-                                                BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel Grid.Column="0">
-                                                    <TextBlock Text="{Binding Name}" Foreground="#111827"
-                                                               FontSize="12.5" FontWeight="SemiBold"/>
-                                                    <TextBlock Foreground="{StaticResource FaintBrush}"
-                                                               FontSize="11" Margin="0,2,0,0">
-                                                        <Run Text="by "/><Run Text="{Binding Author}"/>
-                                                    </TextBlock>
-                                                </StackPanel>
-                                                <Border Grid.Column="1" BorderBrush="#374151"
-                                                        BorderThickness="1" CornerRadius="5"
-                                                        Padding="7,2" Margin="8,0"
-                                                        VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Badge}" Foreground="#4B5563"
-                                                               FontSize="10"/>
-                                                </Border>
-                                                <Button Grid.Column="2" Content="▷"
-                                                        Style="{StaticResource GhostButton}"
-                                                        Click="PlayScript_Click"/>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <Button x:Name="BrowseAllButton" Grid.Row="3"
-                                    Content="Browse All Scripts  »"
-                                    Style="{StaticResource ActionButton}" Margin="0,4,0,0"
-                                    Click="BrowseAllButton_Click"/>
-                        </Grid>
-
-                        <StackPanel Grid.Row="1" Margin="0,12,0,0">
-                            <Button x:Name="ExecuteButton" Content="▷  Execute"
-                                    Style="{StaticResource GradientButton}"
-                                    Click="ExecuteButton_Click"/>
-                            <Button x:Name="ClipboardButton" Content="Execute Clipboard"
-                                    Style="{StaticResource ActionButton}" Margin="0,8,0,0"
-                                    Click="ClipboardButton_Click"/>
-                            <Button x:Name="OpenFileButton" Content="Open File"
-                                    Style="{StaticResource ActionButton}" Margin="0,8,0,0"
-                                    Click="OpenFileButton_Click"/>
-                            <Button x:Name="InjectButton" Content="⚡  Inject"
-                                    Style="{StaticResource ActionButton}" Margin="0,8,0,0"
-                                    Click="InjectButton_Click"/>
+                <!-- Status bar -->
+                <Border Grid.Row="2" Background="{DynamicResource App.Surface}"
+                        BorderBrush="{DynamicResource App.Border}" BorderThickness="0,1,0,0">
+                    <Grid Margin="16,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse x:Name="ReadyDot" Width="7" Height="7" Fill="{DynamicResource Status.Idle}"/>
+                            <TextBlock x:Name="ExecReadyText" Text="Idle" Style="{StaticResource Text.Caption}" Margin="7,0,0,0"/>
+                            <Border Width="1" Height="12" Background="{DynamicResource App.Border}" Margin="12,0"/>
+                            <TextBlock x:Name="StatusTabText" Text="Script1" Style="{StaticResource Text.Caption}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <TextBlock x:Name="LnColText" Text="Ln 1, Col 1" Style="{StaticResource Text.Caption}"/>
+                            <Border Width="1" Height="12" Background="{DynamicResource App.Border}" Margin="12,0"/>
+                            <TextBlock x:Name="FpsText" Text="FPS —" Style="{StaticResource Text.Caption}"/>
+                            <Border Width="1" Height="12" Background="{DynamicResource App.Border}" Margin="12,0"/>
+                            <TextBlock Text="Lua" Style="{StaticResource Text.Caption}"/>
+                            <Border Width="1" Height="12" Background="{DynamicResource App.Border}" Margin="12,0"/>
+                            <TextBlock x:Name="ThemeStatusText" Text="Paper" Style="{StaticResource Text.Caption}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
             </Grid>
-
-            <!-- Status bar -->
-            <Border Grid.Row="2" Background="Transparent"
-                    BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0"
-                    Margin="12,0">
-                <Grid>
-                    <TextBlock x:Name="StatusTabText" Text="Script1" Foreground="{StaticResource MutedBrush}"
-                               FontSize="11.5" VerticalAlignment="Center"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                                VerticalAlignment="Center">
-                        <TextBlock x:Name="LnColText" Text="Ln 1, Col 1"
-                                   Foreground="{StaticResource MutedBrush}" FontSize="11.5"/>
-                        <TextBlock x:Name="FpsText" Text="FPS: —"
-                                   Foreground="{StaticResource MutedBrush}" FontSize="11.5" Margin="14,0,0,0"/>
-                        <TextBlock Text="v1.0" Foreground="{StaticResource FaintBrush}"
-                                   FontSize="11.5" Margin="14,0,0,0"/>
-                        <Ellipse x:Name="ReadyDot" Width="7" Height="7" Fill="#9CA3AF"
-                                 Margin="14,0,0,0"/>
-                        <TextBlock x:Name="ExecReadyText" Text="Idle"
-                                   Foreground="{StaticResource MutedBrush}" FontSize="11.5" Margin="6,0,0,0"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </Grid>
+        </Border>
     </Border>
 </Window>
