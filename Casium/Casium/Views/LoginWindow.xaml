@@ -253,7 +253,7 @@
                                 <Button x:Name="ShowPasswordButton" Grid.Column="2" Style="{StaticResource EyeButton}"
                                         Visibility="Collapsed" Click="ShowPasswordButton_Click" ToolTip="Show password">
                                     <Path x:Name="EyeIcon"
-                                          Data="M12,3 A9,9 0 1,0 12,21 A9,9 0 1,0 12,3 Z M5.64,5.64 L18.36,18.36"
+                                          Data="M1.5,12 C4,7.2 7.8,4.8 12,4.8 C16.2,4.8 20,7.2 22.5,12 C20,16.8 16.2,19.2 12,19.2 C7.8,19.2 4,16.8 1.5,12 Z M12,15.2 A3.2,3.2 0 1,0 12,8.8 A3.2,3.2 0 1,0 12,15.2 Z"
                                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           StrokeThickness="1.8" Width="15" Height="15" Stretch="Uniform"/>
                                 </Button>

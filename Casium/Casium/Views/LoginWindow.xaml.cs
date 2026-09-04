@@ -157,7 +157,7 @@ namespace Casium.Views
                 PasswordInput.Visibility = Visibility.Collapsed;
                 VisiblePasswordInput.Focus();
                 VisiblePasswordInput.CaretIndex = VisiblePasswordInput.Text.Length;
-                EyeIcon.Data = EyeOn;
+                EyeIcon.Data = EyeOff;
                 ShowPasswordButton.ToolTip = "Hide password";
             }
             else
@@ -166,7 +166,7 @@ namespace Casium.Views
                 PasswordInput.Visibility = Visibility.Visible;
                 VisiblePasswordInput.Visibility = Visibility.Collapsed;
                 PasswordInput.Focus();
-                EyeIcon.Data = EyeOff;
+                EyeIcon.Data = EyeOn;
                 ShowPasswordButton.ToolTip = "Show password";
             }
             UpdateState();
