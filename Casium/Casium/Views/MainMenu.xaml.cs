@@ -390,7 +390,7 @@ end
             _highlighting = true;
             try
             {
-                int offset = new TextRange(EditorBox.Document.ContentStart, EditorBox.CaretPosition).Text.Length;
+                int offset = EditorBox.Document.ContentStart.GetOffsetToPosition(EditorBox.CaretPosition);
                 var doc = new FlowDocument { PagePadding = new Thickness(0) };
                 doc.Blocks.Add(BuildLuaParagraph(_selectedTab.Content));
                 EditorBox.Document = doc;
@@ -496,7 +496,7 @@ end
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.Children.Add(new TextBlock { Text = label, Foreground = GrayBrush, FontSize = 12 });
-            var value = new TextBlock { Foreground = WhiteBrush, FontSize = 12 };
+            var value = new TextBlock { Foreground = WhiteBrush, FontSize = 12, TextTrimming = TextTrimming.CharacterEllipsis, MaxWidth = 110 };
             Grid.SetColumn(value, 1);
             grid.Children.Add(value);
             panel.Children.Add(grid);

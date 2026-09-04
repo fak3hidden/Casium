@@ -48,7 +48,7 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
             <Setter Property="FontSize" Value="13.5"/>
-            <Setter Property="Height" Value="38"/>
+            <Setter Property="Height" Value="34"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Template">
@@ -296,7 +296,12 @@
                 <Border Grid.Column="0" Background="#130F1C"
                         BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
                         CornerRadius="10" Padding="12" Margin="0,0,6,0">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="2,2,2,14">
                                 <TextBlock Text="⚡" Foreground="#8B5CF6" FontSize="22"
@@ -370,10 +375,12 @@
                             <TextBlock Text="EXECUTION" Style="{StaticResource SectionHeader}"
                                        Margin="2,16,0,8"/>
                             <StackPanel x:Name="ExecPanel"/>
+                        </StackPanel>
+                    </ScrollViewer>
 
                             <!-- Status card -->
-                            <Border Background="#171324" BorderBrush="{StaticResource LineBrush}"
-                                    BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,16,0,2">
+                            <Border Grid.Row="1" Background="#171324" BorderBrush="{StaticResource LineBrush}"
+                                    BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,10,0,0">
                                 <StackPanel>
                                     <Grid>
                                         <TextBlock Text="Status" FontSize="12"
@@ -399,8 +406,7 @@
                                             Visibility="Collapsed" Click="DetachButton_Click"/>
                                 </StackPanel>
                             </Border>
-                        </StackPanel>
-                    </ScrollViewer>
+                    </Grid>
                 </Border>
 
                 <!-- Center : views -->
@@ -444,7 +450,8 @@
                                 <ScrollViewer x:Name="EditorScroll"
                                               HorizontalScrollBarVisibility="Auto"
                                               VerticalScrollBarVisibility="Auto">
-                                    <Grid>
+                                    <Grid Width="{Binding ViewportWidth, ElementName=EditorScroll}"
+                                          MinHeight="{Binding ViewportHeight, ElementName=EditorScroll}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition x:Name="GutterColumn" Width="46"/>
                                             <ColumnDefinition Width="*"/>
@@ -459,6 +466,8 @@
                                                      Foreground="#E6E3F0"
                                                      FontFamily="Consolas" FontSize="14"
                                                      Padding="8,10,12,10"
+                                                     SpellCheck.IsEnabled="False"
+                                                     TextWrapping="NoWrap"
                                                      AcceptsReturn="True" AcceptsTab="True"
                                                      VerticalScrollBarVisibility="Disabled"
                                                      HorizontalScrollBarVisibility="Disabled"
@@ -499,7 +508,16 @@
                                 <ListBox x:Name="LogList" Grid.Row="1"
                                          Style="{StaticResource DarkListBox}"
                                          FontFamily="Consolas" FontSize="12.5"
-                                         Margin="0,4"/>
+                                         Margin="0,4">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Time}" Foreground="#6E6587"/>
+                                                <TextBlock Text="{Binding Message}" Foreground="{Binding Brush}" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
                                 <Grid Grid.Row="2" Margin="0,4,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
