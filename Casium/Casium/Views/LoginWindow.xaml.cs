@@ -17,9 +17,9 @@ namespace Casium.Views
         private const string DemoPassword = "casium123";
 
         private static readonly SolidColorBrush NormalBorder =
-            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2A2A35"));
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2B2140"));
         private static readonly SolidColorBrush FocusBorder =
-            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E4E4E7"));
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8B5CF6"));
         private static readonly SolidColorBrush ErrorBorder =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EF4444"));
 
@@ -40,7 +40,6 @@ namespace Casium.Views
                 if (!string.IsNullOrWhiteSpace(remembered))
                 {
                     UsernameInput.Text = remembered;
-                    RememberMeCheckBox.IsChecked = true;
                     PasswordInput.Focus();
                     return;
                 }
@@ -288,10 +287,10 @@ namespace Casium.Views
 
         private void PersistRememberMe(string username)
         {
+            // The Remember-me checkbox was removed: never store anything.
             try
             {
-                Properties.Settings.Default.RememberedUsername =
-                    RememberMeCheckBox.IsChecked == true ? username : string.Empty;
+                Properties.Settings.Default.RememberedUsername = string.Empty;
                 Properties.Settings.Default.Save();
             }
             catch
