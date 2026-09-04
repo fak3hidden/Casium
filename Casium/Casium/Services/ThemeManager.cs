@@ -36,23 +36,20 @@ namespace Casium.Services
             var dict = new ResourceDictionary { Source = uri };
 
             var merged = Application.Current.Resources.MergedDictionaries;
-            if (_current != null)
+            int slot = -1;
+            for (int i = merged.Count - 1; i >= 0; i--)
             {
-                merged.Remove(_current);
-            }
-            else
-            {
-                // drop the design-time default declared in App.xaml
-                for (int i = merged.Count - 1; i >= 0; i--)
+                var src = merged[i].Source;
+                bool isTheme = ReferenceEquals(merged[i], _current)
+                    || (src != null && src.OriginalString.IndexOf("/Themes/", StringComparison.OrdinalIgnoreCase) >= 0
+                        && !src.OriginalString.EndsWith("Controls.xaml", StringComparison.OrdinalIgnoreCase));
+                if (isTheme)
                 {
-                    var src = merged[i].Source;
-                    if (src != null && src.OriginalString.Contains("/Themes/") && !src.OriginalString.EndsWith("Controls.xaml"))
-                    {
-                        merged.RemoveAt(i);
-                    }
+                    slot = i;
+                    merged.RemoveAt(i);
                 }
             }
-            merged.Insert(0, dict);
+            merged.Insert(slot < 0 ? 0 : Math.Min(slot, merged.Count), dict);
             _current = dict;
             _currentName = name;
 

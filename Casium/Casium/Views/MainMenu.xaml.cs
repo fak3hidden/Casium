@@ -641,9 +641,56 @@ namespace Casium.Views
             RefreshExplorer();
         }
 
-        private void RefreshScriptsButton_Click(object sender, RoutedEventArgs e)
+        private string FolderFor(object sender)
         {
+            return (string)((Button)sender).Tag == "autoexec" ? AutoExecDir : ScriptsDir;
+        }
+
+        private async void NewFileInFolder_Click(object sender, RoutedEventArgs e)
+        {
+            string dir = FolderFor(sender);
+            string path = null;
+            for (int i = 1; i < 1000; i++)
+            {
+                string candidate = Path.Combine(dir, string.Format("script{0}.lua", i));
+                if (!File.Exists(candidate))
+                {
+                    path = candidate;
+                    break;
+                }
+            }
+            if (path == null)
+            {
+                return;
+            }
+            try
+            {
+                File.WriteAllText(path, DefaultScript);
+            }
+            catch (Exception ex)
+            {
+                AddLog("err", "Could not create file: " + ex.Message);
+                return;
+            }
             RefreshExplorer();
+            if (dir == AutoExecDir)
+            {
+                AutoExecHeader.IsChecked = true;
+                AutoExecList.Visibility = Visibility.Visible;
+            }
+            await OpenPath(path);
+        }
+
+        private void OpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start("explorer.exe", FolderFor(sender));
+            }
+            catch (Exception ex)
+            {
+                AddLog("err", "Could not open folder: " + ex.Message);
+            }
         }
 
         private void ExplorerHeader_Click(object sender, RoutedEventArgs e)
@@ -1377,18 +1424,13 @@ namespace Casium.Views
                 inner.Children.Add(swatch);
                 inner.Children.Add(label);
 
-                var tile = new Border
+                var tile = new Button
                 {
                     Tag = name,
-                    Child = inner,
-                    Padding = new Thickness(5),
-                    CornerRadius = new CornerRadius(11),
-                    BorderThickness = new Thickness(2),
-                    Margin = new Thickness(0, 0, 10, 10),
-                    Cursor = Cursors.Hand,
-                    Background = Brushes.Transparent
+                    Content = inner,
+                    Style = (Style)FindResource("ThemeTile")
                 };
-                tile.MouseLeftButtonDown += ThemeTile_Click;
+                tile.Click += ThemeTile_Click;
                 ThemePanel.Children.Add(tile);
             }
             HighlightThemeTile(ThemeManager.CurrentName);
@@ -1396,27 +1438,23 @@ namespace Casium.Views
 
         private void HighlightThemeTile(string name)
         {
-            foreach (Border tile in ThemePanel.Children)
+            foreach (Button tile in ThemePanel.Children)
             {
-                bool active = (string)tile.Tag == name;
-                if (active)
-                {
-                    tile.SetResourceReference(Border.BorderBrushProperty, "Accent");
-                }
-                else
-                {
-                    tile.BorderBrush = Brushes.Transparent;
-                }
+                NavState.SetIsActive(tile, (string)tile.Tag == name);
             }
         }
 
-        private void ThemeTile_Click(object sender, MouseButtonEventArgs e)
+        private void ThemeTile_Click(object sender, RoutedEventArgs e)
         {
-            string name = (string)((Border)sender).Tag;
-            if (name != ThemeManager.CurrentName)
+            string name = (string)((Button)sender).Tag;
+            try
             {
                 ThemeManager.Apply(name);
                 AddLog("sys", "Theme set to " + name + ".");
+            }
+            catch (Exception ex)
+            {
+                AddLog("err", "Could not apply theme: " + ex.Message);
             }
         }
 
