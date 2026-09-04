@@ -145,6 +145,60 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Context menu -->
+        <Style x:Key="Menu.Item" TargetType="MenuItem">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="Bd" Background="Transparent" CornerRadius="6" Margin="4,1" Padding="10,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <ContentPresenter ContentSource="Icon" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <ContentPresenter ContentSource="Header" Margin="12,0,8,0" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource App.SurfaceHover}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Menu.Danger" TargetType="MenuItem" BasedOn="{StaticResource Menu.Item}">
+            <Setter Property="Foreground" Value="{DynamicResource Status.Err}"/>
+        </Style>
+        <Style x:Key="Menu.Separator" TargetType="Separator">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Border Height="1" Background="{DynamicResource App.Border}" Margin="8,4"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Menu.Popup" TargetType="ContextMenu">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HasDropShadow" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border Background="{DynamicResource App.Surface}" BorderBrush="{DynamicResource App.BorderStrong}"
+                                BorderThickness="1" CornerRadius="8" Padding="0,4" MinWidth="170" Margin="6">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.35"/>
+                            </Border.Effect>
+                            <ItemsPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Explorer section header (SCRIPTS / AUTO EXECUTE) -->
         <Style x:Key="ExplorerHeader" TargetType="ToggleButton">
             <Setter Property="Background" Value="Transparent"/>
@@ -259,7 +313,7 @@
                                         <Button Style="{StaticResource Button.Icon}" Width="24" Height="24" Tag="scripts" Click="NewFileInFolder_Click" ToolTip="New script">
                                             <Path Data="M12,5 V19 M5,12 H19" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" Width="11" Height="11" Stretch="Uniform"/>
                                         </Button>
-                                        <Button Style="{StaticResource Button.Icon}" Width="24" Height="24" Tag="scripts" Click="OpenFolder_Click" ToolTip="Open folder">
+                                        <Button Style="{StaticResource Button.Icon}" Width="24" Height="24" Tag="scripts" Click="NewFolder_Click" ToolTip="New folder">
                                             <Path Data="M3,7 V19 A1,1 0 0,0 4,20 H20 A1,1 0 0,0 21,19 V9 A1,1 0 0,0 20,8 H12 L10,6 H4 A1,1 0 0,0 3,7 Z M12,12 V17 M9.5,14.5 H14.5" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" Width="12" Height="12" Stretch="Uniform"/>
                                         </Button>
                                     </StackPanel>
@@ -275,7 +329,7 @@
                                         <Button Style="{StaticResource Button.Icon}" Width="24" Height="24" Tag="autoexec" Click="NewFileInFolder_Click" ToolTip="New auto-execute script">
                                             <Path Data="M12,5 V19 M5,12 H19" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" Width="11" Height="11" Stretch="Uniform"/>
                                         </Button>
-                                        <Button Style="{StaticResource Button.Icon}" Width="24" Height="24" Tag="autoexec" Click="OpenFolder_Click" ToolTip="Open folder">
+                                        <Button Style="{StaticResource Button.Icon}" Width="24" Height="24" Tag="autoexec" Click="NewFolder_Click" ToolTip="New folder">
                                             <Path Data="M3,7 V19 A1,1 0 0,0 4,20 H20 A1,1 0 0,0 21,19 V9 A1,1 0 0,0 20,8 H12 L10,6 H4 A1,1 0 0,0 3,7 Z M12,12 V17 M9.5,14.5 H14.5" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" Width="12" Height="12" Stretch="Uniform"/>
                                         </Button>
                                     </StackPanel>
@@ -389,6 +443,15 @@
                             </Grid.RowDefinitions>
 
                             <Grid Grid.Row="0" Background="{DynamicResource Editor.Background}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border x:Name="Breadcrumb" Grid.Row="0" Height="30" Background="{DynamicResource App.Surface}"
+                                        BorderBrush="{DynamicResource App.Border}" BorderThickness="0,0,0,1">
+                                    <StackPanel x:Name="BreadcrumbPanel" Orientation="Horizontal" Margin="14,0" VerticalAlignment="Center"/>
+                                </Border>
+                                <Grid Grid.Row="1">
                                 <ScrollViewer x:Name="EditorScroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                                     <Grid Width="{Binding ViewportWidth, ElementName=EditorScroll}"
                                           MinHeight="{Binding ViewportHeight, ElementName=EditorScroll}">
@@ -418,6 +481,7 @@
                                     </Grid>
                                 </ScrollViewer>
                                 <wv2:WebView2 x:Name="MonacoView" Visibility="Collapsed"/>
+                                </Grid>
                             </Grid>
 
                             <!-- Console header doubles as splitter handle -->

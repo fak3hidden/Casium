@@ -573,34 +573,31 @@ namespace Casium.Views
             FillExplorer(AutoExecList, AutoExecDir);
         }
 
+        private readonly HashSet<string> _expandedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private string _renamingPath;
+
+        private static readonly Geometry FileGlyph = Geometry.Parse("M6,2 H14 L20,8 V22 H6 Z M14,2 V8 H20");
+        private static readonly Geometry FolderGlyph = Geometry.Parse("M3,7 V19 A1,1 0 0,0 4,20 H20 A1,1 0 0,0 21,19 V9 A1,1 0 0,0 20,8 H12 L10,6 H4 A1,1 0 0,0 3,7 Z");
+        private static readonly Geometry FolderPlusGlyph = Geometry.Parse("M3,7 V19 A1,1 0 0,0 4,20 H20 A1,1 0 0,0 21,19 V9 A1,1 0 0,0 20,8 H12 L10,6 H4 A1,1 0 0,0 3,7 Z M12,12 V17 M9.5,14.5 H14.5");
+        private static readonly Geometry PlusGlyph = Geometry.Parse("M12,5 V19 M5,12 H19");
+        private static readonly Geometry PlayGlyph = Geometry.Parse("M8,5 L19,12 L8,19 Z");
+        private static readonly Geometry CopyGlyph = Geometry.Parse("M9,9 H20 V20 H9 Z M5,15 H4 V4 H15 V5");
+        private static readonly Geometry PencilGlyph = Geometry.Parse("M4,20 H8 L19,9 L15,5 L4,16 Z M13,7 L17,11");
+        private static readonly Geometry TrashGlyph = Geometry.Parse("M4,7 H20 M9,7 V4 H15 V7 M6,7 L7,20 H17 L18,7 M10,11 V17 M14,11 V17");
+        private static readonly Geometry ChevronGlyph = Geometry.Parse("M9,6 L15,12 L9,18");
+
+        private static bool IsScriptFile(string f)
+        {
+            return f.EndsWith(".lua", StringComparison.OrdinalIgnoreCase)
+                || f.EndsWith(".luau", StringComparison.OrdinalIgnoreCase)
+                || f.EndsWith(".txt", StringComparison.OrdinalIgnoreCase);
+        }
+
         private void FillExplorer(StackPanel panel, string dir)
         {
             panel.Children.Clear();
             string filter = (FilterBox.Text ?? string.Empty).Trim().ToLowerInvariant();
-            string[] files;
-            try
-            {
-                files = Directory.GetFiles(dir)
-                    .Where(f => f.EndsWith(".lua", StringComparison.OrdinalIgnoreCase)
-                             || f.EndsWith(".luau", StringComparison.OrdinalIgnoreCase)
-                             || f.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
-                    .OrderBy(f => Path.GetFileName(f), StringComparer.OrdinalIgnoreCase)
-                    .ToArray();
-            }
-            catch
-            {
-                files = new string[0];
-            }
-
-            foreach (var file in files)
-            {
-                string name = Path.GetFileName(file);
-                if (filter.Length > 0 && !name.ToLowerInvariant().Contains(filter))
-                {
-                    continue;
-                }
-                panel.Children.Add(MakeFileRow(name, file));
-            }
+            FillDirectory(panel, dir, 0, filter);
 
             if (panel.Children.Count == 0)
             {
@@ -610,29 +607,429 @@ namespace Casium.Views
             }
         }
 
-        private Button MakeFileRow(string name, string path)
+        private void FillDirectory(StackPanel panel, string dir, int depth, string filter)
+        {
+            string[] dirs, files;
+            try
+            {
+                dirs = Directory.GetDirectories(dir).OrderBy(d => Path.GetFileName(d), StringComparer.OrdinalIgnoreCase).ToArray();
+                files = Directory.GetFiles(dir).Where(IsScriptFile).OrderBy(f => Path.GetFileName(f), StringComparer.OrdinalIgnoreCase).ToArray();
+            }
+            catch
+            {
+                return;
+            }
+
+            foreach (var sub in dirs)
+            {
+                bool expanded = _expandedDirs.Contains(sub) || filter.Length > 0;
+                var children = new StackPanel();
+                FillDirectory(children, sub, depth + 1, filter);
+                if (filter.Length > 0 && children.Children.Count == 0)
+                {
+                    continue;
+                }
+                panel.Children.Add(MakeFolderRow(sub, depth, expanded));
+                if (expanded)
+                {
+                    panel.Children.Add(children);
+                }
+            }
+
+            foreach (var file in files)
+            {
+                string name = Path.GetFileName(file);
+                if (filter.Length > 0 && !name.ToLowerInvariant().Contains(filter))
+                {
+                    continue;
+                }
+                panel.Children.Add(MakeFileRow(name, file, depth));
+            }
+        }
+
+        private static System.Windows.Shapes.Path Glyph(Geometry data, double size, string brushKey, double thickness = 1.6)
+        {
+            var p = new System.Windows.Shapes.Path
+            {
+                Data = data, StrokeThickness = thickness, Width = size, Height = size,
+                Stretch = Stretch.Uniform, VerticalAlignment = VerticalAlignment.Center
+            };
+            p.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, brushKey);
+            return p;
+        }
+
+        private Button IconButton(Geometry data, string tip, RoutedEventHandler onClick, object tag)
+        {
+            var b = new Button { Style = (Style)FindResource("Button.Icon"), Width = 22, Height = 22, ToolTip = tip, Tag = tag };
+            var g = new System.Windows.Shapes.Path { Data = data, StrokeThickness = 1.6, Width = 11, Height = 11, Stretch = Stretch.Uniform };
+            g.SetBinding(System.Windows.Shapes.Shape.StrokeProperty, new System.Windows.Data.Binding("Foreground") { Source = b });
+            b.Content = g;
+            b.Click += onClick;
+            return b;
+        }
+
+        private FrameworkElement MakeFolderRow(string path, int depth, bool expanded)
+        {
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var row = new StackPanel { Orientation = Orientation.Horizontal };
+            var chevron = Glyph(ChevronGlyph, 9, "Text.Tertiary", 1.8);
+            chevron.RenderTransformOrigin = new Point(0.5, 0.5);
+            chevron.RenderTransform = new RotateTransform(expanded ? 90 : 0);
+            row.Children.Add(chevron);
+            row.Children.Add(Glyph(FolderGlyph, 13, "Text.Secondary"));
+            row.Children.Add(MakeLabel(path, Path.GetFileName(path)));
+
+            var btn = new Button
+            {
+                Style = (Style)FindResource("ExplorerRow"),
+                Content = row, Tag = path,
+                Padding = new Thickness(8 + depth * 14, 0, 8, 0),
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+            btn.Click += FolderRow_Click;
+            btn.ContextMenu = BuildFolderMenu(path);
+            Grid.SetColumnSpan(btn, 2);
+            grid.Children.Add(btn);
+
+            var actions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 4, 0), VerticalAlignment = VerticalAlignment.Center, Opacity = 0 };
+            actions.Children.Add(IconButton(PlusGlyph, "New script", NewFileInFolder_Click, path));
+            actions.Children.Add(IconButton(FolderPlusGlyph, "New folder", NewFolder_Click, path));
+            Grid.SetColumn(actions, 1);
+            grid.Children.Add(actions);
+            grid.MouseEnter += (s, e) => actions.Opacity = 1;
+            grid.MouseLeave += (s, e) => actions.Opacity = 0;
+
+            return grid;
+        }
+
+        private Button MakeFileRow(string name, string path, int depth = 0)
         {
             var row = new StackPanel { Orientation = Orientation.Horizontal };
-            var icon = new System.Windows.Shapes.Path
-            {
-                Data = Geometry.Parse("M6,2 H14 L20,8 V22 H6 Z M14,2 V8 H20"),
-                StrokeThickness = 1.6, Width = 12, Height = 12, Stretch = Stretch.Uniform,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            icon.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Text.Secondary");
-            row.Children.Add(icon);
-            var label = new TextBlock { Text = name, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
-            row.Children.Add(label);
+            row.Children.Add(Glyph(FileGlyph, 12, "Text.Secondary"));
+            row.Children.Add(MakeLabel(path, name));
 
-            var btn = new Button { Style = (Style)FindResource("ExplorerRow"), Content = row, Tag = path, ToolTip = path };
+            var btn = new Button
+            {
+                Style = (Style)FindResource("ExplorerRow"),
+                Content = row, Tag = path, ToolTip = path,
+                Padding = new Thickness(depth > 0 ? 8 + depth * 14 + 17 : 8, 0, 8, 0),
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
             btn.Click += ExplorerFile_Click;
+            btn.ContextMenu = BuildFileMenu(path);
             return btn;
+        }
+
+        private FrameworkElement MakeLabel(string path, string name)
+        {
+            if (string.Equals(_renamingPath, path, StringComparison.OrdinalIgnoreCase))
+            {
+                var box = new TextBox
+                {
+                    Text = name, Tag = path,
+                    Style = (Style)FindResource("TextBox.Field"),
+                    Padding = new Thickness(6, 2, 6, 2), Height = 22, MinWidth = 120,
+                    Margin = new Thickness(8, 0, 0, 0), FontSize = 12.5
+                };
+                box.KeyDown += RenameBox_KeyDown;
+                box.LostFocus += RenameBox_LostFocus;
+                box.Loaded += (s, e) =>
+                {
+                    box.Focus();
+                    int dot = name.LastIndexOf('.');
+                    box.Select(0, dot > 0 && File.Exists(path) ? dot : name.Length);
+                };
+                return box;
+            }
+            return new TextBlock { Text = name, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+        }
+
+        private MenuItem MenuEntry(string header, Geometry icon, RoutedEventHandler onClick, string path, bool danger = false)
+        {
+            var mi = new MenuItem { Header = header, Tag = path, Style = (Style)FindResource(danger ? "Menu.Danger" : "Menu.Item") };
+            var g = new System.Windows.Shapes.Path { Data = icon, StrokeThickness = 1.6, Stretch = Stretch.Uniform, Width = 13, Height = 13 };
+            g.SetBinding(System.Windows.Shapes.Shape.StrokeProperty, new System.Windows.Data.Binding("Foreground") { Source = mi });
+            mi.Icon = g;
+            mi.Click += onClick;
+            return mi;
+        }
+
+        private ContextMenu BuildFileMenu(string path)
+        {
+            var menu = new ContextMenu { Style = (Style)FindResource("Menu.Popup") };
+            menu.Items.Add(MenuEntry("Open", FileGlyph, Menu_Open, path));
+            menu.Items.Add(MenuEntry("Execute", PlayGlyph, Menu_Execute, path));
+            menu.Items.Add(MenuEntry("Duplicate", CopyGlyph, Menu_Duplicate, path));
+            menu.Items.Add(MenuEntry("Rename", PencilGlyph, Menu_Rename, path));
+            menu.Items.Add(MenuEntry("Show in Explorer", FolderGlyph, Menu_ShowInExplorer, path));
+            menu.Items.Add(new Separator { Style = (Style)FindResource("Menu.Separator") });
+            menu.Items.Add(MenuEntry("Delete", TrashGlyph, Menu_Delete, path, danger: true));
+            return menu;
+        }
+
+        private ContextMenu BuildFolderMenu(string path)
+        {
+            var menu = new ContextMenu { Style = (Style)FindResource("Menu.Popup") };
+            menu.Items.Add(MenuEntry("New script", PlusGlyph, NewFileInFolder_Click, path));
+            menu.Items.Add(MenuEntry("New folder", FolderPlusGlyph, NewFolder_Click, path));
+            menu.Items.Add(new Separator { Style = (Style)FindResource("Menu.Separator") });
+            menu.Items.Add(MenuEntry("Rename", PencilGlyph, Menu_Rename, path));
+            menu.Items.Add(MenuEntry("Show in Explorer", FolderGlyph, Menu_ShowInExplorer, path));
+            menu.Items.Add(new Separator { Style = (Style)FindResource("Menu.Separator") });
+            menu.Items.Add(MenuEntry("Delete", TrashGlyph, Menu_Delete, path, danger: true));
+            return menu;
+        }
+
+        private static string PathOf(object sender)
+        {
+            return (string)((FrameworkElement)sender).Tag;
+        }
+
+        private void FolderRow_Click(object sender, RoutedEventArgs e)
+        {
+            string path = PathOf(sender);
+            if (!_expandedDirs.Remove(path))
+            {
+                _expandedDirs.Add(path);
+            }
+            RefreshExplorer();
+        }
+
+        private async void Menu_Open(object sender, RoutedEventArgs e)
+        {
+            await OpenPath(PathOf(sender));
+        }
+
+        private async void Menu_Execute(object sender, RoutedEventArgs e)
+        {
+            await OpenPath(PathOf(sender));
+            await ExecuteCurrentTab();
+        }
+
+        private void Menu_Duplicate(object sender, RoutedEventArgs e)
+        {
+            string src = PathOf(sender);
+            try
+            {
+                string dir = Path.GetDirectoryName(src);
+                string stem = Path.GetFileNameWithoutExtension(src);
+                string ext = Path.GetExtension(src);
+                string dst = Path.Combine(dir, stem + " copy" + ext);
+                int n = 2;
+                while (File.Exists(dst))
+                {
+                    dst = Path.Combine(dir, string.Format("{0} copy {1}{2}", stem, n++, ext));
+                }
+                File.Copy(src, dst);
+                RefreshExplorer();
+            }
+            catch (Exception ex)
+            {
+                AddLog("err", "Could not duplicate: " + ex.Message);
+            }
+        }
+
+        private void Menu_Rename(object sender, RoutedEventArgs e)
+        {
+            _renamingPath = PathOf(sender);
+            RefreshExplorer();
+        }
+
+        private void Menu_ShowInExplorer(object sender, RoutedEventArgs e)
+        {
+            string path = PathOf(sender);
+            try
+            {
+                if (Directory.Exists(path))
+                {
+                    System.Diagnostics.Process.Start("explorer.exe", "\"" + path + "\"");
+                }
+                else
+                {
+                    System.Diagnostics.Process.Start("explorer.exe", "/select,\"" + path + "\"");
+                }
+            }
+            catch (Exception ex)
+            {
+                AddLog("err", "Could not open Explorer: " + ex.Message);
+            }
+        }
+
+        private async void Menu_Delete(object sender, RoutedEventArgs e)
+        {
+            string path = PathOf(sender);
+            string name = Path.GetFileName(path);
+            bool isDir = Directory.Exists(path);
+            var result = MessageBox.Show(this,
+                string.Format("Delete {0} '{1}'?{2}", isDir ? "folder" : "file", name, isDir ? " Everything inside will be removed." : string.Empty),
+                "Casium", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
+            try
+            {
+                if (isDir)
+                {
+                    Directory.Delete(path, true);
+                    foreach (var t in _tabs.Where(t => t.FilePath != null && t.FilePath.StartsWith(path, StringComparison.OrdinalIgnoreCase)).ToList())
+                    {
+                        await CloseTabAsync(t);
+                    }
+                }
+                else
+                {
+                    File.Delete(path);
+                    var open = _tabs.FirstOrDefault(t => string.Equals(t.FilePath, path, StringComparison.OrdinalIgnoreCase));
+                    if (open != null)
+                    {
+                        await CloseTabAsync(open);
+                    }
+                }
+                _recent.RemoveAll(p => p.StartsWith(path, StringComparison.OrdinalIgnoreCase));
+                RenderRecent();
+                RefreshExplorer();
+                AddLog("sys", string.Format("Deleted '{0}'.", name));
+            }
+            catch (Exception ex)
+            {
+                AddLog("err", "Could not delete: " + ex.Message);
+            }
+        }
+
+        private void RenameBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                CommitRename((TextBox)sender);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                _renamingPath = null;
+                RefreshExplorer();
+                e.Handled = true;
+            }
+        }
+
+        private void RenameBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (_renamingPath != null)
+            {
+                CommitRename((TextBox)sender);
+            }
+        }
+
+        private void CommitRename(TextBox box)
+        {
+            string oldPath = (string)box.Tag;
+            string newName = box.Text.Trim();
+            _renamingPath = null;
+
+            if (newName.Length == 0 || newName == Path.GetFileName(oldPath)
+                || newName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            {
+                RefreshExplorer();
+                return;
+            }
+
+            try
+            {
+                string newPath = Path.Combine(Path.GetDirectoryName(oldPath), newName);
+                if (Directory.Exists(oldPath))
+                {
+                    Directory.Move(oldPath, newPath);
+                    if (_expandedDirs.Remove(oldPath)) _expandedDirs.Add(newPath);
+                    foreach (var t in _tabs.Where(t => t.FilePath != null && t.FilePath.StartsWith(oldPath, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        t.FilePath = newPath + t.FilePath.Substring(oldPath.Length);
+                    }
+                }
+                else
+                {
+                    if (!Path.HasExtension(newName)) newPath += Path.GetExtension(oldPath);
+                    File.Move(oldPath, newPath);
+                    var tab = _tabs.FirstOrDefault(t => string.Equals(t.FilePath, oldPath, StringComparison.OrdinalIgnoreCase));
+                    if (tab != null)
+                    {
+                        tab.FilePath = newPath;
+                        tab.Title = Path.GetFileName(newPath);
+                    }
+                    int ri = _recent.FindIndex(p => string.Equals(p, oldPath, StringComparison.OrdinalIgnoreCase));
+                    if (ri >= 0) _recent[ri] = newPath;
+                }
+                RenderRecent();
+                RefreshTabStrip();
+                UpdateBreadcrumb();
+            }
+            catch (Exception ex)
+            {
+                AddLog("err", "Could not rename: " + ex.Message);
+            }
+            RefreshExplorer();
         }
 
         private async void ExplorerFile_Click(object sender, RoutedEventArgs e)
         {
-            string path = (string)((Button)sender).Tag;
-            await OpenPath(path);
+            if (_renamingPath != null)
+            {
+                return;
+            }
+            await OpenPath(PathOf(sender));
+        }
+
+        // ---------- breadcrumb ---------------------------------------------------------
+
+        private void UpdateBreadcrumb()
+        {
+            BreadcrumbPanel.Children.Clear();
+            if (_selectedTab == null)
+            {
+                return;
+            }
+
+            var parts = new List<string>();
+            string path = _selectedTab.FilePath;
+            if (!string.IsNullOrEmpty(path))
+            {
+                string root = path.StartsWith(AutoExecDir, StringComparison.OrdinalIgnoreCase) ? AutoExecDir
+                            : path.StartsWith(ScriptsDir, StringComparison.OrdinalIgnoreCase) ? ScriptsDir : null;
+                if (root != null)
+                {
+                    parts.Add(root == AutoExecDir ? "Auto Execute" : "Scripts");
+                    string rel = path.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar);
+                    parts.AddRange(rel.Split(Path.DirectorySeparatorChar));
+                }
+                else
+                {
+                    parts.Add(Path.GetFileName(path));
+                }
+            }
+            else
+            {
+                parts.Add(_selectedTab.Title);
+            }
+
+            for (int i = 0; i < parts.Count; i++)
+            {
+                bool last = i == parts.Count - 1;
+                if (last)
+                {
+                    BreadcrumbPanel.Children.Add(Glyph(FileGlyph, 12, "Text.Secondary"));
+                }
+                var t = new TextBlock { Text = parts[i], FontSize = 12.5, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(last ? 6 : 0, 0, 0, 0) };
+                t.SetResourceReference(TextBlock.ForegroundProperty, last ? "Text.Primary" : "Text.Secondary");
+                BreadcrumbPanel.Children.Add(t);
+                if (!last)
+                {
+                    var sep = Glyph(ChevronGlyph, 8, "Text.Tertiary", 1.8);
+                    sep.Margin = new Thickness(8, 0, 8, 0);
+                    BreadcrumbPanel.Children.Add(sep);
+                }
+            }
         }
 
         private void FilterBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -643,7 +1040,31 @@ namespace Casium.Views
 
         private string FolderFor(object sender)
         {
-            return (string)((Button)sender).Tag == "autoexec" ? AutoExecDir : ScriptsDir;
+            string tag = (string)((FrameworkElement)sender).Tag;
+            if (tag == "autoexec") return AutoExecDir;
+            if (tag == "scripts") return ScriptsDir;
+            return tag;
+        }
+
+        private void RevealFolder(string dir)
+        {
+            string d = dir;
+            while (d != null && !string.Equals(d, ScriptsDir, StringComparison.OrdinalIgnoreCase)
+                            && !string.Equals(d, AutoExecDir, StringComparison.OrdinalIgnoreCase))
+            {
+                _expandedDirs.Add(d);
+                d = Path.GetDirectoryName(d);
+            }
+            if (dir.StartsWith(AutoExecDir, StringComparison.OrdinalIgnoreCase))
+            {
+                AutoExecHeader.IsChecked = true;
+                AutoExecList.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ScriptsHeader.IsChecked = true;
+                ScriptsList.Visibility = Visibility.Visible;
+            }
         }
 
         private async void NewFileInFolder_Click(object sender, RoutedEventArgs e)
@@ -652,7 +1073,7 @@ namespace Casium.Views
             string path = null;
             for (int i = 1; i < 1000; i++)
             {
-                string candidate = Path.Combine(dir, string.Format("script{0}.lua", i));
+                string candidate = Path.Combine(dir, i == 1 ? "Untitled.lua" : string.Format("Untitled {0}.lua", i));
                 if (!File.Exists(candidate))
                 {
                     path = candidate;
@@ -672,25 +1093,42 @@ namespace Casium.Views
                 AddLog("err", "Could not create file: " + ex.Message);
                 return;
             }
+            RevealFolder(dir);
+            _renamingPath = path;
             RefreshExplorer();
-            if (dir == AutoExecDir)
-            {
-                AutoExecHeader.IsChecked = true;
-                AutoExecList.Visibility = Visibility.Visible;
-            }
             await OpenPath(path);
         }
 
-        private void OpenFolder_Click(object sender, RoutedEventArgs e)
+        private void NewFolder_Click(object sender, RoutedEventArgs e)
         {
+            string parent = FolderFor(sender);
+            string path = null;
+            for (int i = 1; i < 1000; i++)
+            {
+                string candidate = Path.Combine(parent, i == 1 ? "New folder" : string.Format("New folder {0}", i));
+                if (!Directory.Exists(candidate))
+                {
+                    path = candidate;
+                    break;
+                }
+            }
+            if (path == null)
+            {
+                return;
+            }
             try
             {
-                System.Diagnostics.Process.Start("explorer.exe", FolderFor(sender));
+                Directory.CreateDirectory(path);
             }
             catch (Exception ex)
             {
-                AddLog("err", "Could not open folder: " + ex.Message);
+                AddLog("err", "Could not create folder: " + ex.Message);
+                return;
             }
+            RevealFolder(parent);
+            _expandedDirs.Add(path);
+            _renamingPath = path;
+            RefreshExplorer();
         }
 
         private void ExplorerHeader_Click(object sender, RoutedEventArgs e)
@@ -807,6 +1245,7 @@ namespace Casium.Views
             UpdateLineNumbers();
             UpdateLnCol();
             StatusTabText.Text = _selectedTab.Title;
+            UpdateBreadcrumb();
         }
 
         private Border MakeTopTab(string title, Geometry icon, bool active, MouseButtonEventHandler onClick, EditorTab tab)
@@ -1331,6 +1770,7 @@ namespace Casium.Views
                 _selectedTab.IsDirty = false;
                 RefreshTabStrip();
                 RefreshExplorer();
+                UpdateBreadcrumb();
                 PushRecent(_selectedTab.FilePath);
                 StatusTabText.Text = _selectedTab.Title;
                 AddLog("ok", string.Format("Saved '{0}'.", _selectedTab.Title));
