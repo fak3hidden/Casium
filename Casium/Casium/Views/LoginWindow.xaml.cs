@@ -220,7 +220,7 @@ namespace Casium.Views
 
                 PersistRememberMe(username);
 
-                var main = new MainWindow(username);
+                var main = new MainMenu(username);
                 main.Show();
                 Close();
             }

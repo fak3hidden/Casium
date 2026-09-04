@@ -1,0 +1,812 @@
+<Window x:Class="Casium.Views.MainMenu"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Casium"
+        Height="760" Width="1240"
+        MinHeight="640" MinWidth="1080"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="CanResize"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <!-- Volt / Potassium dark palette -->
+        <Color x:Key="AppBgColor">#0B0910</Color>
+        <Color x:Key="PanelColor">#130F1C</Color>
+        <Color x:Key="Panel2Color">#171324</Color>
+        <Color x:Key="InputColor">#1B1626</Color>
+        <Color x:Key="BorderColor">#2B2140</Color>
+        <Color x:Key="BorderLightColor">#3D2F5C</Color>
+        <Color x:Key="AccentColor">#8B5CF6</Color>
+        <Color x:Key="AccentDarkColor">#6D28E9</Color>
+        <Color x:Key="MutedColor">#A79FBF</Color>
+        <Color x:Key="FaintColor">#6E6587</Color>
+
+        <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}"/>
+        <SolidColorBrush x:Key="FaintBrush" Color="{StaticResource FaintColor}"/>
+        <SolidColorBrush x:Key="LineBrush" Color="{StaticResource BorderColor}"/>
+
+        <LinearGradientBrush x:Key="AccentGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#8B5CF6" Offset="0"/>
+            <GradientStop Color="#6D28E9" Offset="1"/>
+        </LinearGradientBrush>
+
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource FaintBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- Left nav button -->
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="12,0">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dark action button -->
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Background" Value="#1B1626"/>
+            <Setter Property="BorderBrush" Value="#2B2140"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#EDE9FE"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#241C33"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#3D2F5C"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#2B2140"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Big gradient Execute button -->
+        <Style x:Key="GradientButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource AccentGradient}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#7C3AED"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#6D28E9"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Background" Value="#3F3F46"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TitleBarButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#A79FBF"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Width" Value="42"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#2B2140"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TitleBarCloseButton" BasedOn="{StaticResource TitleBarButton}" TargetType="Button">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E81123"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="GhostButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#A79FBF"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#2B2140"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TabButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#A79FBF"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Square toggle checkbox -->
+        <Style x:Key="ToggleCheckBox" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#EDE9FE"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="Box" Width="22" Height="22" CornerRadius="5"
+                                    Background="#1B1626" BorderBrush="#3D2F5C" BorderThickness="1">
+                                <Path x:Name="Check" Data="M5,12 L10,17 L17,7"
+                                      Stroke="#0B0910" StrokeThickness="2.5"
+                                      Visibility="Collapsed"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Box" Property="Background" Value="#8B5CF6"/>
+                                <Setter TargetName="Box" Property="BorderBrush" Value="#8B5CF6"/>
+                                <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkListBox" TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#EDE9FE"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- App card -->
+    <Border Margin="10" Background="#0B0910"
+            BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
+            CornerRadius="12">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Opacity="0.6" BlurRadius="28" ShadowDepth="0"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="46"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title bar -->
+            <Border Grid.Row="0" Background="Transparent" CornerRadius="12,12,0,0"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid Margin="16,0,8,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="⚡" Foreground="#8B5CF6" FontSize="16"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="Casium" Foreground="White" FontSize="13"
+                                   FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                        <TextBlock Text="v1.0" Foreground="{StaticResource FaintBrush}"
+                                   FontSize="11" VerticalAlignment="Center" Margin="8,1,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="TopUserText" Text="" Foreground="{StaticResource MutedBrush}"
+                                   FontSize="12" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <Button x:Name="MinimizeButton" Content="—"
+                                Style="{StaticResource TitleBarButton}" Click="MinimizeButton_Click"/>
+                        <Button x:Name="MaximizeButton" Content="▢"
+                                Style="{StaticResource TitleBarButton}" Click="MaximizeButton_Click"/>
+                        <Button x:Name="CloseButton" Content="✕"
+                                Style="{StaticResource TitleBarCloseButton}" Click="CloseButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Main -->
+            <Grid Grid.Row="1" Margin="12,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="208"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="284"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left : nav + info + status -->
+                <Border Grid.Column="0" Background="#130F1C"
+                        BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
+                        CornerRadius="10" Padding="12" Margin="0,0,6,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="2,2,2,14">
+                                <TextBlock Text="⚡" Foreground="#8B5CF6" FontSize="22"
+                                           FontStyle="Italic" FontWeight="Bold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="CASIUM" FontSize="19" FontWeight="Bold"
+                                           FontStyle="Italic" VerticalAlignment="Center" Margin="6,0,0,0">
+                                    <TextBlock.Foreground>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#A78BFA" Offset="0"/>
+                                            <GradientStop Color="#7C3AED" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </TextBlock.Foreground>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <Button x:Name="NavExecutor" Style="{StaticResource NavButton}"
+                                    Tag="ExecutorView" Click="NavButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⚡" Width="24"/>
+                                    <TextBlock Text="Executor"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="NavHub" Style="{StaticResource NavButton}"
+                                    Tag="HubView" Click="NavButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="▤" Width="24"/>
+                                    <TextBlock Text="Script Hub"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="NavNetwork" Style="{StaticResource NavButton}"
+                                    Tag="NetworkView" Click="NavButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⇄" Width="24"/>
+                                    <TextBlock Text="Network"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="NavPlayer" Style="{StaticResource NavButton}"
+                                    Tag="PlayerView" Click="NavButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="☺" Width="24"/>
+                                    <TextBlock Text="Player"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="NavSettings" Style="{StaticResource NavButton}"
+                                    Tag="SettingsView" Click="NavButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⚙" Width="24"/>
+                                    <TextBlock Text="Settings"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="NavKey" Style="{StaticResource NavButton}"
+                                    Tag="KeyView" Click="NavButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="◈" Width="24"/>
+                                    <TextBlock Text="Key System"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="NavAbout" Style="{StaticResource NavButton}"
+                                    Tag="AboutView" Click="NavButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="ⓘ" Width="24"/>
+                                    <TextBlock Text="About"/>
+                                </StackPanel>
+                            </Button>
+
+                            <TextBlock Text="SCRIPT INFO" Style="{StaticResource SectionHeader}"
+                                       Margin="2,18,0,8"/>
+                            <StackPanel x:Name="InfoPanel"/>
+
+                            <TextBlock Text="EXECUTION" Style="{StaticResource SectionHeader}"
+                                       Margin="2,16,0,8"/>
+                            <StackPanel x:Name="ExecPanel"/>
+
+                            <!-- Status card -->
+                            <Border Background="#171324" BorderBrush="{StaticResource LineBrush}"
+                                    BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,16,0,2">
+                                <StackPanel>
+                                    <Grid>
+                                        <TextBlock Text="Status" FontSize="12"
+                                                   Foreground="{StaticResource MutedBrush}"/>
+                                        <Ellipse x:Name="StatusDot" Width="8" Height="8"
+                                                 Fill="#71717A" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <TextBlock Text="Attached to" FontSize="12"
+                                               Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="AttachedText" Text="Not attached"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="#8B5CF6" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Version" FontSize="12"
+                                               Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock Text="v1.0" FontSize="12" Foreground="#EDE9FE"/>
+                                    <TextBlock Text="User" FontSize="12"
+                                               Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="NavUserText" Text="—" FontSize="12"
+                                               Foreground="#8B5CF6"/>
+                                    <Button x:Name="DetachButton" Content="Detach"
+                                            Style="{StaticResource GhostButton}"
+                                            HorizontalAlignment="Left" Margin="-10,6,0,-4"
+                                            Visibility="Collapsed" Click="DetachButton_Click"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Center : views -->
+                <Grid Grid.Column="1" Margin="6,0">
+                    <!-- Executor view -->
+                    <Grid x:Name="ExecutorView">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="196"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Tab strip -->
+                        <Grid Grid.Row="0" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Disabled">
+                                <StackPanel x:Name="TabStripPanel" Orientation="Horizontal"/>
+                            </ScrollViewer>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button x:Name="AddTabButton" Content="＋"
+                                        Style="{StaticResource GhostButton}"
+                                        FontSize="14" Click="AddTabButton_Click"/>
+                                <Button x:Name="EditorOpenButton" Content="Open"
+                                        Style="{StaticResource GhostButton}"
+                                        Click="EditorOpenButton_Click"/>
+                                <Button x:Name="EditorSaveButton" Content="Save"
+                                        Style="{StaticResource GhostButton}"
+                                        Click="EditorSaveButton_Click"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Editor -->
+                        <Border Grid.Row="1" Background="#0E0B14"
+                                BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
+                                CornerRadius="10">
+                            <Grid>
+                                <ScrollViewer x:Name="EditorScroll"
+                                              HorizontalScrollBarVisibility="Auto"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition x:Name="GutterColumn" Width="46"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock x:Name="LineNumbers" Grid.Column="0"
+                                                   FontFamily="Consolas" FontSize="14"
+                                                   LineHeight="19" LineStackingStrategy="BlockLineHeight"
+                                                   Foreground="#4B4460" TextAlignment="Right"
+                                                   Padding="0,10,8,10"/>
+                                        <RichTextBox x:Name="EditorBox" Grid.Column="1"
+                                                     Background="Transparent" BorderThickness="0"
+                                                     Foreground="#E6E3F0"
+                                                     FontFamily="Consolas" FontSize="14"
+                                                     Padding="8,10,12,10"
+                                                     AcceptsReturn="True" AcceptsTab="True"
+                                                     VerticalScrollBarVisibility="Disabled"
+                                                     HorizontalScrollBarVisibility="Disabled"
+                                                     TextChanged="EditorBox_TextChanged"
+                                                     KeyUp="EditorBox_KeyUp"
+                                                     PreviewMouseUp="EditorBox_MouseUp"/>
+                                    </Grid>
+                                </ScrollViewer>
+                                <TextBlock Text="Lua" Foreground="{StaticResource FaintBrush}"
+                                           FontSize="12" HorizontalAlignment="Right"
+                                           VerticalAlignment="Bottom" Margin="0,0,14,10"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Console -->
+                        <Border Grid.Row="2" Background="#0E0B14"
+                                BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
+                                CornerRadius="10" Margin="0,8,0,0">
+                            <Grid Margin="12,8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="ConsoleTabButton" Content="Console" Style="{StaticResource TabButton}"
+                                                Foreground="White" FontWeight="SemiBold" Padding="0,4,12,4"
+                                                Click="ConsoleTab_Click"/>
+                                        <Button x:Name="OutputTabButton" Content="Output" Style="{StaticResource TabButton}"
+                                                Padding="0,4,12,4" Click="OutputTab_Click"/>
+                                    </StackPanel>
+                                    <Button x:Name="ClearConsoleButton" Content="Clear"
+                                            Style="{StaticResource GhostButton}"
+                                            HorizontalAlignment="Right"
+                                            Click="ClearConsoleButton_Click"/>
+                                </Grid>
+                                <ListBox x:Name="LogList" Grid.Row="1"
+                                         Style="{StaticResource DarkListBox}"
+                                         FontFamily="Consolas" FontSize="12.5"
+                                         Margin="0,4"/>
+                                <Grid Grid.Row="2" Margin="0,4,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text=">" Foreground="#8B5CF6" FontFamily="Consolas"
+                                               FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="CommandInput" Grid.Column="1"
+                                             Background="Transparent" BorderThickness="0"
+                                             Foreground="#EDE9FE" CaretBrush="White"
+                                             FontFamily="Consolas" FontSize="13"
+                                             Margin="8,0,0,0" KeyDown="CommandInput_KeyDown"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Script Hub view -->
+                    <Grid x:Name="HubView" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="2,2,2,12">
+                            <TextBlock Text="Script Hub" Foreground="White" FontSize="20"
+                                       FontWeight="Bold"/>
+                            <TextBlock Text="Curated scripts — press Get to load one into the editor."
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,10"/>
+                            <Border Background="#1B1626" BorderBrush="{StaticResource LineBrush}"
+                                    BorderThickness="1" CornerRadius="8" MaxWidth="340"
+                                    HorizontalAlignment="Left">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="⌕" Foreground="{StaticResource FaintBrush}"
+                                               FontSize="14" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                    <TextBox x:Name="HubSearch" Grid.Column="1"
+                                             Background="Transparent" BorderThickness="0"
+                                             Foreground="White" CaretBrush="White" FontSize="13"
+                                             Padding="8,9" TextChanged="HubSearch_TextChanged"/>
+                                    <TextBlock x:Name="HubSearchHint" Grid.Column="1"
+                                               Text="Search scripts..." Foreground="{StaticResource FaintBrush}"
+                                               FontSize="13" VerticalAlignment="Center" Margin="8,0,0,0"
+                                               IsHitTestVisible="False"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <WrapPanel x:Name="HubPanel"/>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- Network view -->
+                    <Border x:Name="NetworkView" Visibility="Collapsed"
+                            Background="#130F1C" BorderBrush="{StaticResource LineBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="28">
+                        <StackPanel MaxWidth="440" HorizontalAlignment="Left">
+                            <TextBlock Text="Network" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="Live connection stats for this session."
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
+                            <StackPanel x:Name="NetworkPanel"/>
+                            <Button x:Name="NetRefreshButton" Content="Refresh"
+                                    Style="{StaticResource ActionButton}" Width="140"
+                                    HorizontalAlignment="Left" Margin="0,20,0,0"
+                                    Click="NetRefreshButton_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Player view -->
+                    <Border x:Name="PlayerView" Visibility="Collapsed"
+                            Background="#130F1C" BorderBrush="{StaticResource LineBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="28">
+                        <StackPanel MaxWidth="440" HorizontalAlignment="Left">
+                            <TextBlock Text="Player" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="Tweak the local player. Applied to the console log."
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
+                            <Grid>
+                                <TextBlock Text="WalkSpeed" Foreground="#EDE9FE" FontSize="13"/>
+                                <TextBlock x:Name="SpeedValue" Text="16" Foreground="#8B5CF6"
+                                           FontSize="13" FontWeight="Bold" HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Slider x:Name="SpeedSlider" Minimum="10" Maximum="100" Value="16"
+                                    Margin="0,8,0,4" ValueChanged="SpeedSlider_ValueChanged"/>
+                            <Grid Margin="0,14,0,0">
+                                <TextBlock Text="JumpPower" Foreground="#EDE9FE" FontSize="13"/>
+                                <TextBlock x:Name="JumpValue" Text="50" Foreground="#8B5CF6"
+                                           FontSize="13" FontWeight="Bold" HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Slider x:Name="JumpSlider" Minimum="10" Maximum="200" Value="50"
+                                    Margin="0,8,0,4" ValueChanged="JumpSlider_ValueChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                                <Button x:Name="ApplyPlayerButton" Content="Apply"
+                                        Style="{StaticResource GradientButton}" Width="140" Height="40"
+                                        FontSize="13" Click="ApplyPlayerButton_Click"/>
+                                <Button x:Name="ResetPlayerButton" Content="Reset"
+                                        Style="{StaticResource ActionButton}" Width="120" Height="40"
+                                        Margin="10,0,0,0" Click="ResetPlayerButton_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Settings view -->
+                    <Border x:Name="SettingsView" Visibility="Collapsed"
+                            Background="#130F1C" BorderBrush="{StaticResource LineBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="28">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel MaxWidth="520" HorizontalAlignment="Left">
+                                <TextBlock Text="Settings" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                                <TextBlock Text="Tune Casium to your liking."
+                                           Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
+                                <StackPanel x:Name="SettingsPanel"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- Key System view -->
+                    <Border x:Name="KeyView" Visibility="Collapsed"
+                            Background="#130F1C" BorderBrush="{StaticResource LineBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="28">
+                        <StackPanel MaxWidth="440" HorizontalAlignment="Left">
+                            <TextBlock Text="Key System" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="Your access key. Keep it secret."
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,4,0,20"/>
+                            <TextBlock Text="ACCESS KEY" Style="{StaticResource SectionHeader}"/>
+                            <Border Background="#1B1626" BorderBrush="{StaticResource LineBrush}"
+                                    BorderThickness="1" CornerRadius="8" Padding="12,10">
+                                <TextBlock x:Name="KeyBox" Text="—" Foreground="White"
+                                           FontFamily="Consolas" FontSize="14"/>
+                            </Border>
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <Button x:Name="CopyKeyButton" Content="Copy Key"
+                                        Style="{StaticResource ActionButton}" Width="130"
+                                        Click="CopyKeyButton_Click"/>
+                                <Button x:Name="ResetKeyButton" Content="Reset Key"
+                                        Style="{StaticResource ActionButton}" Width="130"
+                                        Margin="10,0,0,0" Click="ResetKeyButton_Click"/>
+                            </StackPanel>
+                            <TextBlock x:Name="HwidText" Text="HWID: —"
+                                       Foreground="{StaticResource FaintBrush}" FontFamily="Consolas"
+                                       FontSize="12" Margin="0,18,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- About view -->
+                    <Border x:Name="AboutView" Visibility="Collapsed"
+                            Background="#130F1C" BorderBrush="{StaticResource LineBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="28">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    MaxWidth="420">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="⚡" Foreground="#8B5CF6" FontSize="34"
+                                           FontStyle="Italic" FontWeight="Bold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="CASIUM" FontSize="34" FontWeight="Bold"
+                                           FontStyle="Italic" VerticalAlignment="Center" Margin="8,0,0,0">
+                                    <TextBlock.Foreground>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#A78BFA" Offset="0"/>
+                                            <GradientStop Color="#7C3AED" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </TextBlock.Foreground>
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock Text="v1.0" Foreground="{StaticResource MutedBrush}"
+                                       FontSize="13" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                            <TextBlock Text="A dark, fast desktop environment."
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13"
+                                       HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                            <TextBlock x:Name="AboutUserText" Text="Signed in as —"
+                                       Foreground="#8B5CF6" FontSize="13" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                                        Margin="0,22,0,0">
+                                <Button x:Name="CheckUpdatesButton" Content="Check Updates"
+                                        Style="{StaticResource ActionButton}" Width="150"
+                                        Click="CheckUpdatesButton_Click"/>
+                                <Button x:Name="LogoutButton" Content="Log out"
+                                        Style="{StaticResource ActionButton}" Width="130"
+                                        Margin="10,0,0,0" Click="LogoutButton_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Right : hub + execute -->
+                <Border Grid.Column="2" Background="#130F1C"
+                        BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
+                        CornerRadius="10" Padding="12" Margin="6,0,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Script Hub" Foreground="White"
+                                       FontSize="15" FontWeight="Bold"/>
+                            <Border Grid.Row="1" Background="#1B1626"
+                                    BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
+                                    CornerRadius="8" Margin="0,10,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="⌕" Foreground="{StaticResource FaintBrush}"
+                                               FontSize="13" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                    <TextBox x:Name="MiniHubSearch" Grid.Column="1"
+                                             Background="Transparent" BorderThickness="0"
+                                             Foreground="White" CaretBrush="White" FontSize="12.5"
+                                             Padding="6,8" TextChanged="MiniHubSearch_TextChanged"/>
+                                    <TextBlock x:Name="MiniHubHint" Grid.Column="1"
+                                               Text="Search scripts..." Foreground="{StaticResource FaintBrush}"
+                                               FontSize="12.5" VerticalAlignment="Center" Margin="6,0,0,0"
+                                               IsHitTestVisible="False"/>
+                                </Grid>
+                            </Border>
+                            <ListBox x:Name="MiniHubList" Grid.Row="2"
+                                     Style="{StaticResource DarkListBox}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#171324" CornerRadius="8" Padding="10,8"
+                                                Margin="0,0,0,6"
+                                                BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding Name}" Foreground="White"
+                                                               FontSize="12.5" FontWeight="SemiBold"/>
+                                                    <TextBlock Foreground="{StaticResource FaintBrush}"
+                                                               FontSize="11" Margin="0,2,0,0">
+                                                        <Run Text="by "/><Run Text="{Binding Author}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <Border Grid.Column="1" BorderBrush="#8B5CF6"
+                                                        BorderThickness="1" CornerRadius="5"
+                                                        Padding="7,2" Margin="8,0"
+                                                        VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Badge}" Foreground="#A78BFA"
+                                                               FontSize="10"/>
+                                                </Border>
+                                                <Button Grid.Column="2" Content="▷"
+                                                        Style="{StaticResource GhostButton}"
+                                                        Click="PlayScript_Click"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Button x:Name="BrowseAllButton" Grid.Row="3"
+                                    Content="Browse All Scripts  »"
+                                    Style="{StaticResource ActionButton}" Margin="0,4,0,0"
+                                    Click="BrowseAllButton_Click"/>
+                        </Grid>
+
+                        <StackPanel Grid.Row="1" Margin="0,12,0,0">
+                            <Button x:Name="ExecuteButton" Content="▷  Execute"
+                                    Style="{StaticResource GradientButton}"
+                                    Click="ExecuteButton_Click"/>
+                            <Button x:Name="ClipboardButton" Content="Execute Clipboard"
+                                    Style="{StaticResource ActionButton}" Margin="0,8,0,0"
+                                    Click="ClipboardButton_Click"/>
+                            <Button x:Name="OpenFileButton" Content="Open File"
+                                    Style="{StaticResource ActionButton}" Margin="0,8,0,0"
+                                    Click="OpenFileButton_Click"/>
+                            <Button x:Name="InjectButton" Content="⚡  Inject"
+                                    Style="{StaticResource ActionButton}" Margin="0,8,0,0"
+                                    Click="InjectButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Status bar -->
+            <Border Grid.Row="2" Background="Transparent"
+                    BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0"
+                    Margin="12,0">
+                <Grid>
+                    <TextBlock x:Name="StatusTabText" Text="Script1" Foreground="{StaticResource MutedBrush}"
+                               FontSize="11.5" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                        <TextBlock x:Name="LnColText" Text="Ln 1, Col 1"
+                                   Foreground="{StaticResource MutedBrush}" FontSize="11.5"/>
+                        <TextBlock x:Name="FpsText" Text="FPS: —"
+                                   Foreground="{StaticResource MutedBrush}" FontSize="11.5" Margin="14,0,0,0"/>
+                        <TextBlock Text="v1.0" Foreground="{StaticResource FaintBrush}"
+                                   FontSize="11.5" Margin="14,0,0,0"/>
+                        <Ellipse x:Name="ReadyDot" Width="7" Height="7" Fill="#71717A"
+                                 Margin="14,0,0,0"/>
+                        <TextBlock x:Name="ExecReadyText" Text="Idle"
+                                   Foreground="{StaticResource MutedBrush}" FontSize="11.5" Margin="6,0,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
