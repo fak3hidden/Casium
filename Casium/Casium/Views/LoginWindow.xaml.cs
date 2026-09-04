@@ -19,11 +19,30 @@ namespace Casium.Views
         private bool _isPasswordVisible;
         private bool _hasError;
 
+        [System.Runtime.InteropServices.DllImport("dwmapi.dll", PreserveSig = true)]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
+
         public LoginWindow()
         {
             InitializeComponent();
             Loaded += LoginWindow_Loaded;
+            SourceInitialized += (s, e) => ApplyNativeRounding();
             StateChanged += (s, e) => MaximizeButton.Content = WindowState == WindowState.Maximized ? "\uE923" : "\uE922";
+        }
+
+        /// <summary>Windows 11 rounded corners (DWMWA_WINDOW_CORNER_PREFERENCE = DWMWCP_ROUND). No-op on Windows 10.</summary>
+        private void ApplyNativeRounding()
+        {
+            try
+            {
+                IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                if (hwnd != IntPtr.Zero)
+                {
+                    int pref = 2;
+                    DwmSetWindowAttribute(hwnd, 33, ref pref, sizeof(int));
+                }
+            }
+            catch { }
         }
 
         private void LoginWindow_Loaded(object sender, RoutedEventArgs e)
@@ -64,13 +83,11 @@ namespace Casium.Views
                 src = System.Windows.Media.VisualTreeHelper.GetParent(src);
             }
             RootFocusTarget.Focus();
-            Keyboard.ClearFocus();
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             RootFocusTarget.Focus();
-            Keyboard.ClearFocus();
             if (e.ClickCount == 2)
             {
                 MaximizeButton_Click(sender, e);

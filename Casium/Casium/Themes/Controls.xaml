@@ -140,6 +140,7 @@
 
     <!-- Title bar caption -->
     <Style x:Key="Button.Caption" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
+        <Setter Property="Focusable" Value="False"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
         <Setter Property="BorderThickness" Value="0"/>
