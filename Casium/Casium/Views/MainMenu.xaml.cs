@@ -33,14 +33,6 @@ namespace Casium.Views
             public bool IsDirty { get; set; }
         }
 
-        private class HubScript
-        {
-            public string Name { get; set; }
-            public string Author { get; set; }
-            public string Badge { get; set; }
-            public string Key { get; set; }
-        }
-
         private class LogEntry
         {
             public string Time { get; set; }
@@ -76,27 +68,20 @@ namespace Casium.Views
         private bool _outputOnly;
         private bool _showTimestamps = true;
 
-        private readonly List<HubScript> _hubScripts = new List<HubScript>();
-        private readonly Dictionary<string, string> _templates = new Dictionary<string, string>();
-
-        private readonly Dictionary<string, TextBlock> _infoValues = new Dictionary<string, TextBlock>();
-        private readonly Dictionary<string, TextBlock> _execValues = new Dictionary<string, TextBlock>();
-
         private readonly Dictionary<string, FrameworkElement> _views = new Dictionary<string, FrameworkElement>();
         private readonly List<Button> _navButtons = new List<Button>();
 
-        private readonly DispatcherTimer _fpsTimer = new DispatcherTimer();
-        private readonly DateTime _appStart = DateTime.Now;
-        private DateTime _attachTime;
+        private readonly DispatcherTimer _cursorTimer = new DispatcherTimer();
+        private readonly List<string> _recent = new List<string>();
+        private bool _consoleCollapsed;
+        private double _consoleHeight = 170;
 
         private bool _attached;
         private bool _attaching;
         private bool _monacoReady;
         private bool _useMonaco;
-        private bool _autoAttach = true;
+        private bool _autoAttach = false;
         private string _username = "—";
-        private string _accessKey;
-        private string _lastSaved = "Never";
 
         private static readonly Regex LuaToken = new Regex(
             @"(?<comment>--\[\[.*?\]\]|--[^\n]*)" +
@@ -113,24 +98,7 @@ namespace Casium.Views
         private static Brush LuaNumber  { get { return ThemeManager.GetBrush("Syntax.Number"); } }
         private static Brush LuaBuiltin { get { return ThemeManager.GetBrush("Syntax.Builtin"); } }
 
-        private const string DefaultScript =
-@"-- Casium Executor
-local Players = game:GetService(""Players"")
-local LocalPlayer = Players.LocalPlayer
-
-local function hi()
-    print(""Hello from Casium!"")
-end
-
-hi()
-
--- Example
-for i = 1, 5 do
-    task.wait(1)
-    print(""Count: "" .. i)
-end
-
--- Made with power.";
+        private const string DefaultScript = "print(\"Hello from Casium\")\n";
 
         // ---------- construction ---------------------------------------------------
 
@@ -163,41 +131,66 @@ end
 
             _ = InitMonacoAsync();
 
-            TopUserText.Text = _username;
-            NavUserText.Text = _username;
-            AvatarInitial.Text = _username.Length > 0 ? _username.Substring(0, 1).ToUpperInvariant() : "?";
+            StartUserRun.Text = string.Format("Signed in as {0}.", _username);
+            AccountNameText.Text = _username;
             ThemeStatusText.Text = ThemeManager.CurrentName;
             ThemeManager.ThemeChanged += OnThemeChanged;
             Closed += (ss, ee) => ThemeManager.ThemeChanged -= OnThemeChanged;
             StateChanged += (ss, ee) => MaximizeButton.Content = WindowState == WindowState.Maximized ? "\uE923" : "\uE922";
-            BuildThemePicker();
-            AboutUserText.Text = string.Format("Signed in as {0}", _username);
+            PreviewKeyDown += MainMenu_PreviewKeyDown;
 
             BuildViews();
-            BuildInfoPanels();
-            BuildHubData();
             BuildSettings();
-            InitNetwork();
-            ResetKey(silent: true);
+            BuildThemePicker();
+            LoadRecent();
+            RefreshExplorer();
 
             EditorScroll.SizeChanged += (ss, ee) => RefreshPageWidth();
-
             LogList.ItemsSource = _visibleLogs;
-            MiniHubList.ItemsSource = new List<HubScript>(_hubScripts);
 
-            NewTab("Script1", DefaultScript);
-            SwitchView("ExecutorView");
+            RefreshTabStrip();
+            SwitchView("StartView");
 
-            AddLog("sys", "Welcome to Casium Executor.");
-            AddLog("sys", string.Format("Signed in as {0}.", _username));
+            AddLog("sys", "Welcome to Casium.");
 
-            _fpsTimer.Interval = TimeSpan.FromSeconds(1);
-            _fpsTimer.Tick += FpsTimer_Tick;
-            _fpsTimer.Start();
+            _cursorTimer.Interval = TimeSpan.FromMilliseconds(400);
+            _cursorTimer.Tick += async (ss, ee) => await PollMonacoCursorAsync();
+            _cursorTimer.Start();
 
             if (_autoAttach)
             {
                 await AttachSequence();
+            }
+        }
+
+        private async void MainMenu_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            bool ctrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+            if (e.Key == Key.F5)
+            {
+                e.Handled = true;
+                await ExecuteCurrentTab();
+            }
+            else if (ctrl && e.Key == Key.T)
+            {
+                e.Handled = true;
+                await SyncMonacoToTabAsync();
+                NewTab(string.Format("Script{0}", ++_tabCounter), DefaultScript);
+            }
+            else if (ctrl && e.Key == Key.S)
+            {
+                e.Handled = true;
+                await SaveCurrentTab();
+            }
+            else if (ctrl && e.Key == Key.O)
+            {
+                e.Handled = true;
+                await OpenFile();
+            }
+            else if (ctrl && e.Key == Key.W && _selectedTab != null)
+            {
+                e.Handled = true;
+                await CloseTabAsync(_selectedTab);
             }
         }
 
@@ -277,7 +270,6 @@ end
 
                 MonacoView.Visibility = Visibility.Visible;
                 EditorBox.Visibility = Visibility.Collapsed;
-                LuaLabel.Visibility = Visibility.Collapsed;
                 GutterColumn.Width = new GridLength(0);
                 LineNumbers.Visibility = Visibility.Collapsed;
 
@@ -323,10 +315,6 @@ end
                     return;
                 }
                 tab.Content = code;
-                if (tab == _selectedTab)
-                {
-                    UpdateScriptInfo();
-                }
             }
             catch { }
         }
@@ -346,7 +334,7 @@ end
 
         private async Task PollMonacoCursorAsync()
         {
-            if (!_monacoReady || ExecutorView.Visibility != Visibility.Visible)
+            if (!_monacoReady || _currentView != "ExecutorView")
             {
                 return;
             }
@@ -487,37 +475,240 @@ end
 
         private void BuildViews()
         {
+            _views["StartView"] = StartView;
             _views["ExecutorView"] = ExecutorView;
-            _views["HubView"] = HubView;
-            _views["NetworkView"] = NetworkView;
-            _views["PlayerView"] = PlayerView;
             _views["SettingsView"] = SettingsView;
-            _views["KeyView"] = KeyView;
-            _views["AboutView"] = AboutView;
-
-            _navButtons.AddRange(new[] { NavExecutor, NavHub, NavNetwork, NavPlayer, NavSettings, NavKey, NavAbout });
         }
 
-        private void NavButton_Click(object sender, RoutedEventArgs e)
-        {
-            SwitchView((string)((Button)sender).Tag);
-        }
+        private string _currentView = "StartView";
 
         private void SwitchView(string key)
         {
+            _currentView = key;
             foreach (var pair in _views)
             {
                 pair.Value.Visibility = pair.Key == key ? Visibility.Visible : Visibility.Collapsed;
             }
-
-            foreach (var btn in _navButtons)
+            if (key != "ExecutorView")
             {
-                NavState.SetIsActive(btn, (string)btn.Tag == key);
+                _selectedTab = null;
+                LnColText.Text = string.Empty;
             }
-
-            if (key == "ExecutorView" && _selectedTab != null)
+            StatusTabText.Text = key == "StartView" ? "Start"
+                : key == "SettingsView" ? "Settings"
+                : (_selectedTab != null ? _selectedTab.Title : string.Empty);
+            RefreshTabStrip();
+            if (key == "ExecutorView" && _selectedTab != null && !_useMonaco)
             {
                 EditorBox.Focus();
+            }
+        }
+
+        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+            SwitchView("SettingsView");
+        }
+
+        private void StartTab_Click(object sender, MouseButtonEventArgs e)
+        {
+            _ = SyncMonacoToTabAsync();
+            SwitchView("StartView");
+        }
+
+        private void SettingsTab_Click(object sender, MouseButtonEventArgs e)
+        {
+            _ = SyncMonacoToTabAsync();
+            SwitchView("SettingsView");
+        }
+
+        private void CollapseSidebarButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool hide = Sidebar.Visibility == Visibility.Visible;
+            Sidebar.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+            SidebarColumn.Width = hide ? new GridLength(0) : new GridLength(250);
+            ExpandSidebarButton.Visibility = hide ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void ToggleConsoleButton_Click(object sender, RoutedEventArgs e)
+        {
+            _consoleCollapsed = !_consoleCollapsed;
+            if (_consoleCollapsed)
+            {
+                _consoleHeight = Math.Max(ConsoleRow.ActualHeight, 80);
+                ConsoleRow.Height = new GridLength(0);
+                ConsoleChevron.Data = Geometry.Parse("M6,9 L12,15 L18,9");
+            }
+            else
+            {
+                ConsoleRow.Height = new GridLength(_consoleHeight);
+                ConsoleChevron.Data = Geometry.Parse("M6,15 L12,9 L18,15");
+            }
+        }
+
+        // ---------- explorer -----------------------------------------------------------
+
+        private static string ScriptsDir
+        {
+            get
+            {
+                string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scripts");
+                Directory.CreateDirectory(dir);
+                return dir;
+            }
+        }
+
+        private static string AutoExecDir
+        {
+            get
+            {
+                string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "autoexec");
+                Directory.CreateDirectory(dir);
+                return dir;
+            }
+        }
+
+        private void RefreshExplorer()
+        {
+            FillExplorer(ScriptsList, ScriptsDir);
+            FillExplorer(AutoExecList, AutoExecDir);
+        }
+
+        private void FillExplorer(StackPanel panel, string dir)
+        {
+            panel.Children.Clear();
+            string filter = (FilterBox.Text ?? string.Empty).Trim().ToLowerInvariant();
+            string[] files;
+            try
+            {
+                files = Directory.GetFiles(dir)
+                    .Where(f => f.EndsWith(".lua", StringComparison.OrdinalIgnoreCase)
+                             || f.EndsWith(".luau", StringComparison.OrdinalIgnoreCase)
+                             || f.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(f => Path.GetFileName(f), StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+            }
+            catch
+            {
+                files = new string[0];
+            }
+
+            foreach (var file in files)
+            {
+                string name = Path.GetFileName(file);
+                if (filter.Length > 0 && !name.ToLowerInvariant().Contains(filter))
+                {
+                    continue;
+                }
+                panel.Children.Add(MakeFileRow(name, file));
+            }
+
+            if (panel.Children.Count == 0)
+            {
+                var empty = new TextBlock { Text = filter.Length > 0 ? "No matches" : "Empty", FontSize = 12, Margin = new Thickness(10, 3, 0, 3) };
+                empty.SetResourceReference(TextBlock.ForegroundProperty, "Text.Tertiary");
+                panel.Children.Add(empty);
+            }
+        }
+
+        private Button MakeFileRow(string name, string path)
+        {
+            var row = new StackPanel { Orientation = Orientation.Horizontal };
+            var icon = new System.Windows.Shapes.Path
+            {
+                Data = Geometry.Parse("M6,2 H14 L20,8 V22 H6 Z M14,2 V8 H20"),
+                StrokeThickness = 1.6, Width = 12, Height = 12, Stretch = Stretch.Uniform,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            icon.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Text.Secondary");
+            row.Children.Add(icon);
+            var label = new TextBlock { Text = name, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+            row.Children.Add(label);
+
+            var btn = new Button { Style = (Style)FindResource("ExplorerRow"), Content = row, Tag = path, ToolTip = path };
+            btn.Click += ExplorerFile_Click;
+            return btn;
+        }
+
+        private async void ExplorerFile_Click(object sender, RoutedEventArgs e)
+        {
+            string path = (string)((Button)sender).Tag;
+            await OpenPath(path);
+        }
+
+        private void FilterBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            FilterHint.Visibility = FilterBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+            RefreshExplorer();
+        }
+
+        private void RefreshScriptsButton_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshExplorer();
+        }
+
+        private void ExplorerHeader_Click(object sender, RoutedEventArgs e)
+        {
+            var header = (System.Windows.Controls.Primitives.ToggleButton)sender;
+            var list = header == ScriptsHeader ? ScriptsList : AutoExecList;
+            list.Visibility = header.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        // ---------- recent -------------------------------------------------------------
+
+        private static string RecentPath
+        {
+            get
+            {
+                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Casium");
+                Directory.CreateDirectory(dir);
+                return Path.Combine(dir, "recent.txt");
+            }
+        }
+
+        private void LoadRecent()
+        {
+            _recent.Clear();
+            try
+            {
+                if (File.Exists(RecentPath))
+                {
+                    _recent.AddRange(File.ReadAllLines(RecentPath).Where(l => l.Length > 0 && File.Exists(l)).Take(8));
+                }
+            }
+            catch { }
+            RenderRecent();
+        }
+
+        private void PushRecent(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+            _recent.RemoveAll(p => string.Equals(p, path, StringComparison.OrdinalIgnoreCase));
+            _recent.Insert(0, path);
+            while (_recent.Count > 8)
+            {
+                _recent.RemoveAt(_recent.Count - 1);
+            }
+            try { File.WriteAllLines(RecentPath, _recent); } catch { }
+            RenderRecent();
+        }
+
+        private void RenderRecent()
+        {
+            RecentList.Children.Clear();
+            RecentEmpty.Visibility = _recent.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            foreach (var path in _recent)
+            {
+                var b = MakeFileRow(Path.GetFileName(path), path);
+                b.Height = 32;
+                b.FontSize = 13;
+                b.Padding = new Thickness(10, 0, 10, 0);
+                b.HorizontalAlignment = HorizontalAlignment.Left;
+                b.Foreground = ThemeManager.GetBrush("Accent.Text");
+                b.SetResourceReference(Button.ForegroundProperty, "Accent.Text");
+                RecentList.Children.Add(b);
             }
         }
 
@@ -527,6 +718,11 @@ end
         {
             var tab = new EditorTab { Title = title, Content = content ?? string.Empty, FilePath = path };
             _tabs.Add(tab);
+            _currentView = "ExecutorView";
+            foreach (var pair in _views)
+            {
+                pair.Value.Visibility = pair.Key == "ExecutorView" ? Visibility.Visible : Visibility.Collapsed;
+            }
             SelectTab(tab);
         }
 
@@ -537,9 +733,14 @@ end
                 return;
             }
             _selectedTab = tab;
+            _currentView = "ExecutorView";
+            foreach (var pair in _views)
+            {
+                pair.Value.Visibility = pair.Key == "ExecutorView" ? Visibility.Visible : Visibility.Collapsed;
+            }
             LoadTabContent();
             RefreshTabStrip();
-            UpdateScriptInfo();
+            _ = SyncTabToMonacoAsync();
         }
 
         private void LoadTabContent()
@@ -561,72 +762,75 @@ end
             StatusTabText.Text = _selectedTab.Title;
         }
 
-        private void RefreshTabStrip()
+        private Border MakeTopTab(string title, Geometry icon, bool active, MouseButtonEventHandler onClick, EditorTab tab)
         {
-            TabStripPanel.Children.Clear();
+            var border = new Border { Style = (Style)FindResource("DocTab"), Tag = tab };
+            NavState.SetIsActive(border, active);
+            border.MouseLeftButtonDown += onClick;
 
-            foreach (var tab in _tabs)
+            var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            var ic = new System.Windows.Shapes.Path { Data = icon, StrokeThickness = 1.6, Width = 13, Height = 13, Stretch = Stretch.Uniform, VerticalAlignment = VerticalAlignment.Center };
+            ic.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, active ? "Text.Primary" : "Text.Secondary");
+            row.Children.Add(ic);
+            var label = new TextBlock { Text = title, FontSize = 13, Margin = new Thickness(9, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            label.SetResourceReference(TextBlock.ForegroundProperty, active ? "Text.Primary" : "Text.Secondary");
+            row.Children.Add(label);
+
+            if (tab != null)
             {
-                bool active = tab == _selectedTab;
-                var border = new Border
-                {
-                    Background = active ? ThemeManager.GetBrush("App.Surface") : Brushes.Transparent,
-                    BorderBrush = active ? ThemeManager.GetBrush("App.Border") : Brushes.Transparent,
-                    BorderThickness = new Thickness(1, 1, 1, 0),
-                    CornerRadius = new CornerRadius(7, 7, 0, 0),
-                    Padding = new Thickness(12, 0, 4, 0),
-                    Height = active ? 33 : 30,
-                    Margin = new Thickness(0, 0, 2, active ? -1 : 0),
-                    VerticalAlignment = VerticalAlignment.Bottom,
-                    Cursor = Cursors.Hand,
-                    Tag = tab
-                };
-                border.MouseLeftButtonDown += SelectTab_Click;
-
-                var row = new StackPanel { Orientation = Orientation.Horizontal };
-                if (tab.IsDirty)
-                {
-                    row.Children.Add(new System.Windows.Shapes.Ellipse
-                    {
-                        Width = 6, Height = 6,
-                        Fill = ThemeManager.GetBrush("Accent"),
-                        Margin = new Thickness(0, 0, 8, 0),
-                        VerticalAlignment = VerticalAlignment.Center
-                    });
-                }
-                row.Children.Add(new TextBlock
-                {
-                    Text = tab.Title,
-                    Foreground = active ? WhiteBrush : GrayBrush,
-                    FontSize = 12.5,
-                    FontWeight = active ? FontWeights.SemiBold : FontWeights.Normal,
-                    VerticalAlignment = VerticalAlignment.Center
-                });
-
                 var close = new Button
                 {
                     Tag = tab,
                     Style = (Style)FindResource("Button.Icon"),
                     Width = 22, Height = 22,
-                    Margin = new Thickness(6, 0, 0, 0),
+                    Margin = new Thickness(8, 0, 0, 0),
                     VerticalAlignment = VerticalAlignment.Center,
-                    ToolTip = "Close tab"
+                    ToolTip = "Close"
                 };
-                var closeIcon = new System.Windows.Shapes.Path
+                if (tab.IsDirty && !active)
                 {
-                    Data = Geometry.Parse("M6,6 L18,18 M18,6 L6,18"),
-                    StrokeThickness = 1.6,
-                    Width = 9, Height = 9,
-                    Stretch = Stretch.Uniform
-                };
-                closeIcon.SetBinding(System.Windows.Shapes.Shape.StrokeProperty,
-                    new System.Windows.Data.Binding("Foreground") { Source = close });
-                close.Content = closeIcon;
+                    var dot = new System.Windows.Shapes.Ellipse { Width = 6, Height = 6 };
+                    dot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Text.Secondary");
+                    close.Content = dot;
+                }
+                else
+                {
+                    var x = new System.Windows.Shapes.Path { Data = Geometry.Parse("M6,6 L18,18 M18,6 L6,18"), StrokeThickness = 1.6, Width = 9, Height = 9, Stretch = Stretch.Uniform };
+                    x.SetBinding(System.Windows.Shapes.Shape.StrokeProperty, new System.Windows.Data.Binding("Foreground") { Source = close });
+                    close.Content = x;
+                }
                 close.Click += CloseTab_Click;
                 row.Children.Add(close);
+            }
+            else
+            {
+                row.Margin = new Thickness(0, 0, 6, 0);
+            }
 
-                border.Child = row;
-                TabStripPanel.Children.Add(border);
+            border.Child = row;
+            return border;
+        }
+
+        private void RefreshTabStrip()
+        {
+            TabStripPanel.Children.Clear();
+
+            TabStripPanel.Children.Add(MakeTopTab("Start",
+                Geometry.Parse("M12,2 L14.9,8.6 L22,9.3 L16.7,14.1 L18.2,21 L12,17.5 L5.8,21 L7.3,14.1 L2,9.3 L9.1,8.6 Z"),
+                _currentView == "StartView", StartTab_Click, null));
+
+            var fileIcon = Geometry.Parse("M6,2 H14 L20,8 V22 H6 Z M14,2 V8 H20");
+            foreach (var tab in _tabs)
+            {
+                bool active = _currentView == "ExecutorView" && tab == _selectedTab;
+                TabStripPanel.Children.Add(MakeTopTab(tab.Title, fileIcon, active, SelectTab_Click, tab));
+            }
+
+            if (_currentView == "SettingsView")
+            {
+                TabStripPanel.Children.Add(MakeTopTab("Settings",
+                    Geometry.Parse("M12,15.5 A3.5,3.5 0 1,0 12,8.5 A3.5,3.5 0 1,0 12,15.5 Z M12,2 V5 M12,19 V22 M2,12 H5 M19,12 H22 M4.9,4.9 L7,7 M17,17 L19.1,19.1 M4.9,19.1 L7,17 M17,7 L19.1,4.9"),
+                    true, SettingsTab_Click, null));
             }
         }
 
@@ -646,8 +850,12 @@ end
         private async void CloseTab_Click(object sender, RoutedEventArgs e)
         {
             e.Handled = true;
+            await CloseTabAsync((EditorTab)((Button)sender).Tag);
+        }
+
+        private async Task CloseTabAsync(EditorTab tab)
+        {
             await SyncMonacoToTabAsync();
-            var tab = (EditorTab)((Button)sender).Tag;
             int index = _tabs.IndexOf(tab);
             if (index < 0)
             {
@@ -656,7 +864,7 @@ end
             _tabs.RemoveAt(index);
             if (_tabs.Count == 0)
             {
-                NewTab(string.Format("Script{0}", ++_tabCounter), "-- New script\n");
+                SwitchView("StartView");
             }
             else if (_selectedTab == tab)
             {
@@ -665,18 +873,7 @@ end
             else
             {
                 RefreshTabStrip();
-                UpdateScriptInfo();
             }
-        }
-
-        private async void EditorOpenButton_Click(object sender, RoutedEventArgs e)
-        {
-            await OpenFile();
-        }
-
-        private async void EditorSaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            await SaveCurrentTab();
         }
 
         // ---------- editor text + highlighting ------------------------------------------
@@ -720,7 +917,6 @@ end
             RefreshTabStrip();
             UpdateLineNumbers();
             UpdateLnCol();
-            UpdateScriptInfo();
         }
 
         private static Paragraph BuildLuaParagraph(string code)
@@ -827,66 +1023,6 @@ end
         private void EditorBox_MouseUp(object sender, MouseButtonEventArgs e)
         {
             UpdateLnCol();
-        }
-
-        // ---------- script info + execution panels ---------------------------------------
-
-        private void AddInfoRow(StackPanel panel, Dictionary<string, TextBlock> store, string label)
-        {
-            var grid = new Grid { Margin = new Thickness(0, 0, 0, 6) };
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            var lbl = new TextBlock { Text = label, FontSize = 12 };
-            lbl.SetResourceReference(TextBlock.ForegroundProperty, "Text.Secondary");
-            grid.Children.Add(lbl);
-            var value = new TextBlock { FontSize = 12, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, MaxWidth = 110 };
-            value.SetResourceReference(TextBlock.ForegroundProperty, "Text.Primary");
-            Grid.SetColumn(value, 1);
-            grid.Children.Add(value);
-            panel.Children.Add(grid);
-            store[label] = value;
-        }
-
-        private void BuildInfoPanels()
-        {
-            foreach (var label in new[] { "Lines", "Characters", "Words", "Tabs", "Last Saved", "File" })
-            {
-                AddInfoRow(InfoPanel, _infoValues, label);
-            }
-            foreach (var label in new[] { "Status", "Runtime", "Environment", "Script Type", "Last Exec" })
-            {
-                AddInfoRow(ExecPanel, _execValues, label);
-            }
-
-            _execValues["Status"].Text = "Idle";
-            _execValues["Runtime"].Text = "00:00:00";
-            _execValues["Environment"].Text = "Roblox";
-            _execValues["Script Type"].Text = "Lua";
-            _execValues["Last Exec"].Text = "Never";
-        }
-
-        private void UpdateScriptInfo()
-        {
-            if (_selectedTab == null)
-            {
-                return;
-            }
-            string content = _selectedTab.Content ?? string.Empty;
-            _infoValues["Lines"].Text = content.Length == 0 ? "1" : content.Split('\n').Length.ToString();
-            _infoValues["Characters"].Text = content.Length.ToString();
-            _infoValues["Words"].Text = content.Split(new[] { ' ', '\t', '\r', '\n' },
-                StringSplitOptions.RemoveEmptyEntries).Length.ToString();
-            _infoValues["Tabs"].Text = _tabs.Count.ToString();
-            _infoValues["Last Saved"].Text = _lastSaved;
-            _infoValues["File"].Text = _selectedTab.Title;
-        }
-
-        private void SetExecStatus(string text, Brush color)
-        {
-            _execValues["Status"].Text = text;
-            _execValues["Status"].Foreground = color;
-            ExecReadyText.Text = text;
-            ReadyDot.Fill = color;
         }
 
         // ---------- console ---------------------------------------------------------------
@@ -1006,24 +1142,20 @@ end
                 return;
             }
             _attaching = true;
+            InjectButton.IsEnabled = false;
             try
             {
                 AddLog("sys", "Attaching to Roblox...");
                 await Task.Delay(650);
-                AddLog("ok", "Successfully attached!");
-                AddLog("exec", "Ready to execute.");
+                AddLog("ok", "Attached.");
 
                 _attached = true;
-                _attachTime = DateTime.Now;
-                StatusDot.Fill = GreenBrush;
-                AttachedText.Text = "Roblox Player";
-                AttachedText.Foreground = WhiteBrush;
-                DetachButton.Visibility = Visibility.Visible;
-                SetExecStatus("Ready", GreenBrush);
+                SetAttachedUi(true);
             }
             finally
             {
                 _attaching = false;
+                InjectButton.IsEnabled = true;
             }
         }
 
@@ -1034,27 +1166,29 @@ end
                 return;
             }
             _attached = false;
-            StatusDot.Fill = IdleBrush;
-            AttachedText.Text = "Not attached";
-            AttachedText.Foreground = GrayBrush;
-            DetachButton.Visibility = Visibility.Collapsed;
-            SetExecStatus("Idle", IdleBrush);
+            SetAttachedUi(false);
             AddLog("sys", "Detached.");
+        }
+
+        private void SetAttachedUi(bool on)
+        {
+            StatusDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, on ? "Status.Ok" : "Status.Err");
+            AttachedText.Text = on ? "Roblox" : "No client";
+            StartAttachRun.Text = on ? "Attached to Roblox." : "No client attached.";
+            StartAttachRun.SetResourceReference(Run.ForegroundProperty, on ? "Status.Ok" : "Text.Tertiary");
+            InjectLabel.Text = on ? "Detach" : "Attach";
         }
 
         private async void InjectButton_Click(object sender, RoutedEventArgs e)
         {
             if (_attached)
             {
-                AddLog("warn", "Already injected.");
-                return;
+                Detach();
             }
-            await AttachSequence();
-        }
-
-        private void DetachButton_Click(object sender, RoutedEventArgs e)
-        {
-            Detach();
+            else
+            {
+                await AttachSequence();
+            }
         }
 
         private async void ExecuteButton_Click(object sender, RoutedEventArgs e)
@@ -1064,46 +1198,20 @@ end
 
         private async Task ExecuteCurrentTab()
         {
-            if (_selectedTab == null)
+            if (_selectedTab == null || _currentView != "ExecutorView")
             {
+                AddLog("warn", "Open a script first.");
                 return;
             }
             await SyncMonacoToTabAsync();
             if (!_attached)
             {
-                AddLog("err", "Not attached. Press Inject first.");
+                AddLog("err", "No client attached. Press Attach first.");
                 return;
             }
-
-            SetExecStatus("Executing", YellowBrush);
             AddLog("exec", string.Format("Executing '{0}'...", _selectedTab.Title));
-            await Task.Delay(500);
-            AddLog("ok", string.Format("Executed in {0}ms.", Rnd.Next(40, 160)));
-            _execValues["Last Exec"].Text = DateTime.Now.ToString("HH:mm:ss");
-            SetExecStatus("Ready", GreenBrush);
-        }
-
-        private async void ClipboardButton_Click(object sender, RoutedEventArgs e)
-        {
-            string text;
-            try
-            {
-                text = Clipboard.GetText();
-            }
-            catch
-            {
-                AddLog("err", "Could not read the clipboard.");
-                return;
-            }
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                AddLog("warn", "Clipboard is empty.");
-                return;
-            }
-            NewTab("Clipboard", text);
-            SwitchView("ExecutorView");
-            await SyncMonacoToTabAsync();
-            await ExecuteCurrentTab();
+            await Task.Delay(300);
+            AddLog("ok", "Executed.");
         }
 
         // ---------- open / save ---------------------------------------------------------------
@@ -1118,17 +1226,29 @@ end
             await SyncMonacoToTabAsync();
             var dialog = new OpenFileDialog
             {
-                Filter = "Lua files (*.lua)|*.lua|Text files (*.txt)|*.txt|All files (*.*)|*.*"
+                Filter = "Lua files (*.lua;*.luau)|*.lua;*.luau|Text files (*.txt)|*.txt|All files (*.*)|*.*"
             };
             if (dialog.ShowDialog(this) != true)
             {
                 return;
             }
+            await OpenPath(dialog.FileName);
+        }
+
+        private async Task OpenPath(string path)
+        {
+            await SyncMonacoToTabAsync();
+            var existing = _tabs.FirstOrDefault(t => string.Equals(t.FilePath, path, StringComparison.OrdinalIgnoreCase));
+            if (existing != null)
+            {
+                SelectTab(existing);
+                return;
+            }
             try
             {
-                NewTab(Path.GetFileName(dialog.FileName), File.ReadAllText(dialog.FileName), dialog.FileName);
-                SwitchView("ExecutorView");
-                AddLog("ok", string.Format("Opened '{0}'.", Path.GetFileName(dialog.FileName)));
+                NewTab(Path.GetFileName(path), File.ReadAllText(path), path);
+                PushRecent(path);
+                AddLog("ok", string.Format("Opened '{0}'.", Path.GetFileName(path)));
             }
             catch (Exception ex)
             {
@@ -1149,7 +1269,8 @@ end
                 {
                     var dialog = new SaveFileDialog
                     {
-                        FileName = _selectedTab.Title + ".lua",
+                        InitialDirectory = ScriptsDir,
+                        FileName = _selectedTab.Title.EndsWith(".lua") || _selectedTab.Title.EndsWith(".luau") ? _selectedTab.Title : _selectedTab.Title + ".lua",
                         Filter = "Lua files (*.lua)|*.lua|All files (*.*)|*.*"
                     };
                     if (dialog.ShowDialog(this) != true)
@@ -1161,9 +1282,9 @@ end
                 }
                 File.WriteAllText(_selectedTab.FilePath, _selectedTab.Content ?? string.Empty);
                 _selectedTab.IsDirty = false;
-                _lastSaved = DateTime.Now.ToString("HH:mm:ss");
                 RefreshTabStrip();
-                UpdateScriptInfo();
+                RefreshExplorer();
+                PushRecent(_selectedTab.FilePath);
                 StatusTabText.Text = _selectedTab.Title;
                 AddLog("ok", string.Format("Saved '{0}'.", _selectedTab.Title));
             }
@@ -1173,219 +1294,14 @@ end
             }
         }
 
-        // ---------- script hub -------------------------------------------------------------------
-
-        private void BuildHubData()
-        {
-            _hubScripts.AddRange(new[]
-            {
-                new HubScript { Name = "Infinite Yield", Author = "EdgeIY", Badge = "Popular", Key = "infinite" },
-                new HubScript { Name = "Keyless Hub", Author = "whiz", Badge = "Popular", Key = "keyless" },
-                new HubScript { Name = "Dex Explorer", Author = "Dex", Badge = "Featured", Key = "dex" },
-                new HubScript { Name = "Remote Spy", Author = "Dark", Badge = "Featured", Key = "spy" },
-                new HubScript { Name = "FE Bypass", Author = "Ox1", Badge = "New", Key = "bypass" },
-                new HubScript { Name = "Speed Hub", Author = "Casium", Badge = "New", Key = "speed" }
-            });
-
-            _templates["infinite"] = "-- Infinite Yield (demo stub)\nprint(\"Infinite Yield loaded.\")\n";
-            _templates["keyless"] = "-- Keyless Hub (demo stub)\nprint(\"Keyless Hub loaded.\")\n";
-            _templates["dex"] = "-- Dex Explorer (demo stub)\nprint(\"Dex Explorer opened.\")\n";
-            _templates["spy"] = "-- Remote Spy (demo stub)\nprint(\"Remote Spy listening...\")\n";
-            _templates["bypass"] = "-- FE Bypass (demo stub)\nprint(\"FilteringEnabled bypassed (not really).\")\n";
-            _templates["speed"] =
-@"-- Speed Hub
-local Players = game:GetService(""Players"")
-local LocalPlayer = Players.LocalPlayer
-
-LocalPlayer.Character.Humanoid.WalkSpeed = 32
-print(""WalkSpeed set to 32."")";
-
-            RefreshHubCards(string.Empty);
-        }
-
-        private void RefreshHubCards(string filter)
-        {
-            HubPanel.Children.Clear();
-            foreach (var script in FilterScripts(filter))
-            {
-                var card = new Border
-                {
-                    Style = (Style)FindResource("Card"),
-                    Padding = new Thickness(16),
-                    Width = 220,
-                    Margin = new Thickness(0, 0, 12, 12)
-                };
-
-                var stack = new StackPanel();
-
-                var head = new Grid();
-                head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                head.Children.Add(new TextBlock
-                {
-                    Text = script.Name, Foreground = WhiteBrush,
-                    FontSize = 14, FontWeight = FontWeights.SemiBold,
-                    TextTrimming = TextTrimming.CharacterEllipsis, VerticalAlignment = VerticalAlignment.Center
-                });
-                var badge = new Border { Style = (Style)FindResource("Badge"), Margin = new Thickness(8, 0, 0, 0) };
-                badge.Child = new TextBlock { Text = script.Badge, Foreground = PurpleBrush, FontSize = 10, FontWeight = FontWeights.SemiBold };
-                Grid.SetColumn(badge, 1);
-                head.Children.Add(badge);
-                stack.Children.Add(head);
-
-                stack.Children.Add(new TextBlock
-                {
-                    Text = "by " + script.Author, Foreground = GrayBrush,
-                    FontSize = 12, Margin = new Thickness(0, 3, 0, 14)
-                });
-
-                var get = new Button
-                {
-                    Content = "Load into editor",
-                    Tag = script,
-                    Height = 32,
-                    FontSize = 12.5,
-                    Style = (Style)FindResource("Button.Secondary")
-                };
-                get.Click += GetScript_Click;
-                stack.Children.Add(get);
-
-                card.Child = stack;
-                HubPanel.Children.Add(card);
-            }
-        }
-
-        private IEnumerable<HubScript> FilterScripts(string filter)
-        {
-            if (string.IsNullOrWhiteSpace(filter))
-            {
-                return _hubScripts;
-            }
-            string f = filter.Trim().ToLowerInvariant();
-            return _hubScripts.Where(s => s.Name.ToLowerInvariant().Contains(f)
-                || s.Author.ToLowerInvariant().Contains(f));
-        }
-
-        private async void GetScript_Click(object sender, RoutedEventArgs e)
-        {
-            await LoadHubScript((HubScript)((Button)sender).Tag);
-        }
-
-        private async void PlayScript_Click(object sender, RoutedEventArgs e)
-        {
-            var script = (HubScript)((Button)sender).DataContext;
-            if (script != null)
-            {
-                await LoadHubScript(script);
-            }
-        }
-
-        private async Task LoadHubScript(HubScript script)
-        {
-            await SyncMonacoToTabAsync();
-            string content = _templates.ContainsKey(script.Key) ? _templates[script.Key] : "-- " + script.Name + "\n";
-            NewTab(script.Name, content);
-            SwitchView("ExecutorView");
-            AddLog("ok", string.Format("Loaded '{0}' into the editor.", script.Name));
-        }
-
-        private void HubSearch_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            HubSearchHint.Visibility = string.IsNullOrEmpty(HubSearch.Text)
-                ? Visibility.Visible : Visibility.Collapsed;
-            RefreshHubCards(HubSearch.Text);
-        }
-
-        private void MiniHubSearch_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            MiniHubHint.Visibility = string.IsNullOrEmpty(MiniHubSearch.Text)
-                ? Visibility.Visible : Visibility.Collapsed;
-            MiniHubList.ItemsSource = new List<HubScript>(FilterScripts(MiniHubSearch.Text));
-        }
-
-        private void BrowseAllButton_Click(object sender, RoutedEventArgs e)
-        {
-            SwitchView("HubView");
-        }
-
-        // ---------- network view ---------------------------------------------------------------------
-
-        private static readonly string[] Servers =
-            { "Germany #4821", "Netherlands #1107", "USA East #9034", "Singapore #2210" };
-
-        private void InitNetwork()
-        {
-            foreach (var label in new[] { "Ping", "Server", "Packet Loss", "Uptime" })
-            {
-                var grid = new Grid { Margin = new Thickness(0, 6, 0, 6) };
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                grid.Children.Add(new TextBlock { Text = label, Foreground = GrayBrush, FontSize = 13 });
-                var value = new TextBlock { Foreground = WhiteBrush, FontSize = 13, FontWeight = FontWeights.SemiBold, FontFamily = new FontFamily("Cascadia Mono, Consolas") };
-                Grid.SetColumn(value, 1);
-                grid.Children.Add(value);
-                NetworkPanel.Children.Add(grid);
-                _execValues["net_" + label] = value;
-            }
-            RefreshNetwork(silent: true);
-        }
-
-        private void RefreshNetwork(bool silent)
-        {
-            _execValues["net_Ping"].Text = Rnd.Next(24, 68) + " ms";
-            _execValues["net_Server"].Text = Servers[Rnd.Next(Servers.Length)];
-            _execValues["net_Packet Loss"].Text = Rnd.Next(0, 2) + "%";
-            if (!silent)
-            {
-                AddLog("sys", "Network stats refreshed.");
-            }
-        }
-
-        private void NetRefreshButton_Click(object sender, RoutedEventArgs e)
-        {
-            RefreshNetwork(silent: false);
-        }
-
-        // ---------- player view -------------------------------------------------------------------------
-
-        private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (SpeedValue != null)
-            {
-                SpeedValue.Text = ((int)SpeedSlider.Value).ToString();
-            }
-        }
-
-        private void JumpSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (JumpValue != null)
-            {
-                JumpValue.Text = ((int)JumpSlider.Value).ToString();
-            }
-        }
-
-        private void ApplyPlayerButton_Click(object sender, RoutedEventArgs e)
-        {
-            AddLog("exec", string.Format("Applied WalkSpeed={0} JumpPower={1}.",
-                (int)SpeedSlider.Value, (int)JumpSlider.Value));
-        }
-
-        private void ResetPlayerButton_Click(object sender, RoutedEventArgs e)
-        {
-            SpeedSlider.Value = 16;
-            JumpSlider.Value = 50;
-            AddLog("sys", "Player stats reset to defaults.");
-        }
-
         // ---------- settings view --------------------------------------------------------------------------
 
         private void BuildSettings()
         {
-            AddSetting("alwaysontop", "Always on Top", "Keep Casium above other windows.", true);
-            AddSetting("linenumbers", "Line Numbers", "Show the editor gutter.", true);
-            AddSetting("autoattach", "Auto Attach", "Attach automatically on startup.", true);
-            AddSetting("timestamps", "Timestamps", "Prefix console lines with the time.", true);
-            AddSetting("safemode", "Safe Mode", "Extra checks before executing.", true);
+            AddSetting("alwaysontop", "Always on top", "Keep Casium above other windows.", false);
+            AddSetting("autoattach", "Auto attach", "Attach to the client automatically on startup.", false);
+            AddSetting("linenumbers", "Line numbers", "Show the gutter in the built-in editor.", true);
+            AddSetting("timestamps", "Console timestamps", "Prefix console lines with the time.", true);
         }
 
         private void AddSetting(string key, string title, string desc, bool def)
@@ -1509,21 +1425,11 @@ print(""WalkSpeed set to 32."")";
             ThemeStatusText.Text = name;
             HighlightThemeTile(name);
 
-            // repaint anything that captured a brush by value
             if (_selectedTab != null)
             {
                 LoadTabContent();
             }
             RefreshTabStrip();
-            RefreshHubCards(HubSearch.Text);
-            SetExecStatus(_execValues["Status"].Text, _attached ? GreenBrush : IdleBrush);
-            StatusDot.Fill = _attached ? GreenBrush : IdleBrush;
-            AttachedText.Foreground = _attached ? WhiteBrush : GrayBrush;
-            foreach (var kv in _infoValues) kv.Value.Foreground = WhiteBrush;
-            foreach (var kv in _execValues)
-            {
-                if (kv.Key != "Status") kv.Value.Foreground = WhiteBrush;
-            }
             foreach (var log in _allLogs) log.Brush = BrushForCategory(log.Category);
             RefreshLogView();
 
@@ -1605,55 +1511,7 @@ print(""WalkSpeed set to 32."")";
                 case "timestamps":
                     _showTimestamps = on;
                     break;
-                case "safemode":
-                    AddLog("sys", "Safe Mode " + (on ? "enabled." : "disabled."));
-                    break;
             }
-        }
-
-        // ---------- key system view ---------------------------------------------------------------------------
-
-        private static string RandomHex(int length)
-        {
-            const string chars = "0123456789ABCDEF";
-            return new string(Enumerable.Range(0, length).Select(_ => chars[Rnd.Next(chars.Length)]).ToArray());
-        }
-
-        private void ResetKey(bool silent)
-        {
-            _accessKey = string.Format("CASI-{0}-{1}-{2}",
-                RandomHex(4), RandomHex(4), RandomHex(4));
-            KeyBox.Text = _accessKey;
-            HwidText.Text = "HWID: " + RandomHex(4) + "-" + RandomHex(4) + "-" + RandomHex(4);
-            if (!silent)
-            {
-                AddLog("warn", "Key reset. The old key was invalidated.");
-            }
-        }
-
-        private void CopyKeyButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Clipboard.SetText(_accessKey);
-                AddLog("ok", "Access key copied to clipboard.");
-            }
-            catch
-            {
-                AddLog("err", "Could not access the clipboard.");
-            }
-        }
-
-        private void ResetKeyButton_Click(object sender, RoutedEventArgs e)
-        {
-            ResetKey(silent: false);
-        }
-
-        // ---------- about view -------------------------------------------------------------------------------------
-
-        private void CheckUpdatesButton_Click(object sender, RoutedEventArgs e)
-        {
-            AddLog("ok", "You are on the latest version (" + Version + ").");
         }
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
@@ -1662,26 +1520,5 @@ print(""WalkSpeed set to 32."")";
             Close();
         }
 
-        // ---------- status bar timer ----------------------------------------------------------------------------------
-
-        private async void FpsTimer_Tick(object sender, EventArgs e)
-        {
-            await PollMonacoCursorAsync();
-            FpsText.Text = _attached ? string.Format("FPS {0}", Rnd.Next(58, 64)) : "FPS —";
-
-            TimeSpan uptime = DateTime.Now - _appStart;
-            _execValues["Runtime"].Text = string.Format("{0:00}:{1:00}:{2:00}",
-                (int)uptime.TotalHours, uptime.Minutes, uptime.Seconds);
-
-            if (_attached)
-            {
-                TimeSpan connected = DateTime.Now - _attachTime;
-                if (_execValues.ContainsKey("net_Uptime"))
-                {
-                    _execValues["net_Uptime"].Text = string.Format("{0:00}:{1:00}:{2:00}",
-                        (int)connected.TotalHours, connected.Minutes, connected.Seconds);
-                }
-            }
-        }
     }
 }
