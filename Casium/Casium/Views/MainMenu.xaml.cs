@@ -222,7 +222,6 @@ end
             {
                 string page = EnsureMonacoPage();
 
-                MonacoView.DefaultBackgroundColor = System.Drawing.Color.FromArgb(14, 11, 20);
                 await MonacoView.EnsureCoreWebView2Async();
 
                 var navTcs = new TaskCompletionSource<bool>();
