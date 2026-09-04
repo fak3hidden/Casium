@@ -36,20 +36,24 @@ namespace Casium.Services
             var dict = new ResourceDictionary { Source = uri };
 
             var merged = Application.Current.Resources.MergedDictionaries;
-            int slot = -1;
+
+            // Remove every palette dictionary (App.xaml's design-time default uses a
+            // relative "Themes/Paper.xaml" source, so match without a leading slash).
             for (int i = merged.Count - 1; i >= 0; i--)
             {
                 var src = merged[i].Source;
-                bool isTheme = ReferenceEquals(merged[i], _current)
-                    || (src != null && src.OriginalString.IndexOf("/Themes/", StringComparison.OrdinalIgnoreCase) >= 0
-                        && !src.OriginalString.EndsWith("Controls.xaml", StringComparison.OrdinalIgnoreCase));
-                if (isTheme)
+                string s = src == null ? string.Empty : src.OriginalString.Replace('\\', '/');
+                bool isPalette = ReferenceEquals(merged[i], _current)
+                    || (s.IndexOf("Themes/", StringComparison.OrdinalIgnoreCase) >= 0
+                        && s.IndexOf("Controls.xaml", StringComparison.OrdinalIgnoreCase) < 0);
+                if (isPalette)
                 {
-                    slot = i;
                     merged.RemoveAt(i);
                 }
             }
-            merged.Insert(slot < 0 ? 0 : Math.Min(slot, merged.Count), dict);
+
+            // WPF resolves merged dictionaries last-to-first, so the palette must be LAST to win.
+            merged.Add(dict);
             _current = dict;
             _currentName = name;
 

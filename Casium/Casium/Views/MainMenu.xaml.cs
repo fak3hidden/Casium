@@ -691,6 +691,10 @@ namespace Casium.Views
             };
             btn.Click += FolderRow_Click;
             btn.ContextMenu = BuildFolderMenu(path);
+            if (string.Equals(_renamingPath, path, StringComparison.OrdinalIgnoreCase))
+            {
+                btn.Height = 30;
+            }
             Grid.SetColumnSpan(btn, 2);
             grid.Children.Add(btn);
 
@@ -705,11 +709,11 @@ namespace Casium.Views
             return grid;
         }
 
-        private Button MakeFileRow(string name, string path, int depth = 0)
+        private Button MakeFileRow(string name, string path, int depth = 0, bool allowRename = true)
         {
             var row = new StackPanel { Orientation = Orientation.Horizontal };
             row.Children.Add(Glyph(FileGlyph, 12, "Text.Secondary"));
-            row.Children.Add(MakeLabel(path, name));
+            row.Children.Add(MakeLabel(path, name, allowRename));
 
             var btn = new Button
             {
@@ -720,18 +724,23 @@ namespace Casium.Views
             };
             btn.Click += ExplorerFile_Click;
             btn.ContextMenu = BuildFileMenu(path);
+            if (allowRename && string.Equals(_renamingPath, path, StringComparison.OrdinalIgnoreCase))
+            {
+                btn.Height = 30;
+            }
             return btn;
         }
 
-        private FrameworkElement MakeLabel(string path, string name)
+        private FrameworkElement MakeLabel(string path, string name, bool allowRename = true)
         {
-            if (string.Equals(_renamingPath, path, StringComparison.OrdinalIgnoreCase))
+            if (allowRename && string.Equals(_renamingPath, path, StringComparison.OrdinalIgnoreCase))
             {
                 var box = new TextBox
                 {
                     Text = name, Tag = path,
                     Style = (Style)FindResource("TextBox.Field"),
-                    Padding = new Thickness(6, 2, 6, 2), Height = 22, MinWidth = 120,
+                    Padding = new Thickness(6, 0, 6, 0), Height = 24, MinWidth = 130,
+                    VerticalContentAlignment = VerticalAlignment.Center,
                     Margin = new Thickness(8, 0, 0, 0), FontSize = 12.5
                 };
                 box.KeyDown += RenameBox_KeyDown;
@@ -1186,7 +1195,8 @@ namespace Casium.Views
             RecentEmpty.Visibility = _recent.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             foreach (var path in _recent)
             {
-                var b = MakeFileRow(Path.GetFileName(path), path);
+                var b = MakeFileRow(Path.GetFileName(path), path, 0, allowRename: false);
+                b.ContextMenu = null;
                 b.Height = 32;
                 b.FontSize = 13;
                 b.Padding = new Thickness(10, 0, 10, 0);
