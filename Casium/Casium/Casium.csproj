@@ -15,6 +15,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <ApplicationIcon>Assets\casium.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -133,6 +134,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2957.106" />
     <EmbeddedResource Include="Resources\Monaco.html" />
+    <Resource Include="Assets\casium.ico" />
+    <Resource Include="Assets\casium.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

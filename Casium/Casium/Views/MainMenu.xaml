@@ -7,6 +7,7 @@
         xmlns:svc="clr-namespace:Casium.Services"
         mc:Ignorable="d"
         Title="Casium"
+        Icon="pack://application:,,,/Casium;component/Assets/casium.ico"
         Height="600" Width="910"
         MinHeight="480" MinWidth="760"
         WindowStartupLocation="CenterScreen"
@@ -250,8 +251,11 @@
                     BorderBrush="{DynamicResource App.Border}" BorderThickness="0,0,0,1"
                     MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid>
-                    <TextBlock Text="Casium" FontSize="13.5" Foreground="{DynamicResource Text.Primary}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Image Source="pack://application:,,,/Casium;component/Assets/casium.png" Width="16" Height="16"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock Text="Casium" FontSize="13.5" Foreground="{DynamicResource Text.Primary}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button x:Name="MinimizeButton" Content="&#xE921;" Style="{StaticResource Button.Caption}" Click="MinimizeButton_Click"/>
                         <Button x:Name="MaximizeButton" Content="&#xE922;" Style="{StaticResource Button.Caption}" Click="MaximizeButton_Click"/>
@@ -395,7 +399,12 @@
                         <!-- Start -->
                         <ScrollViewer x:Name="StartView" VerticalScrollBarVisibility="Auto">
                             <StackPanel Margin="30,32,30,30" MaxWidth="720" HorizontalAlignment="Left">
-                                <TextBlock Text="Casium" FontSize="30" FontWeight="SemiBold" Foreground="{DynamicResource Text.Primary}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="pack://application:,,,/Casium;component/Assets/casium.png" Width="36" Height="36"
+                                           VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="Casium" FontSize="30" FontWeight="SemiBold" Foreground="{DynamicResource Text.Primary}"
+                                               VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                </StackPanel>
                                 <TextBlock FontSize="13.5" Margin="0,8,0,26">
                                     <Run x:Name="StartUserRun" Text="Signed in as —." Foreground="{DynamicResource Text.Primary}"/>
                                     <Run Text=" "/>

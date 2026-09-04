@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Casium"
+        Icon="pack://application:,,,/Casium;component/Assets/casium.ico"
         Height="700" Width="920"
         MinHeight="520" MinWidth="640"
         WindowStartupLocation="CenterScreen"
@@ -169,8 +170,11 @@
             <!-- Title bar -->
             <Border Grid.Row="0" Background="{StaticResource L.TitleBar}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid>
-                    <TextBlock Text="Casium" FontSize="13.5" Foreground="{StaticResource L.Text}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Image Source="pack://application:,,,/Casium;component/Assets/casium.png" Width="16" Height="16"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock Text="Casium" FontSize="13.5" Foreground="{StaticResource L.Text}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button x:Name="MinimizeButton" Content="&#xE921;" Style="{StaticResource CaptionButton}" Click="MinimizeButton_Click"/>
                         <Button x:Name="MaximizeButton" Content="&#xE922;" Style="{StaticResource CaptionButton}" Click="MaximizeButton_Click"/>
@@ -200,6 +204,8 @@
                     </Border.Effect>
 
                     <StackPanel>
+                        <Image Source="pack://application:,,,/Casium;component/Assets/casium.png" Width="52" Height="52"
+                               HorizontalAlignment="Center" Margin="0,0,0,12" RenderOptions.BitmapScalingMode="HighQuality"/>
                         <TextBlock Text="Casium" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource L.Text}"
                                    HorizontalAlignment="Center"/>
                         <TextBlock Text="Sign in to continue." FontSize="13" Foreground="{StaticResource L.Subtle}"
@@ -253,9 +259,9 @@
                                 <Button x:Name="ShowPasswordButton" Grid.Column="2" Style="{StaticResource EyeButton}"
                                         Visibility="Collapsed" Click="ShowPasswordButton_Click" ToolTip="Show password">
                                     <Path x:Name="EyeIcon"
-                                          Data="M1.5,12 C4,7.2 7.8,4.8 12,4.8 C16.2,4.8 20,7.2 22.5,12 C20,16.8 16.2,19.2 12,19.2 C7.8,19.2 4,16.8 1.5,12 Z M12,15.2 A3.2,3.2 0 1,0 12,8.8 A3.2,3.2 0 1,0 12,15.2 Z"
+                                          Data="M2,12 C4.5,7 8,4.5 12,4.5 C16,4.5 19.5,7 22,12 C19.5,17 16,19.5 12,19.5 C8,19.5 4.5,17 2,12 Z M12,15.5 A3.5,3.5 0 1,0 12,8.5 A3.5,3.5 0 1,0 12,15.5 Z"
                                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                          StrokeThickness="1.8" Width="15" Height="15" Stretch="Uniform"/>
+                                          StrokeThickness="1.7" Width="17" Height="17" Stretch="Uniform"/>
                                 </Button>
                             </Grid>
                         </Border>
