@@ -1,12 +1,27 @@
-﻿<Window x:Class="Casium.MainWindow"
+<Window x:Class="Casium.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Casium"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Casium" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8FAFC"
+        FontFamily="Segoe UI">
     <Grid>
-        
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Welcome to Casium"
+                       FontSize="28" FontWeight="Bold" Foreground="#0F172A"
+                       HorizontalAlignment="Center"/>
+            <TextBlock x:Name="WelcomeSubtitle"
+                       Text="You are signed in."
+                       FontSize="14" Foreground="#64748B"
+                       HorizontalAlignment="Center" Margin="0,8,0,24"/>
+            <Button x:Name="LogoutButton" Content="Log out"
+                    Width="140" Height="38" FontSize="14"
+                    HorizontalAlignment="Center"
+                    Click="LogoutButton_Click"/>
+        </StackPanel>
     </Grid>
 </Window>
