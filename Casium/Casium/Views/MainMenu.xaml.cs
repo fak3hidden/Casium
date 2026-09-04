@@ -225,7 +225,7 @@ end
                 await MonacoView.EnsureCoreWebView2Async();
 
                 var navTcs = new TaskCompletionSource<bool>();
-                CoreWebView2NavigationCompletedEventHandler navHandler = null;
+                EventHandler<CoreWebView2NavigationCompletedEventArgs> navHandler = null;
                 navHandler = (ss, ee) =>
                 {
                     MonacoView.NavigationCompleted -= navHandler;
