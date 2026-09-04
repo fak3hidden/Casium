@@ -17,9 +17,9 @@ namespace Casium.Views
         private const string DemoPassword = "casium123";
 
         private static readonly SolidColorBrush NormalBorder =
-            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E2E8F0"));
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2A2A35"));
         private static readonly SolidColorBrush FocusBorder =
-            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4F46E5"));
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E4E4E7"));
         private static readonly SolidColorBrush ErrorBorder =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EF4444"));
 
@@ -51,6 +51,26 @@ namespace Casium.Views
             }
 
             UsernameInput.Focus();
+        }
+
+        // ---- Custom title bar -------------------------------------------------------
+
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                DragMove();
+            }
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
 
         // ---- Password show / hide -------------------------------------------------
@@ -193,7 +213,7 @@ namespace Casium.Views
 
                 if (!TryAuthenticate(username, password))
                 {
-                    ShowError("Invalid username or password. Try the demo account below.");
+                    ShowError("Invalid username or password. Hit Get Key for demo access.");
                     PasswordBorder.BorderBrush = ErrorBorder;
                     return;
                 }
@@ -283,7 +303,7 @@ namespace Casium.Views
         private void SetBusy(bool busy)
         {
             LoginButton.IsEnabled = !busy;
-            LoginButton.Content = busy ? "Signing in…" : "Sign in";
+            LoginButton.Content = busy ? "SIGNING IN…" : "SIGN IN";
             UsernameInput.IsEnabled = !busy;
             PasswordInput.IsEnabled = !busy;
             VisiblePasswordInput.IsEnabled = !busy;
@@ -305,20 +325,36 @@ namespace Casium.Views
 
         // ---- Secondary actions -------------------------------------------------------
 
+        private void GetKeyButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Fill in the demo credentials so they can be used right away.
+            UsernameInput.Text = DemoUsername;
+            if (_isPasswordVisible)
+            {
+                VisiblePasswordInput.Text = DemoPassword;
+            }
+            else
+            {
+                PasswordInput.Password = DemoPassword;
+            }
+            ClearError();
+            LoginButton.Focus();
+        }
+
+        private void DiscordButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(this,
+                "The community Discord isn't linked in this build yet.",
+                "Discord",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+
         private void ForgotPassword_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
                 "Password reset isn't wired up yet. Contact your administrator to reset your password.",
                 "Forgot password",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-        }
-
-        private void SignUp_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show(this,
-                "Self-registration isn't available in this build. Ask your administrator for an account.",
-                "Create an account",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
         }

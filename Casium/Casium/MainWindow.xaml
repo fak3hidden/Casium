@@ -7,21 +7,48 @@
         mc:Ignorable="d"
         Title="Casium" Height="450" Width="800"
         WindowStartupLocation="CenterScreen"
-        Background="#F8FAFC"
+        Background="#0B0B0F"
         FontFamily="Segoe UI">
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="38"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid Width="60" Height="65" HorizontalAlignment="Center">
+                <Polygon Points="30,2 58,18 58,48 30,63 2,48 2,18"
+                         Fill="#16161C" Stroke="#E4E4E7" StrokeThickness="2"/>
+                <TextBlock Text="C" Foreground="White" FontSize="24"
+                           FontWeight="Bold" HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Grid>
             <TextBlock Text="Welcome to Casium"
-                       FontSize="28" FontWeight="Bold" Foreground="#0F172A"
-                       HorizontalAlignment="Center"/>
+                       FontSize="28" FontWeight="Bold" Foreground="White"
+                       HorizontalAlignment="Center" Margin="0,16,0,0"/>
             <TextBlock x:Name="WelcomeSubtitle"
                        Text="You are signed in."
-                       FontSize="14" Foreground="#64748B"
+                       FontSize="14" Foreground="#A1A1AA"
                        HorizontalAlignment="Center" Margin="0,8,0,24"/>
             <Button x:Name="LogoutButton" Content="Log out"
                     Width="140" Height="38" FontSize="14"
                     HorizontalAlignment="Center"
                     Click="LogoutButton_Click"/>
         </StackPanel>
+
+        <!-- Status bar -->
+        <Border Grid.Row="1" Background="#0D0D12"
+                BorderBrush="#232329" BorderThickness="0,1,0,0">
+            <Grid Margin="16,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="8" Height="8" Fill="#4ADE80"/>
+                    <TextBlock x:Name="StatusText" Text="Connected" Foreground="#A1A1AA"
+                               FontSize="12" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                </StackPanel>
+                <TextBlock Text="v1.0" Foreground="#71717A"
+                           FontSize="12" HorizontalAlignment="Right"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
