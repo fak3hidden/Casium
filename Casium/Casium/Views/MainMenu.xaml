@@ -3,14 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         Title="Casium"
         Height="760" Width="1240"
         MinHeight="640" MinWidth="1080"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
-        AllowsTransparency="True"
-        Background="Transparent"
+        Background="#0B0910"
         ResizeMode="CanResize"
         FontFamily="Segoe UI">
 
@@ -240,9 +240,9 @@
     </Window.Resources>
 
     <!-- App card -->
-    <Border Margin="10" Background="#0B0910"
+    <Border Margin="0" Background="#0B0910"
             BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
-            CornerRadius="12">
+            CornerRadius="0">
         <Border.Effect>
             <DropShadowEffect Color="Black" Opacity="0.6" BlurRadius="28" ShadowDepth="0"/>
         </Border.Effect>
@@ -475,7 +475,8 @@
                                                      PreviewMouseUp="EditorBox_MouseUp"/>
                                     </Grid>
                                 </ScrollViewer>
-                                <TextBlock Text="Lua" Foreground="{StaticResource FaintBrush}"
+                                <wv2:WebView2 x:Name="MonacoView" Visibility="Collapsed"/>
+                                <TextBlock x:Name="LuaLabel" Text="Lua" Foreground="{StaticResource FaintBrush}"
                                            FontSize="12" HorizontalAlignment="Right"
                                            VerticalAlignment="Bottom" Margin="0,0,14,10"/>
                             </Grid>

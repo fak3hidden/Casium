@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Interop;
+using Microsoft.Web.WebView2.Core;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -47,6 +52,9 @@ namespace Casium.Views
 
         private const string Version = "v1.0";
 
+        [DllImport("dwmapi.dll", PreserveSig = true)]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
+
         private static readonly Random Rnd = new Random();
         private static readonly SolidColorBrush GrayBrush = new SolidColorBrush(Color.FromRgb(0xA7, 0x9F, 0xBF));
         private static readonly SolidColorBrush WhiteBrush = new SolidColorBrush(Color.FromRgb(0xED, 0xE9, 0xFE));
@@ -81,6 +89,8 @@ namespace Casium.Views
 
         private bool _attached;
         private bool _attaching;
+        private bool _monacoReady;
+        private bool _useMonaco;
         private bool _autoAttach = true;
         private string _username = "—";
         private string _accessKey;
@@ -138,6 +148,19 @@ end
 
         private async void MainMenu_Loaded(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                IntPtr hwnd = new WindowInteropHelper(this).Handle;
+                if (hwnd != IntPtr.Zero)
+                {
+                    int round = 2;
+                    DwmSetWindowAttribute(hwnd, 33, ref round, 4);
+                }
+            }
+            catch { }
+
+            _ = InitMonacoAsync();
+
             TopUserText.Text = _username;
             NavUserText.Text = _username;
             AboutUserText.Text = string.Format("Signed in as {0}", _username);
@@ -168,6 +191,262 @@ end
             {
                 await AttachSequence();
             }
+        }
+
+        // ---------- monaco editor (WebView2) ------------------------------------------
+
+        private static string EnsureMonacoPage()
+        {
+            string dir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Casium");
+            Directory.CreateDirectory(dir);
+            string path = Path.Combine(dir, "monaco.html");
+            using (Stream src = Assembly.GetExecutingAssembly()
+                .GetManifestResourceStream("Casium.Resources.Monaco.html"))
+            {
+                if (src == null)
+                {
+                    throw new Exception("embedded editor page is missing");
+                }
+                using (FileStream dst = File.Create(path))
+                {
+                    src.CopyTo(dst);
+                }
+            }
+            return path;
+        }
+
+        private async Task InitMonacoAsync()
+        {
+            try
+            {
+                string page = EnsureMonacoPage();
+
+                MonacoView.DefaultBackgroundColor = System.Drawing.Color.FromArgb(14, 11, 20);
+                await MonacoView.EnsureCoreWebView2Async();
+
+                var navTcs = new TaskCompletionSource<bool>();
+                CoreWebView2NavigationCompletedEventHandler navHandler = null;
+                navHandler = (ss, ee) =>
+                {
+                    MonacoView.NavigationCompleted -= navHandler;
+                    navTcs.TrySetResult(ee.IsSuccess);
+                };
+                MonacoView.NavigationCompleted += navHandler;
+                MonacoView.Source = new Uri(page);
+
+                Task finished = await Task.WhenAny(navTcs.Task, Task.Delay(15000));
+                if (finished != navTcs.Task || !navTcs.Task.Result)
+                {
+                    throw new Exception("editor page failed to load");
+                }
+
+                bool ready = false;
+                for (int i = 0; i < 16; i++)
+                {
+                    try
+                    {
+                        string probe = await MonacoView.ExecuteScriptAsync(
+                            "window.Bubble && window.Bubble.editor ? 'ok' : ''");
+                        if (DecodeJsString(probe) == "ok")
+                        {
+                            ready = true;
+                            break;
+                        }
+                    }
+                    catch { }
+                    await Task.Delay(750);
+                }
+                if (!ready)
+                {
+                    throw new Exception("Monaco engine did not start (internet needed for the CDN)");
+                }
+
+                await MonacoView.ExecuteScriptAsync("window.Bubble.setTheme('bubble-dark')");
+                await MonacoView.ExecuteScriptAsync("window.Bubble.setLanguage('lua')");
+
+                _monacoReady = true;
+                _useMonaco = true;
+
+                MonacoView.Visibility = Visibility.Visible;
+                EditorBox.Visibility = Visibility.Collapsed;
+                LuaLabel.Visibility = Visibility.Collapsed;
+                GutterColumn.Width = new GridLength(0);
+                LineNumbers.Visibility = Visibility.Collapsed;
+
+                await SyncTabToMonacoAsync();
+                AddLog("ok", "Monaco editor ready.");
+            }
+            catch (Exception ex)
+            {
+                _monacoReady = false;
+                _useMonaco = false;
+                AddLog("warn", "Monaco unavailable, using built-in editor. (" + ex.Message + ")");
+            }
+        }
+
+        private async Task<string> GetMonacoCodeAsync()
+        {
+            string raw = await MonacoView.ExecuteScriptAsync("window.Bubble.getCode()");
+            return DecodeJsString(raw);
+        }
+
+        private Task SetMonacoCodeAsync(string code)
+        {
+            return MonacoView.ExecuteScriptAsync(
+                "window.Bubble.setCode(" + EncodeJsString(code ?? string.Empty) + ")");
+        }
+
+        private async Task SyncMonacoToTabAsync()
+        {
+            if (!_monacoReady)
+            {
+                return;
+            }
+            EditorTab tab = _selectedTab;
+            if (tab == null)
+            {
+                return;
+            }
+            try
+            {
+                string code = await GetMonacoCodeAsync();
+                if (code == null)
+                {
+                    return;
+                }
+                tab.Content = code;
+                if (tab == _selectedTab)
+                {
+                    UpdateScriptInfo();
+                }
+            }
+            catch { }
+        }
+
+        private async Task SyncTabToMonacoAsync()
+        {
+            if (!_monacoReady || _selectedTab == null)
+            {
+                return;
+            }
+            try
+            {
+                await SetMonacoCodeAsync(_selectedTab.Content);
+            }
+            catch { }
+        }
+
+        private async Task PollMonacoCursorAsync()
+        {
+            if (!_monacoReady || ExecutorView.Visibility != Visibility.Visible)
+            {
+                return;
+            }
+            try
+            {
+                string raw = await MonacoView.ExecuteScriptAsync(
+                    "(function(){var e=window.Bubble.editor;if(!e)return '';var p=e.getPosition();return p.lineNumber+','+p.column;})()");
+                string pos = DecodeJsString(raw);
+                if (string.IsNullOrEmpty(pos))
+                {
+                    return;
+                }
+                string[] parts = pos.Split(',');
+                if (parts.Length == 2)
+                {
+                    LnColText.Text = string.Format("Ln {0}, Col {1}", parts[0], parts[1]);
+                }
+            }
+            catch { }
+        }
+
+        private static string EncodeJsString(string value)
+        {
+            var sb = new StringBuilder("\"");
+            foreach (char c in value ?? string.Empty)
+            {
+                switch (c)
+                {
+                    case '\\': sb.Append("\\\\"); break;
+                    case '"': sb.Append("\\\""); break;
+                    case '\n': sb.Append("\\n"); break;
+                    case '\r': sb.Append("\\r"); break;
+                    case '\t': sb.Append("\\t"); break;
+                    default:
+                        if (c < 0x20)
+                        {
+                            sb.Append("\\u" + ((int)c).ToString("x4"));
+                        }
+                        else
+                        {
+                            sb.Append(c);
+                        }
+                        break;
+                }
+            }
+            sb.Append('"');
+            return sb.ToString();
+        }
+
+        private static string DecodeJsString(string raw)
+        {
+            if (string.IsNullOrEmpty(raw))
+            {
+                return null;
+            }
+            string t = raw.Trim();
+            if (t == "null")
+            {
+                return null;
+            }
+            if (t.Length >= 2 && t[0] == '"' && t[t.Length - 1] == '"')
+            {
+                var sb = new StringBuilder();
+                for (int i = 1; i < t.Length - 1; i++)
+                {
+                    char c = t[i];
+                    if (c == '\\' && i + 1 < t.Length - 1)
+                    {
+                        char n = t[++i];
+                        switch (n)
+                        {
+                            case 'n': sb.Append('\n'); break;
+                            case 'r': sb.Append('\r'); break;
+                            case 't': sb.Append('\t'); break;
+                            case 'b': sb.Append('\b'); break;
+                            case 'f': sb.Append('\f'); break;
+                            case 'u':
+                                if (i + 4 < t.Length - 1)
+                                {
+                                    int code;
+                                    if (int.TryParse(t.Substring(i + 1, 4),
+                                        System.Globalization.NumberStyles.HexNumber, null, out code))
+                                    {
+                                        sb.Append((char)code);
+                                        i += 4;
+                                    }
+                                    else
+                                    {
+                                        sb.Append(n);
+                                    }
+                                }
+                                else
+                                {
+                                    sb.Append(n);
+                                }
+                                break;
+                            default: sb.Append(n); break;
+                        }
+                    }
+                    else
+                    {
+                        sb.Append(c);
+                    }
+                }
+                return sb.ToString();
+            }
+            return t;
         }
 
         // ---------- custom title bar ------------------------------------------------
@@ -326,20 +605,23 @@ end
             }
         }
 
-        private void SelectTab_Click(object sender, MouseButtonEventArgs e)
+        private async void SelectTab_Click(object sender, MouseButtonEventArgs e)
         {
+            await SyncMonacoToTabAsync();
             SelectTab((EditorTab)((Border)sender).Tag);
         }
 
-        private void AddTabButton_Click(object sender, RoutedEventArgs e)
+        private async void AddTabButton_Click(object sender, RoutedEventArgs e)
         {
+            await SyncMonacoToTabAsync();
             NewTab(string.Format("Script{0}", ++_tabCounter + 0), "-- New script\n");
             SwitchView("ExecutorView");
         }
 
-        private void CloseTab_Click(object sender, RoutedEventArgs e)
+        private async void CloseTab_Click(object sender, RoutedEventArgs e)
         {
             e.Handled = true;
+            await SyncMonacoToTabAsync();
             var tab = (EditorTab)((Button)sender).Tag;
             int index = _tabs.IndexOf(tab);
             if (index < 0)
@@ -362,14 +644,14 @@ end
             }
         }
 
-        private void EditorOpenButton_Click(object sender, RoutedEventArgs e)
+        private async void EditorOpenButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFile();
+            await OpenFile();
         }
 
-        private void EditorSaveButton_Click(object sender, RoutedEventArgs e)
+        private async void EditorSaveButton_Click(object sender, RoutedEventArgs e)
         {
-            SaveCurrentTab();
+            await SaveCurrentTab();
         }
 
         // ---------- editor text + highlighting ------------------------------------------
@@ -768,6 +1050,7 @@ end
             {
                 return;
             }
+            await SyncMonacoToTabAsync();
             if (!_attached)
             {
                 AddLog("err", "Not attached. Press Inject first.");
@@ -801,18 +1084,20 @@ end
             }
             NewTab("Clipboard", text);
             SwitchView("ExecutorView");
+            await SyncMonacoToTabAsync();
             await ExecuteCurrentTab();
         }
 
         // ---------- open / save ---------------------------------------------------------------
 
-        private void OpenFileButton_Click(object sender, RoutedEventArgs e)
+        private async void OpenFileButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFile();
+            await OpenFile();
         }
 
-        private void OpenFile()
+        private async Task OpenFile()
         {
+            await SyncMonacoToTabAsync();
             var dialog = new OpenFileDialog
             {
                 Filter = "Lua files (*.lua)|*.lua|Text files (*.txt)|*.txt|All files (*.*)|*.*"
@@ -833,12 +1118,13 @@ end
             }
         }
 
-        private void SaveCurrentTab()
+        private async Task SaveCurrentTab()
         {
             if (_selectedTab == null)
             {
                 return;
             }
+            await SyncMonacoToTabAsync();
             try
             {
                 if (string.IsNullOrEmpty(_selectedTab.FilePath))
@@ -963,22 +1249,23 @@ print(""WalkSpeed set to 32."")";
                 || s.Author.ToLowerInvariant().Contains(f));
         }
 
-        private void GetScript_Click(object sender, RoutedEventArgs e)
+        private async void GetScript_Click(object sender, RoutedEventArgs e)
         {
-            LoadHubScript((HubScript)((Button)sender).Tag);
+            await LoadHubScript((HubScript)((Button)sender).Tag);
         }
 
-        private void PlayScript_Click(object sender, RoutedEventArgs e)
+        private async void PlayScript_Click(object sender, RoutedEventArgs e)
         {
             var script = (HubScript)((Button)sender).DataContext;
             if (script != null)
             {
-                LoadHubScript(script);
+                await LoadHubScript(script);
             }
         }
 
-        private void LoadHubScript(HubScript script)
+        private async Task LoadHubScript(HubScript script)
         {
+            await SyncMonacoToTabAsync();
             string content = _templates.ContainsKey(script.Key) ? _templates[script.Key] : "-- " + script.Name + "\n";
             NewTab(script.Name, content);
             SwitchView("ExecutorView");
@@ -1130,6 +1417,10 @@ print(""WalkSpeed set to 32."")";
                     Topmost = on;
                     break;
                 case "linenumbers":
+                    if (_useMonaco)
+                    {
+                        break;
+                    }
                     GutterColumn.Width = on ? new GridLength(46) : new GridLength(0);
                     LineNumbers.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
                     break;
@@ -1202,8 +1493,9 @@ print(""WalkSpeed set to 32."")";
 
         // ---------- status bar timer ----------------------------------------------------------------------------------
 
-        private void FpsTimer_Tick(object sender, EventArgs e)
+        private async void FpsTimer_Tick(object sender, EventArgs e)
         {
+            await PollMonacoCursorAsync();
             FpsText.Text = _attached ? string.Format("FPS: {0}", Rnd.Next(58, 64)) : "FPS: —";
 
             TimeSpan uptime = DateTime.Now - _appStart;

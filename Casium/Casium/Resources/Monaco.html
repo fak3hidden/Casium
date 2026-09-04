@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bubble Monaco Editor</title>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body { display: grid; grid-template-rows: 48px 1fr; background: #0f1115; color: #e5e7eb; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+    .toolbar {
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #0b0d12; border-bottom: 1px solid #1f2430; position: sticky; top: 0; z-index: 2;
+    }
+    .toolbar button {
+      border: 1px solid #2a3142; background: #141824; color: #e5e7eb; padding: 6px 10px; border-radius: 10px; font-size: 13px; cursor: pointer;
+    }
+    .toolbar button:hover { filter: brightness(1.15); }
+    #container { position: relative; }
+    #editor { width: 100%; height: 100%; }
+    .status { font-size: 12px; opacity: .7; margin-left: auto; }
+  </style>
+  <!-- Monaco CDN loader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.49.0/min/vs/loader.min.js" integrity="sha512-8PZ2u4H6c6bLgWmJ4Yw4+z3g9mBfX1K+qV9bJ8tO+QvG1m0m7n2C3r8M4y8i0h3o7Yw3ZfN3+3o2b4p3c8fKxw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    // Configure AMD loader to pull Monaco from CDN
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.49.0/min/vs' } });
+
+    // Simple bridge for host (C#/CefSharp/WebView2)
+    window.Bubble = {
+      editor: null,
+      getCode: () => window.Bubble.editor ? window.Bubble.editor.getValue() : '',
+      setCode: (code) => window.Bubble.editor && window.Bubble.editor.setValue(code || ''),
+      clear: () => window.Bubble.editor && window.Bubble.editor.setValue(''),
+      setLanguage: (lang) => window.Bubble.editor && monaco.editor.setModelLanguage(window.Bubble.editor.getModel(), lang || 'lua'),
+      setTheme: (theme) => monaco.editor.setTheme(theme || 'vs-dark'),
+      saveAsLua: () => {
+        const blob = new Blob([window.Bubble.getCode()], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'script.lua';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      },
+      onChange: (cb) => window.Bubble.editor && window.Bubble.editor.onDidChangeModelContent(cb),
+      // Convenience postMessage to host (works with WebView2)
+      postToHost: (type, payload) => {
+        if (window.chrome && window.chrome.webview) {
+          window.chrome.webview.postMessage({ type, payload });
+        }
+      }
+    };
+
+    require(['vs/editor/editor.main'], function () {
+      // Optional: custom theme close to GitHub Dark Dimmed
+      monaco.editor.defineTheme('bubble-dark', {
+        base: 'vs-dark', inherit: true,
+        rules: [],
+        colors: { 'editor.background': '#0f1115' }
+      });
+
+      const defaultCode = `-- Bubble Monaco ready\nprint('Hello from Monaco!')`;
+
+      window.Bubble.editor = monaco.editor.create(document.getElementById('editor'), {
+        value: defaultCode,
+        language: 'lua',
+        theme: 'bubble-dark',
+        automaticLayout: true,
+        fontFamily: 'JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
+        fontSize: 14,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        padding: { top: 10, bottom: 10 },
+        wordWrap: 'on'
+      });
+
+      // Notify host page that editor is ready
+      window.Bubble.postToHost('monaco-ready', true);
+
+      // Update status when content changes
+      window.Bubble.onChange(() => {
+        const len = window.Bubble.getCode().length;
+        const s = document.getElementById('status');
+        if (s) s.textContent = `Length: ${len} chars`;
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="toolbar">
+    <button id="btnSave">Save .lua</button>
+    <button id="btnClear">Clear</button>
+    <button id="btnCopy">Copy</button>
+    <button id="btnLua">Lua</button>
+    <button id="btnJs">JavaScript</button>
+    <span class="status" id="status">Loading…</span>
+  </div>
+  <div id="container">
+    <div id="editor"></div>
+  </div>
+
+  <script>
+    // Wire toolbar
+    const $ = (id) => document.getElementById(id);
+    $('btnSave').addEventListener('click', () => window.Bubble.saveAsLua());
+    $('btnClear').addEventListener('click', () => window.Bubble.clear());
+    $('btnCopy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(window.Bubble.getCode()); } catch {}
+    });
+    $('btnLua').addEventListener('click', () => window.Bubble.setLanguage('lua'));
+    $('btnJs').addEventListener('click', () => window.Bubble.setLanguage('javascript'));
+
+    // Resize handler for robust layout in hosts
+    const fit = () => {
+      const h = window.innerHeight - document.querySelector('.toolbar').offsetHeight;
+      document.querySelector('#container').style.height = h + 'px';
+    };
+    window.addEventListener('resize', fit);
+    window.addEventListener('load', fit);
+  </script>
+</body>
+</html>
