@@ -7,56 +7,58 @@ using System.Windows.Media;
 
 namespace Casium.Views
 {
-    /// <summary>
-    /// Interaction logic for LoginWindow.xaml
-    /// </summary>
     public partial class LoginWindow : Window
     {
-        // Demo credentials — replace with a real auth service call.
+        // TODO: replace with a real authentication service.
         private const string DemoUsername = "admin";
         private const string DemoPassword = "casium123";
 
-        private static readonly SolidColorBrush NormalBorder =
-            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2B2140"));
-        private static readonly SolidColorBrush FocusBorder =
-            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8B5CF6"));
-        private static readonly SolidColorBrush ErrorBorder =
-            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EF4444"));
+        private static readonly Geometry EyeOff = Geometry.Parse("M12,12 A9,9 0 1,0 12,3 A9,9 0 1,0 12,12 Z M5.6,5.6 L18.4,18.4");
+        private static readonly Geometry EyeOn = Geometry.Parse("M2,12 C4,7 8,4.5 12,4.5 C16,4.5 20,7 22,12 C20,17 16,19.5 12,19.5 C8,19.5 4,17 2,12 Z M12,15 A3,3 0 1,0 12,9 A3,3 0 1,0 12,15 Z");
 
         private bool _isPasswordVisible;
+        private bool _hasError;
 
         public LoginWindow()
         {
             InitializeComponent();
             Loaded += LoginWindow_Loaded;
+            StateChanged += (s, e) => MaximizeButton.Content = WindowState == WindowState.Maximized ? "\uE923" : "\uE922";
         }
 
         private void LoginWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            // Pre-fill a remembered username, if one was saved.
             try
             {
                 string remembered = Properties.Settings.Default.RememberedUsername;
                 if (!string.IsNullOrWhiteSpace(remembered))
                 {
                     UsernameInput.Text = remembered;
-                    PasswordInput.Focus();
-                    return;
                 }
             }
-            catch
-            {
-                // Settings store unavailable — just start with a blank form.
-            }
+            catch { }
 
-            UsernameInput.Focus();
+            if (UsernameInput.Text.Length > 0)
+            {
+                PasswordInput.Focus();
+            }
+            else
+            {
+                UsernameInput.Focus();
+            }
+            UpdateState();
         }
 
-        // ---- Custom title bar -------------------------------------------------------
+        // ---- window chrome ------------------------------------------------------------
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left)
+            if (e.ClickCount == 2)
+            {
+                MaximizeButton_Click(sender, e);
+                return;
+            }
+            if (e.ButtonState == MouseButtonState.Pressed)
             {
                 DragMove();
             }
@@ -67,108 +69,125 @@ namespace Casium.Views
             WindowState = WindowState.Minimized;
         }
 
+        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
-        // ---- Password show / hide -------------------------------------------------
+        // ---- inputs -----------------------------------------------------------------------
 
-        private void ShowPasswordButton_Click(object sender, RoutedEventArgs e)
+        private string CurrentPassword
         {
-            _isPasswordVisible = !_isPasswordVisible;
+            get { return _isPasswordVisible ? VisiblePasswordInput.Text : PasswordInput.Password; }
+        }
 
-            if (_isPasswordVisible)
-            {
-                VisiblePasswordInput.Text = PasswordInput.Password;
-                PasswordInput.Visibility = Visibility.Collapsed;
-                VisiblePasswordInput.Visibility = Visibility.Visible;
-                VisiblePasswordInput.Focus();
-                VisiblePasswordInput.CaretIndex = VisiblePasswordInput.Text.Length;
-                ShowPasswordButton.Content = "Hide";
-            }
-            else
-            {
-                PasswordInput.Password = VisiblePasswordInput.Text;
-                VisiblePasswordInput.Visibility = Visibility.Collapsed;
-                PasswordInput.Visibility = Visibility.Visible;
-                PasswordInput.Focus();
-                ShowPasswordButton.Content = "Show";
-            }
+        private void UpdateState()
+        {
+            UsernameHint.Visibility = UsernameInput.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+            bool hasPassword = CurrentPassword.Length > 0;
+            PasswordHint.Visibility = hasPassword ? Visibility.Collapsed : Visibility.Visible;
+            ShowPasswordButton.Visibility = hasPassword ? Visibility.Visible : Visibility.Collapsed;
+            LoginButton.IsEnabled = UsernameInput.Text.Trim().Length > 0 && hasPassword;
+            PaintBorders();
+        }
+
+        private void PaintBorders()
+        {
+            UsernameBorder.BorderBrush = _hasError ? Brush("L.Error")
+                : UsernameInput.IsKeyboardFocusWithin ? Brush("L.Focus") : Brush("L.InputBorder");
+            PasswordBorder.BorderBrush = _hasError ? Brush("L.Error")
+                : (PasswordInput.IsKeyboardFocusWithin || VisiblePasswordInput.IsKeyboardFocusWithin) ? Brush("L.Focus") : Brush("L.InputBorder");
+        }
+
+        private System.Windows.Media.Brush Brush(string key)
+        {
+            return (System.Windows.Media.Brush)FindResource(key);
+        }
+
+        private void Input_GotFocus(object sender, RoutedEventArgs e)
+        {
+            PaintBorders();
+            UpdateCapsLockHint();
+        }
+
+        private void Input_LostFocus(object sender, RoutedEventArgs e)
+        {
+            PaintBorders();
+            CapsLockHint.Visibility = Visibility.Collapsed;
+        }
+
+        private void Input_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ClearError();
+            UpdateState();
         }
 
         private void PasswordInput_PasswordChanged(object sender, RoutedEventArgs e)
         {
             if (_isPasswordVisible)
             {
-                VisiblePasswordInput.Text = PasswordInput.Password;
+                return;
             }
             ClearError();
-            UpdateCapsLockHint();
+            UpdateState();
         }
 
         private void VisiblePasswordInput_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (_isPasswordVisible)
+            if (!_isPasswordVisible)
             {
-                PasswordInput.Password = VisiblePasswordInput.Text;
+                return;
             }
             ClearError();
-            UpdateCapsLockHint();
+            UpdateState();
         }
 
-        // ---- Input chrome: focus highlight, validation reset -----------------------
-
-        private void Input_GotFocus(object sender, RoutedEventArgs e)
+        private void ShowPasswordButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender == UsernameInput)
+            _isPasswordVisible = !_isPasswordVisible;
+            if (_isPasswordVisible)
             {
-                UsernameBorder.BorderBrush = FocusBorder;
+                VisiblePasswordInput.Text = PasswordInput.Password;
+                VisiblePasswordInput.Visibility = Visibility.Visible;
+                PasswordInput.Visibility = Visibility.Collapsed;
+                VisiblePasswordInput.Focus();
+                VisiblePasswordInput.CaretIndex = VisiblePasswordInput.Text.Length;
+                EyeIcon.Data = EyeOn;
+                ShowPasswordButton.ToolTip = "Hide password";
             }
             else
             {
-                PasswordBorder.BorderBrush = FocusBorder;
+                PasswordInput.Password = VisiblePasswordInput.Text;
+                PasswordInput.Visibility = Visibility.Visible;
+                VisiblePasswordInput.Visibility = Visibility.Collapsed;
+                PasswordInput.Focus();
+                EyeIcon.Data = EyeOff;
+                ShowPasswordButton.ToolTip = "Show password";
             }
-        }
-
-        private void Input_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender == UsernameInput)
-            {
-                UsernameBorder.BorderBrush = NormalBorder;
-            }
-            else if (ErrorBox.Visibility != Visibility.Visible)
-            {
-                PasswordBorder.BorderBrush = NormalBorder;
-            }
-
-            UpdateCapsLockHint();
-        }
-
-        private void Input_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            ClearError();
+            UpdateState();
         }
 
         private void UsernameInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                if (_isPasswordVisible)
-                {
-                    VisiblePasswordInput.Focus();
-                }
-                else
-                {
-                    PasswordInput.Focus();
-                }
                 e.Handled = true;
+                if (_isPasswordVisible) VisiblePasswordInput.Focus(); else PasswordInput.Focus();
             }
         }
 
         private void PasswordBox_KeyDown(object sender, KeyEventArgs e)
         {
-            // Enter is handled by IsDefault on the Sign in button; nothing extra needed.
+            if (e.Key == Key.Enter && LoginButton.IsEnabled)
+            {
+                e.Handled = true;
+                LoginButton_Click(sender, e);
+            }
         }
 
         private void PasswordInput_KeyUp(object sender, KeyEventArgs e)
@@ -178,28 +197,17 @@ namespace Casium.Views
 
         private void UpdateCapsLockHint()
         {
-            try
-            {
-                bool capsOn = Console.CapsLock;
-                bool passwordFocused = PasswordInput.IsFocused || VisiblePasswordInput.IsFocused;
-                CapsLockHint.Visibility = (capsOn && passwordFocused)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-            }
-            catch
-            {
-                CapsLockHint.Visibility = Visibility.Collapsed;
-            }
+            bool focused = PasswordInput.IsKeyboardFocusWithin || VisiblePasswordInput.IsKeyboardFocusWithin;
+            CapsLockHint.Visibility = focused && Keyboard.IsKeyToggled(Key.CapsLock) ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        // ---- Sign in ----------------------------------------------------------------
+        // ---- sign in ----------------------------------------------------------------------
 
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             string username = UsernameInput.Text.Trim();
-            string password = _isPasswordVisible ? VisiblePasswordInput.Text : PasswordInput.Password;
-
-            if (!ValidateInputs(username, password))
+            string password = CurrentPassword;
+            if (username.Length == 0 || password.Length == 0)
             {
                 return;
             }
@@ -207,17 +215,20 @@ namespace Casium.Views
             SetBusy(true);
             try
             {
-                // Simulate an async auth call (e.g. await _authService.SignInAsync(...)).
-                await Task.Delay(900);
+                await Task.Delay(600);
 
                 if (!TryAuthenticate(username, password))
                 {
-                    ShowError("Invalid username or password. Hit Get Key for demo access.");
-                    PasswordBorder.BorderBrush = ErrorBorder;
+                    ShowError("Incorrect username or password.");
                     return;
                 }
 
-                PersistRememberMe(username);
+                try
+                {
+                    Properties.Settings.Default.RememberedUsername = username;
+                    Properties.Settings.Default.Save();
+                }
+                catch { }
 
                 var main = new MainMenu(username);
                 main.Show();
@@ -225,137 +236,50 @@ namespace Casium.Views
             }
             finally
             {
-                // If we navigated away the window is closing; restoring state is harmless.
                 SetBusy(false);
             }
         }
 
-        private bool ValidateInputs(string username, string password)
-        {
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                ShowError("Enter your username or email.");
-                UsernameBorder.BorderBrush = ErrorBorder;
-                UsernameInput.Focus();
-                return false;
-            }
-
-            if (username.Contains("@") && !LooksLikeEmail(username))
-            {
-                ShowError("That email address doesn't look right. Check it and try again.");
-                UsernameBorder.BorderBrush = ErrorBorder;
-                UsernameInput.Focus();
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(password))
-            {
-                ShowError("Enter your password.");
-                PasswordBorder.BorderBrush = ErrorBorder;
-                PasswordInput.Focus();
-                return false;
-            }
-
-            if (password.Length < 4)
-            {
-                ShowError("Your password must be at least 4 characters.");
-                PasswordBorder.BorderBrush = ErrorBorder;
-                PasswordInput.Focus();
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool LooksLikeEmail(string value)
-        {
-            int at = value.IndexOf('@');
-            if (at <= 0 || at != value.LastIndexOf('@'))
-            {
-                return false;
-            }
-            int dot = value.IndexOf('.', at);
-            return dot > at + 1 && dot < value.Length - 1;
-        }
-
         private static bool TryAuthenticate(string username, string password)
         {
-            // TODO: replace with a real authentication service.
             return string.Equals(username, DemoUsername, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(password, DemoPassword, StringComparison.Ordinal);
         }
 
-        private void PersistRememberMe(string username)
-        {
-            // The Remember-me checkbox was removed: never store anything.
-            try
-            {
-                Properties.Settings.Default.RememberedUsername = string.Empty;
-                Properties.Settings.Default.Save();
-            }
-            catch
-            {
-                // Non-critical: the user is still signed in for this session.
-            }
-        }
-
         private void SetBusy(bool busy)
         {
-            LoginButton.IsEnabled = !busy;
-            LoginButton.Content = busy ? "SIGNING IN…" : "SIGN IN";
+            LoginButton.Content = busy ? "Signing in…" : "Sign in";
             UsernameInput.IsEnabled = !busy;
             PasswordInput.IsEnabled = !busy;
             VisiblePasswordInput.IsEnabled = !busy;
+            ShowPasswordButton.IsEnabled = !busy;
+            if (busy)
+            {
+                LoginButton.IsEnabled = false;
+            }
+            else
+            {
+                UpdateState();
+            }
         }
 
         private void ShowError(string message)
         {
+            _hasError = true;
             ErrorText.Text = message;
             ErrorBox.Visibility = Visibility.Visible;
+            PaintBorders();
         }
 
         private void ClearError()
         {
+            if (!_hasError)
+            {
+                return;
+            }
+            _hasError = false;
             ErrorBox.Visibility = Visibility.Collapsed;
-            UsernameBorder.BorderBrush = UsernameInput.IsFocused ? FocusBorder : NormalBorder;
-            PasswordBorder.BorderBrush =
-                (PasswordInput.IsFocused || VisiblePasswordInput.IsFocused) ? FocusBorder : NormalBorder;
-        }
-
-        // ---- Secondary actions -------------------------------------------------------
-
-        private void GetKeyButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Fill in the demo credentials so they can be used right away.
-            UsernameInput.Text = DemoUsername;
-            if (_isPasswordVisible)
-            {
-                VisiblePasswordInput.Text = DemoPassword;
-            }
-            else
-            {
-                PasswordInput.Password = DemoPassword;
-            }
-            ClearError();
-            LoginButton.Focus();
-        }
-
-        private void DiscordButton_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show(this,
-                "The community Discord isn't linked in this build yet.",
-                "Discord",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-        }
-
-        private void ForgotPassword_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show(this,
-                "Password reset isn't wired up yet. Contact your administrator to reset your password.",
-                "Forgot password",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            PaintBorders();
         }
     }
 }
