@@ -13,8 +13,8 @@ namespace Casium.Views
         private const string DemoUsername = "admin";
         private const string DemoPassword = "casium123";
 
-        private static readonly Geometry EyeOff = Geometry.Parse("M12,12 A9,9 0 1,0 12,3 A9,9 0 1,0 12,12 Z M5.6,5.6 L18.4,18.4");
-        private static readonly Geometry EyeOn = Geometry.Parse("M2,12 C4,7 8,4.5 12,4.5 C16,4.5 20,7 22,12 C20,17 16,19.5 12,19.5 C8,19.5 4,17 2,12 Z M12,15 A3,3 0 1,0 12,9 A3,3 0 1,0 12,15 Z");
+        private static readonly Geometry EyeOff = Geometry.Parse("M12,3 A9,9 0 1,0 12,21 A9,9 0 1,0 12,3 Z M5.64,5.64 L18.36,18.36");
+        private static readonly Geometry EyeOn = Geometry.Parse("M1.5,12 C4,7.2 7.8,4.8 12,4.8 C16.2,4.8 20,7.2 22.5,12 C20,16.8 16.2,19.2 12,19.2 C7.8,19.2 4,16.8 1.5,12 Z M12,15.2 A3.2,3.2 0 1,0 12,8.8 A3.2,3.2 0 1,0 12,15.2 Z");
 
         private bool _isPasswordVisible;
         private bool _hasError;

@@ -253,7 +253,7 @@
                                 <Button x:Name="ShowPasswordButton" Grid.Column="2" Style="{StaticResource EyeButton}"
                                         Visibility="Collapsed" Click="ShowPasswordButton_Click" ToolTip="Show password">
                                     <Path x:Name="EyeIcon"
-                                          Data="M12,12 A9,9 0 1,0 12,3 A9,9 0 1,0 12,12 Z M5.6,5.6 L18.4,18.4"
+                                          Data="M12,3 A9,9 0 1,0 12,21 A9,9 0 1,0 12,3 Z M5.64,5.64 L18.36,18.36"
                                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           StrokeThickness="1.8" Width="15" Height="15" Stretch="Uniform"/>
                                 </Button>
@@ -266,7 +266,7 @@
 
                         <!-- Error -->
                         <StackPanel x:Name="ErrorBox" Orientation="Horizontal" Margin="2,10,0,0" Visibility="Collapsed">
-                            <Path Data="M12,12 A9,9 0 1,0 12,3 A9,9 0 1,0 12,12 Z M5.6,5.6 L18.4,18.4"
+                            <Path Data="M12,3 A9,9 0 1,0 12,21 A9,9 0 1,0 12,3 Z M5.64,5.64 L18.36,18.36"
                                   Stroke="{StaticResource L.Error}" StrokeThickness="1.8" Width="14" Height="14" Stretch="Uniform"
                                   VerticalAlignment="Center"/>
                             <TextBlock x:Name="ErrorText" Text="Incorrect username or password." FontSize="13"
