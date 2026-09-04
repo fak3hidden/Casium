@@ -149,6 +149,8 @@ end
             InitNetwork();
             ResetKey(silent: true);
 
+            EditorScroll.SizeChanged += (ss, ee) => RefreshPageWidth();
+
             LogList.ItemsSource = _visibleLogs;
             MiniHubList.ItemsSource = new List<HubScript>(_hubScripts);
 
@@ -264,6 +266,7 @@ end
             {
                 var doc = new FlowDocument { PagePadding = new Thickness(0) };
                 doc.Blocks.Add(BuildLuaParagraph(_selectedTab.Content));
+                doc.PageWidth = ComputePageWidth(_selectedTab.Content);
                 EditorBox.Document = doc;
             }
             finally
@@ -393,6 +396,7 @@ end
                 int offset = EditorBox.Document.ContentStart.GetOffsetToPosition(EditorBox.CaretPosition);
                 var doc = new FlowDocument { PagePadding = new Thickness(0) };
                 doc.Blocks.Add(BuildLuaParagraph(_selectedTab.Content));
+                doc.PageWidth = ComputePageWidth(_selectedTab.Content);
                 EditorBox.Document = doc;
                 var pos = EditorBox.Document.ContentStart.GetPositionAtOffset(offset);
                 EditorBox.CaretPosition = pos ?? EditorBox.Document.ContentEnd;
@@ -451,6 +455,36 @@ end
             }
 
             return paragraph;
+        }
+
+        private double ComputePageWidth(string code)
+        {
+            // RichTextBox has no TextWrapping property: the page is sized so
+            // long lines extend past the viewport (outer ScrollViewer scrolls)
+            // instead of wrapping and breaking the line-number gutter.
+            double viewport = EditorScroll.ViewportWidth;
+            if (viewport <= 0 || double.IsNaN(viewport))
+            {
+                viewport = Math.Max(ActualWidth - 560, 320);
+            }
+            double contentWidth = Math.Max(viewport - 46 - 20, 120);
+            int longest = 0;
+            if (!string.IsNullOrEmpty(code))
+            {
+                foreach (var line in code.Split('\n'))
+                {
+                    longest = Math.Max(longest, line.TrimEnd('\r').Length);
+                }
+            }
+            return Math.Max(contentWidth, longest * 9.0 + 16);
+        }
+
+        private void RefreshPageWidth()
+        {
+            if (EditorBox.Document != null && _selectedTab != null)
+            {
+                EditorBox.Document.PageWidth = ComputePageWidth(_selectedTab.Content);
+            }
         }
 
         private void UpdateLineNumbers()
@@ -1186,7 +1220,5 @@ print(""WalkSpeed set to 32."")";
                 }
             }
         }
-    }
-}
     }
 }

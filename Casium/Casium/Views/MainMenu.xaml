@@ -467,7 +467,6 @@
                                                      FontFamily="Consolas" FontSize="14"
                                                      Padding="8,10,12,10"
                                                      SpellCheck.IsEnabled="False"
-                                                     TextWrapping="NoWrap"
                                                      AcceptsReturn="True" AcceptsTab="True"
                                                      VerticalScrollBarVisibility="Disabled"
                                                      HorizontalScrollBarVisibility="Disabled"
