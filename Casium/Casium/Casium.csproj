@@ -54,11 +54,8 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="WindowsFormsIntegration" />
-    <!-- Drop QuorumMonaco.dll into Casium\Casium\Libs\ (created on first build if missing) -->
-    <Reference Include="QuorumMonaco" Condition="Exists('$(MSBuildProjectDirectory)\Libs\QuorumMonaco.dll')">
-      <HintPath>Libs\QuorumMonaco.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
+    <!-- QuorumMonaco.dll is loaded at runtime via reflection (it bundles its own copy of WebView2,
+         so a compile-time reference would clash with the NuGet WebView2 types). -->
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -100,6 +97,20 @@
     <Compile Include="Services\ThemeManager.cs" />
     <Compile Include="Services\NavState.cs" />
     <Compile Include="Services\QuorumEditorHost.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Libs\QuorumMonaco.dll" Condition="Exists('$(MSBuildProjectDirectory)\Libs\QuorumMonaco.dll')">
+      <Link>QuorumMonaco.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Libs\Monaco\**\*" Exclude="Libs\Monaco\tabs\**;Libs\Monaco\Trash\**">
+      <Link>Monaco\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Libs\runtimes\**\*">
+      <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -145,8 +156,5 @@
     <Resource Include="Assets\casium.ico" />
     <Resource Include="Assets\casium.png" />
   </ItemGroup>
-  <PropertyGroup Condition="Exists('$(MSBuildProjectDirectory)\Libs\QuorumMonaco.dll')">
-    <DefineConstants>$(DefineConstants);QUORUM</DefineConstants>
-  </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

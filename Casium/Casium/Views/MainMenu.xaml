@@ -460,7 +460,7 @@
                                         BorderBrush="{DynamicResource App.Border}" BorderThickness="0,0,0,1">
                                     <StackPanel x:Name="BreadcrumbPanel" Orientation="Horizontal" Margin="14,0" VerticalAlignment="Center"/>
                                 </Border>
-                                <Grid Grid.Row="1">
+                                <Grid Grid.Row="1" x:Name="EditorSurface">
                                 <ScrollViewer x:Name="EditorScroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                                     <Grid Width="{Binding ViewportWidth, ElementName=EditorScroll}"
                                           MinHeight="{Binding ViewportHeight, ElementName=EditorScroll}">

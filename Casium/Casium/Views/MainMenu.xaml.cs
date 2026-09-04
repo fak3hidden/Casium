@@ -205,10 +205,13 @@ namespace Casium.Views
         {
             if (!_quorum.TryCreate())
             {
+                if (!string.IsNullOrEmpty(_quorum.LastError) && _quorum.LastError != "QuorumMonaco.dll not found")
+                {
+                    AddLog("warn", "QuorumMonaco could not start: " + _quorum.LastError);
+                }
                 return false;
             }
-            EditorSurface.Children.Add(_quorum.Host);
-            _quorum.Host.Visibility = Visibility.Visible;
+            EditorSurface.Children.Add(_quorum.Element);
             EditorScroll.Visibility = Visibility.Collapsed;
             MonacoView.Visibility = Visibility.Collapsed;
             _useQuorum = true;
