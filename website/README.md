@@ -230,10 +230,31 @@ Alternatively host the zip on GitHub Releases and change the two `href`s.
 - **Storage:** keys + credentials live in one Netlify Blobs document
   (`casium-keys` / `state.json`). Free tier limits are far above what a
   single-admin console writes.
-- **No analytics, no cookies, no third-party scripts.** Fonts are self-hosted,
-  so nothing loads from outside your domain. CSP is set in `netlify.toml`.
+- **No analytics, no third-party scripts.** Fonts are self-hosted, so nothing
+  loads from outside your domain. CSP is set in `netlify.toml`. The only cookie
+  the site ever sets is the console's own first-party session token (same-site,
+  30 days) — a fallback for browsers that block localStorage.
 - **Console data never leaves the browser in local mode**, and the banner says
   so. If you see “browser storage” in the console header, functions aren’t
   deployed.
 - Regenerate brand images after changing tokens:
   `python3 tools/build-images.py` (needs `pip install pillow fonttools brotli`).
+
+---
+
+## 8 · Troubleshooting
+
+- **“storage: memory (volatile)” in the console** → the deploy can't reach
+  Netlify Blobs (usually a drag-&-drop deploy, which doesn't bundle function
+  dependencies). Keys created there disappear when Netlify restarts the
+  function. Fix: deploy from Git (Option A) so Blobs activates. Login sessions
+  survive restarts either way — they no longer depend on the store.
+- **“Your session expired” right after signing in** → you're looking at an old
+  deploy or a cached `panel.js`. The current build is recognisable by the
+  rectangular buttons and the footer bar on the landing page; hard-reload
+  (Ctrl/Cmd+Shift+R) and check Netlify → Deploys shows the latest commit.
+  Sessions now live 30 days, in localStorage + sessionStorage + a cookie at
+  once, and end only when you press **Sign out** (or rotate the password).
+- **Login works locally but not on Netlify** → set `CASIUM_ADMIN_USER` /
+  `CASIUM_ADMIN_PASS` under Site configuration → Environment variables, then
+  redeploy; env changes only apply to new builds.

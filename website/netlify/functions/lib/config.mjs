@@ -13,7 +13,9 @@
 export const DEFAULT_USERNAME = "admin";
 export const DEFAULT_PASSWORD = "casium-keys";
 
-export const SESSION_TTL_SECONDS = 12 * 60 * 60; // 12 hours
+/* Sessions live until the owner signs out (or rotates the password / secret).
+   30 days just bounds how long an idle token may linger. */
+export const SESSION_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
 export const MAX_LOGIN_ATTEMPTS = 8;
 export const LOCKOUT_SECONDS = 10 * 60; // 10 minutes
 

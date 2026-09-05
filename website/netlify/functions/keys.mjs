@@ -25,7 +25,7 @@ export default async (req) => {
   if (!ALLOWED.includes(req.method)) return methodNotAllowed(ALLOWED);
 
   const state = await readState();
-  const auth = authenticate(req, state);
+  const auth = await authenticate(req, state);
   if (!auth.ok) return fail(auth.status, auth.error, auth.message);
 
   switch (req.method) {

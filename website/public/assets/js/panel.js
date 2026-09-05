@@ -53,6 +53,40 @@
   const sessionStore = safeStore(() => window.sessionStorage);
   const localStore = safeStore(() => window.localStorage);
 
+  /* Third persistence layer: a plain cookie. Some environments block
+     localStorage/sessionStorage (sandboxed iframes, strict browser settings)
+     but still accept first-party cookies — this keeps the session alive
+     there too. If cookies are blocked as well, the probe reports unavailable
+     and we simply skip the layer. */
+  const cookieStore = (() => {
+    const NAME = "casium_console_token";
+    const MAX_AGE = 30 * 24 * 3600; // matches the server session TTL
+    let available = false;
+    try {
+      document.cookie = `${NAME}_probe=1; path=/; max-age=60; samesite=lax`;
+      available = document.cookie.includes(`${NAME}_probe=`);
+      document.cookie = `${NAME}_probe=; path=/; max-age=0`;
+    } catch { available = false; }
+    return {
+      available,
+      get() {
+        try {
+          const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${NAME}=([^;]*)`));
+          return m ? decodeURIComponent(m[1]) : null;
+        } catch { return null; }
+      },
+      set(value) {
+        try {
+          const secure = location.protocol === "https:" ? "; secure" : "";
+          document.cookie = `${NAME}=${encodeURIComponent(value)}; path=/; max-age=${MAX_AGE}; samesite=lax${secure}`;
+        } catch { /* blocked — other layers still hold the token */ }
+      },
+      remove() {
+        try { document.cookie = `${NAME}=; path=/; max-age=0`; } catch { /* ignore */ }
+      },
+    };
+  })();
+
   const UNITS = {
     seconds: { label: "Seconds", seconds: 1, max: 315360000 },
     minutes: { label: "Minutes", seconds: 60, max: 5256000 },
@@ -431,6 +465,7 @@
     if (state.mode === "local") return "browser storage";
     if (state.storage === "netlify-blobs") return "netlify blobs";
     if (state.storage === "file") return "file store";
+    if (state.storage === "memory") return "memory (volatile)";
     return state.storage;
   }
 
@@ -443,6 +478,15 @@
   }
 
   function paintWarningBanner() {
+    if (state.storage === "memory") {
+      setBanner(
+        `<b>Volatile server storage.</b> This deploy cannot reach Netlify Blobs, so keys live in function
+         memory and disappear whenever Netlify restarts it. Deploy from a Git repo (not drag-and-drop) so
+         Blobs activates — see <code>website/README.md</code>. Your login session survives restarts either way.`,
+        true
+      );
+      return;
+    }
     if (state.mode === "local") {
       setBanner(
         `<b>Local mode.</b> The keys API isn’t reachable here, so keys are stored in this browser only
@@ -637,21 +681,28 @@
     state.storage = "browser";
   }
 
-  function storeToken(token, remember) {
-    const store = remember ? localStore : sessionStore;
-    const other = remember ? sessionStore : localStore;
-    store.set(TOKEN_KEY, token);
-    other.remove(TOKEN_KEY);
+  /* A signed-in session sticks until the owner presses Sign out: the token is
+     written to EVERY available layer and read back from any of them, so a
+     reload, a restart or a blocked storage API can never log anyone out. */
+  function storeToken(token) {
+    localStore.set(TOKEN_KEY, token);
+    sessionStore.set(TOKEN_KEY, token);
+    cookieStore.set(token);
   }
 
   function readToken() {
-    return sessionStore.get(TOKEN_KEY) || localStore.get(TOKEN_KEY);
+    return localStore.get(TOKEN_KEY) || sessionStore.get(TOKEN_KEY) || cookieStore.get();
+  }
+
+  function clearToken() {
+    localStore.remove(TOKEN_KEY);
+    sessionStore.remove(TOKEN_KEY);
+    cookieStore.remove();
   }
 
   function signOut(message) {
     state.token = null;
-    sessionStore.remove(TOKEN_KEY);
-    localStore.remove(TOKEN_KEY);
+    clearToken();
     showGate();
     $("#password").value = "";
     $("#loginalert").dataset.show = "false";
@@ -686,7 +737,7 @@
         state.token = res.data.token;
         state.username = res.data.username || username;
         state.storage = res.data.storage || state.storage;
-        storeToken(state.token, $("#remember")?.checked ?? false);
+        storeToken(state.token);
         showConsole();
         paintChrome();
         await loadKeys();
@@ -853,7 +904,9 @@
     $("#pwmode").textContent =
       state.mode === "local"
         ? "Local mode: stored in this browser only."
-        : `Saved to ${describeStorage()}. Changing the password signs out every other session.`;
+        : state.storage === "memory"
+          ? `Saved to ${describeStorage()}. Changing the password signs out other sessions on this instance.`
+          : `Saved to ${describeStorage()}. Changing the password signs out every other session.`;
     openDialog("#pwdialog", "#pwcurrent");
   }
 
@@ -876,7 +929,7 @@
     }
     if (res.data.token && res.data.token !== "local") {
       state.token = res.data.token;
-      storeToken(state.token, localStore.get(TOKEN_KEY) !== null);
+      storeToken(state.token);
     }
     state.username = res.data.username || payload.username;
     state.usingDefaults = false;
@@ -986,8 +1039,9 @@
     paintWarningBanner();
 
     if (state.token) {
-      const res = await api().list();
-      if (res.status === 200 && res.data?.ok) {
+      let res = null;
+      try { res = await api().list(); } catch { res = null; } // offline: keep the token
+      if (res && res.status === 200 && res.data?.ok) {
         state.keys = res.data.keys || [];
         state.username = res.data.username || state.username;
         state.storage = res.data.storage || state.storage;
@@ -998,9 +1052,14 @@
         renderTable();
         return;
       }
-      state.token = null;
-      sessionStore.remove(TOKEN_KEY);
-      localStore.remove(TOKEN_KEY);
+      if (res && res.status === 401) {
+        // the server genuinely rejected the token (rotated password, etc.)
+        clearToken();
+        state.token = null;
+        toast("Your session expired — sign in again.", "info");
+      }
+      // anything else (server error, offline) keeps the stored token so the
+      // next reload or retry resumes instead of forcing a new login
     }
 
     showGate();

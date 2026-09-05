@@ -5,6 +5,7 @@
 import crypto from "node:crypto";
 import { envCredentials, usingDefaultPassword, SESSION_TTL_SECONDS, MAX_LOGIN_ATTEMPTS, LOCKOUT_SECONDS } from "./config.mjs";
 import { hashPassword, verifyPassword, signToken, verifyToken, sessionSecret, envSaltHex } from "./crypto.mjs";
+import { storageKind } from "./store.mjs";
 
 /* Environment passwords are hashed once per warm instance — scrypt is not free.
    The salt is derived from the password itself so EVERY instance (and every
@@ -41,19 +42,19 @@ export function checkLogin(state, username, password) {
   return userOk && passOk ? creds : null;
 }
 
-export function createSession(state, username) {
-  const secret = sessionSecret(state);
+export async function createSession(state, username) {
+  const secret = sessionSecret(state, await storageKind());
   const token = signToken({ sub: username, scope: "console" }, secret, SESSION_TTL_SECONDS);
   return { token, expiresIn: SESSION_TTL_SECONDS, expiresAt: new Date(Date.now() + SESSION_TTL_SECONDS * 1000).toISOString() };
 }
 
 /** Bearer-token guard used by every console endpoint. */
-export function authenticate(req, state) {
+export async function authenticate(req, state) {
   const header = req.headers.get("authorization") || "";
   const token = header.startsWith("Bearer ") ? header.slice(7).trim() : req.headers.get("x-casium-token") || "";
   if (!token) return { ok: false, status: 401, error: "missing_token", message: "Sign in to use the keys console." };
 
-  const secret = sessionSecret(state);
+  const secret = sessionSecret(state, await storageKind());
   const payload = verifyToken(token, secret);
   if (!payload || payload.scope !== "console") {
     return { ok: false, status: 401, error: "invalid_token", message: "Session expired or invalid — sign in again." };

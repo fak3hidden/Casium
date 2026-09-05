@@ -22,7 +22,7 @@ export default async (req) => {
   if (req.method !== "POST") return methodNotAllowed(["POST"]);
 
   const state = await readState();
-  const auth = authenticate(req, state);
+  const auth = await authenticate(req, state);
   if (!auth.ok) return fail(auth.status, auth.error, auth.message);
 
   const body = await readJson(req);
@@ -58,7 +58,7 @@ export default async (req) => {
   });
 
   const updated = await readState();
-  const session = createSession(updated, username);
+  const session = await createSession(updated, username);
 
   return json({
     ok: true,

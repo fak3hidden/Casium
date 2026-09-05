@@ -4,6 +4,7 @@
    ================================================================== */
 
 import crypto from "node:crypto";
+import { envCredentials } from "./config.mjs";
 
 const SCRYPT = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const KEY_LENGTH = 64;
@@ -55,13 +56,25 @@ function hmac(value, secret) {
   return crypto.createHmac("sha256", secret).update(value).digest();
 }
 
-export function sessionSecret(state) {
-  /* Derived ONLY from data that lives in shared storage (Blobs / the state
-     file), never from per-instance hashes: every cold start computes the
-     identical secret, so a token minted by one instance verifies on any
-     other. Bumping state.sessionEpoch (password change) kills old tokens. */
-  const material = `${state.tokenSalt || ""}|v${state.sessionEpoch || 0}`;
+export function sessionSecret(state, backendKind = "durable") {
   const base = process.env.CASIUM_SESSION_SECRET || "casium-development-secret";
+
+  let material;
+  if (backendKind === "memory") {
+    /* The memory backend regenerates state (and tokenSalt) on every cold start,
+       so state MUST NOT feed the secret there — otherwise every restart would
+       invalidate every session ("session expired" kicks). Derive from the
+       deploy configuration instead: identical on every instance of this
+       deploy, so tokens survive restarts. Rotating the env password still
+       invalidates them. */
+    const { username, password } = envCredentials();
+    const digest = crypto.createHash("sha256").update(`${username}\u0000${password}`).digest("hex");
+    material = `env|${digest}`;
+  } else {
+    /* Durable storage (Blobs / file): state is shared, so the per-site salt and
+       the epoch counter (bumped on password change) can safely feed the secret. */
+    material = `${state.tokenSalt || ""}|v${state.sessionEpoch || 0}`;
+  }
   return hmac(material, base);
 }
 

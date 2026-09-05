@@ -32,6 +32,16 @@ function emptyState() {
   };
 }
 
+function withTimeout(promise, ms) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`timed out after ${ms}ms`)), ms);
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
+
 async function blobsBackend() {
   const { getStore } = await import("@netlify/blobs");
   const options = { name: BLOB_STORE };
@@ -39,7 +49,10 @@ async function blobsBackend() {
   if (process.env.CASIUM_BLOB_TOKEN) options.token = process.env.CASIUM_BLOB_TOKEN;
 
   const store = getStore(options);
-  await store.getJSON(BLOB_KEY); // proves the store is reachable before we trust it
+  /* proves the store is reachable before we trust it — bounded, so an
+     unreachable/misconfigured Blobs endpoint degrades to the next backend
+     instead of stalling every request */
+  await withTimeout(store.getJSON(BLOB_KEY), 2500);
 
   return {
     kind: "netlify-blobs",
@@ -49,9 +62,17 @@ async function blobsBackend() {
 }
 
 async function fileBackend() {
-  const { mkdir, readFile, writeFile, rename } = await import("node:fs/promises");
+  const { mkdir, readFile, writeFile, rename, rm } = await import("node:fs/promises");
   const file = process.env.CASIUM_DATA_FILE || DEFAULT_FILE;
   await mkdir(path.dirname(file), { recursive: true });
+
+  /* Prove the location is writable BEFORE trusting it as durable storage: a
+     read-only directory would otherwise mint a fresh state on every read and
+     invalidate every session. Failing here falls through to the next backend. */
+  const probe = `${file}.probe`;
+  await writeFile(probe, "ok", "utf8");
+  await readFile(probe, "utf8");
+  await rm(probe, { force: true });
 
   return {
     kind: "file",

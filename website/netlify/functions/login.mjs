@@ -63,7 +63,7 @@ export default async (req, context) => {
     return { persist: false };
   });
 
-  const session = createSession(state, credentials.username);
+  const session = await createSession(state, credentials.username);
 
   return json({
     ok: true,
