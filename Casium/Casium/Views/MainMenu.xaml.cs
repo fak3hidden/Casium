@@ -312,13 +312,46 @@ namespace Casium.Views
 
         // ---------- tab strip scrolling -------------------------------------------------
 
+        private double _tabScrollTarget = -1;
+        private System.Windows.Threading.DispatcherTimer _tabScrollTimer;
+
+        private void SmoothScrollTabsTo(double target)
+        {
+            double max = TabStripScroll.ScrollableWidth;
+            _tabScrollTarget = Math.Max(0, Math.Min(max, target));
+            if (_tabScrollTimer == null)
+            {
+                _tabScrollTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Render)
+                {
+                    Interval = TimeSpan.FromMilliseconds(16)
+                };
+                _tabScrollTimer.Tick += (s2, e2) =>
+                {
+                    double cur = TabStripScroll.HorizontalOffset;
+                    double diff = _tabScrollTarget - cur;
+                    if (Math.Abs(diff) < 0.5)
+                    {
+                        TabStripScroll.ScrollToHorizontalOffset(_tabScrollTarget);
+                        _tabScrollTimer.Stop();
+                        return;
+                    }
+                    TabStripScroll.ScrollToHorizontalOffset(cur + diff * 0.25);
+                };
+            }
+            if (!_tabScrollTimer.IsEnabled)
+            {
+                _tabScrollTimer.Start();
+            }
+        }
+
         private void TabStripScroll_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
             if (TabStripScroll.ScrollableWidth <= 0)
             {
                 return;
             }
-            TabStripScroll.ScrollToHorizontalOffset(TabStripScroll.HorizontalOffset - e.Delta);
+            double from = _tabScrollTimer != null && _tabScrollTimer.IsEnabled ? _tabScrollTarget : TabStripScroll.HorizontalOffset;
+            SmoothScrollTabsTo(from - e.Delta * 0.6);
             e.Handled = true;
         }
 
@@ -334,12 +367,12 @@ namespace Casium.Views
 
         private void TabScrollLeft_Click(object sender, RoutedEventArgs e)
         {
-            TabStripScroll.ScrollToHorizontalOffset(TabStripScroll.HorizontalOffset - 120);
+            SmoothScrollTabsTo(TabStripScroll.HorizontalOffset - 160);
         }
 
         private void TabScrollRight_Click(object sender, RoutedEventArgs e)
         {
-            TabStripScroll.ScrollToHorizontalOffset(TabStripScroll.HorizontalOffset + 120);
+            SmoothScrollTabsTo(TabStripScroll.HorizontalOffset + 160);
         }
 
         private void UpdateTabScrollButtons()
@@ -363,7 +396,18 @@ namespace Casium.Views
                 {
                     if (NavState.GetIsActive(child))
                     {
-                        child.BringIntoView();
+                        double left = child.TranslatePoint(new Point(0, 0), TabStripPanel).X;
+                        double right = left + child.ActualWidth;
+                        double off = TabStripScroll.HorizontalOffset;
+                        double view = TabStripScroll.ViewportWidth;
+                        if (left < off)
+                        {
+                            SmoothScrollTabsTo(left);
+                        }
+                        else if (right > off + view)
+                        {
+                            SmoothScrollTabsTo(right - view);
+                        }
                         break;
                     }
                 }

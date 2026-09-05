@@ -376,7 +376,7 @@
                                         Visibility="Collapsed" Click="TabScrollLeft_Click" ToolTip="Scroll tabs left">
                                     <Path Data="M15,6 L9,12 L15,18" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" Width="8" Height="10" Stretch="Uniform"/>
                                 </Button>
-                                <ScrollViewer x:Name="TabStripScroll" Grid.Column="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                                <ScrollViewer x:Name="TabStripScroll" Grid.Column="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" CanContentScroll="False"
                                               PreviewMouseWheel="TabStripScroll_PreviewMouseWheel" ScrollChanged="TabStripScroll_ScrollChanged" SizeChanged="TabStripScroll_SizeChanged">
                                     <StackPanel x:Name="TabStripPanel" Orientation="Horizontal"/>
                                 </ScrollViewer>
