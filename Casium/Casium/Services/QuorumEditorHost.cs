@@ -32,6 +32,12 @@ namespace Casium.Services
         private object _control;
         private MethodInfo _setText, _getText, _refresh;
 
+        // Direct WebView2 access (preferred): lets us await script execution and do our own
+        // escaping, which avoids the fire-and-forget races in CoreFunctions.SetText/GetText.
+        private object _webView;
+        private MethodInfo _execScript;
+        private readonly System.Threading.SemaphoreSlim _gate = new System.Threading.SemaphoreSlim(1, 1);
+
         public bool TryCreate()
         {
             try
@@ -108,6 +114,7 @@ namespace Casium.Services
 
                 setMonaco.Invoke(coreInstance, new[] { _control });
                 _coreInstance = coreInstance;
+                FindWebView(_control);
                 IsAvailable = true;
                 return true;
             }
@@ -134,17 +141,139 @@ namespace Casium.Services
             try { DeleteFile(path + ":Zone.Identifier"); } catch { }
         }
 
+        private void FindWebView(object root)
+        {
+            try
+            {
+                var wf = root as System.Windows.Forms.Control;
+                if (wf != null)
+                {
+                    foreach (System.Windows.Forms.Control c in wf.Controls)
+                    {
+                        if (c.GetType().Name == "WebView2")
+                        {
+                            _webView = c;
+                            break;
+                        }
+                        FindWebView(c);
+                        if (_webView != null) break;
+                    }
+                }
+                if (_webView == null)
+                {
+                    // maybe stored in a field (e.g. private WebView2 webView21)
+                    foreach (FieldInfo f in root.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                    {
+                        if (f.FieldType.Name == "WebView2")
+                        {
+                            _webView = f.GetValue(root);
+                            if (_webView != null) break;
+                        }
+                    }
+                }
+                if (_webView != null)
+                {
+                    _execScript = _webView.GetType().GetMethod("ExecuteScriptAsync", new[] { typeof(string) });
+                    if (_execScript == null) _webView = null;
+                }
+            }
+            catch
+            {
+                _webView = null;
+            }
+        }
+
+        private async Task<string> RunScriptAsync(string js)
+        {
+            var task = (Task)_execScript.Invoke(_webView, new object[] { js });
+            await task;
+            PropertyInfo prop = task.GetType().GetProperty("Result");
+            return prop != null ? prop.GetValue(task) as string : null;
+        }
+
+        private static string EncodeJs(string value)
+        {
+            var sb = new System.Text.StringBuilder("\"");
+            foreach (char c in value ?? string.Empty)
+            {
+                switch (c)
+                {
+                    case '\\': sb.Append("\\\\"); break;
+                    case '"': sb.Append("\\\""); break;
+                    case '\n': sb.Append("\\n"); break;
+                    case '\r': sb.Append("\\r"); break;
+                    case '\t': sb.Append("\\t"); break;
+                    case '\u2028': sb.Append("\\u2028"); break;
+                    case '\u2029': sb.Append("\\u2029"); break;
+                    default:
+                        if (c < 0x20) sb.Append("\\u" + ((int)c).ToString("x4"));
+                        else sb.Append(c);
+                        break;
+                }
+            }
+            sb.Append('"');
+            return sb.ToString();
+        }
+
+        private static string DecodeJs(string raw)
+        {
+            if (string.IsNullOrEmpty(raw) || raw == "null") return null;
+            try
+            {
+                var ser = new System.Web.Script.Serialization.JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+                return ser.Deserialize<string>(raw);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public void SetText(string code)
         {
+            var _ = SetTextAsync(code);
+        }
+
+        public async Task SetTextAsync(string code)
+        {
             if (!IsAvailable) return;
-            try { _setText.Invoke(_coreInstance, new object[] { code ?? string.Empty }); } catch { }
+            await _gate.WaitAsync();
+            try
+            {
+                if (_webView != null)
+                {
+                    // wait until the page's editor exists, then set the value
+                    for (int i = 0; i < 40; i++)
+                    {
+                        string ok = await RunScriptAsync("(typeof SetText === 'function') ? 'ok' : ''");
+                        if (DecodeJs(ok) == "ok") break;
+                        await Task.Delay(250);
+                    }
+                    await RunScriptAsync("SetText(" + EncodeJs(code ?? string.Empty) + ")");
+                }
+                else
+                {
+                    _setText.Invoke(_coreInstance, new object[] { code ?? string.Empty });
+                }
+            }
+            catch { }
+            finally
+            {
+                _gate.Release();
+            }
         }
 
         public async Task<string> GetTextAsync()
         {
             if (!IsAvailable) return null;
+            await _gate.WaitAsync();
             try
             {
+                if (_webView != null)
+                {
+                    string raw = await RunScriptAsync("(typeof GetText === 'function') ? GetText() : null");
+                    return DecodeJs(raw);
+                }
                 object result = _getText.Invoke(_coreInstance, null);
                 var task = result as Task;
                 if (task != null)
@@ -158,6 +287,10 @@ namespace Casium.Services
             catch
             {
                 return null;
+            }
+            finally
+            {
+                _gate.Release();
             }
         }
 

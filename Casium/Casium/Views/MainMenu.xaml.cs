@@ -441,8 +441,7 @@ namespace Casium.Views
         {
             if (_useQuorum)
             {
-                _quorum.SetText(code);
-                return Task.FromResult(true);
+                return _quorum.SetTextAsync(code);
             }
             return MonacoView.ExecuteScriptAsync(
                 "window.Bubble.setCode(" + EncodeJsString(code ?? string.Empty) + ")");
@@ -462,7 +461,7 @@ namespace Casium.Views
             try
             {
                 string code = await GetMonacoCodeAsync();
-                if (code == null)
+                if (code == null || tab != _selectedTab)
                 {
                     return;
                 }

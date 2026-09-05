@@ -53,6 +53,7 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="WindowsFormsIntegration" />
     <!-- QuorumMonaco.dll is loaded at runtime via reflection (it bundles its own copy of WebView2,
          so a compile-time reference would clash with the NuGet WebView2 types). -->
