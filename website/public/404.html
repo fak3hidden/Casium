@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>404 — Casium</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="/assets/css/fonts.css" />
+<link rel="stylesheet" href="/assets/css/base.css" />
+<style>
+  .nf { min-height: 100vh; display: grid; place-items: center; padding: 48px 0; }
+  .nf-in { text-align: left; width: min(560px, 100% - 48px); }
+  .nf-code {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nf-code::before { content: ""; width: 22px; height: 1px; background: var(--ember); }
+  .nf h1 {
+    font-family: var(--disp);
+    font-weight: 700;
+    font-size: clamp(52px, 9vw, 96px);
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    margin: 20px 0 14px;
+  }
+  .nf p { color: var(--ink-2); font-size: 15.5px; line-height: 1.65; max-width: 44ch; }
+  .nf .cta-row { margin-top: 26px; }
+</style>
+</head>
+<body>
+<main class="nf">
+  <div class="nf-in">
+    <p class="nf-code">error 404 · not attached</p>
+    <h1>This page<br />never injected.</h1>
+    <p>The address you followed doesn’t exist on casium.top. It may have been renamed, or the link was mistyped.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="/">Back to casium.top</a>
+      <a class="btn btn-ghost" href="/#download">Go to downloads</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# casium.top
+User-agent: *
+Allow: /
+
+# The keys console is private — keep crawlers out of it.
+Disallow: /thisismyveryownkeyspage
+Disallow: /thisismyveryownkeyspage.html
+
+Sitemap: https://casium.top/sitemap.xml

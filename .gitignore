@@ -1,0 +1,21 @@
+# ---- node / tooling ----
+node_modules/
+website/node_modules/
+website/tools/.data/
+website/.env
+*.log
+.DS_Store
+
+# ---- editors / OS ----
+.vs/
+.idea/
+*.user
+Thumbs.db
+
+# ---- .NET build output (not tracked; sources only) ----
+Casium/**/bin/
+Casium/**/obj/*.cache
+BubbleAPI/**/obj/
+
+# ---- local build helpers ----
+.tooling/

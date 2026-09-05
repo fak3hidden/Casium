@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<title>Keys console — Casium</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="alternate icon" href="/assets/img/favicon-32.png" />
+<link rel="stylesheet" href="/assets/css/fonts.css" />
+<link rel="stylesheet" href="/assets/css/base.css" />
+<link rel="stylesheet" href="/assets/css/panel.css" />
+</head>
+
+<body class="console">
+<a class="skip" href="#cmain">Skip to console</a>
+
+<!-- ==================================================================
+     GATE — username + password
+     ================================================================== -->
+<section class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-top" aria-hidden="true"></div>
+    <div class="gate-body">
+      <div class="gate-head">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="1.25" y="1.25" width="29.5" height="29.5" rx="7.5" fill="#101317" stroke="#2c323b"/>
+          <path d="M22.4 11.1a8.2 8.2 0 1 0 0 9.8" fill="none" stroke="#eef0f3" stroke-width="2.7" stroke-linecap="round"/>
+          <circle cx="24.1" cy="16" r="2.2" fill="#ff5c2b"/>
+        </svg>
+        <div>
+          <h1>Keys console</h1>
+          <p>Casium · restricted</p>
+        </div>
+      </div>
+
+      <form class="gate-form" id="loginform" novalidate>
+        <div class="gate-alert" id="loginalert" role="alert" aria-live="assertive">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.4"/><path d="M8 4.9v3.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".85" fill="currentColor"/></svg>
+          <span id="loginalerttext">Invalid username or password.</span>
+        </div>
+
+        <div class="field">
+          <label for="username">Username</label>
+          <input class="input" id="username" name="username" type="text" autocomplete="username"
+                 autocapitalize="none" spellcheck="false" required placeholder="admin" />
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input class="input" id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••••" />
+          <span class="caps" id="capswarn" data-show="false">Caps lock is on</span>
+        </div>
+
+        <label class="remember" for="remember">
+          <input type="checkbox" id="remember" name="remember" />
+          <span>Keep me signed in on this device</span>
+        </label>
+
+        <button class="btn btn-primary btn-block btn-lg" type="submit" id="loginbtn">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.6" y="6.8" width="10.8" height="7" rx="1.6" stroke="currentColor" stroke-width="1.5"/><path d="M5.4 6.8V4.9a2.6 2.6 0 0 1 5.2 0v1.9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="10.2" r="1.05" fill="currentColor"/></svg>
+          <span>Sign in</span>
+        </button>
+      </form>
+
+      <div class="gate-foot">
+        <span id="storagebadge">checking storage…</span>
+        <a href="/">← casium.top</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================================================================
+     CONSOLE — keys table
+     ================================================================== -->
+<div id="console" hidden>
+  <header class="chead">
+    <div class="cshell chead-in">
+      <a class="brand" href="/" aria-label="Casium — home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="1.25" y="1.25" width="29.5" height="29.5" rx="7.5" fill="#101317" stroke="#2c323b"/>
+          <path d="M22.4 11.1a8.2 8.2 0 1 0 0 9.8" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/>
+          <circle cx="24.1" cy="16" r="2.2" fill="#ff5c2b"/>
+        </svg>
+        <span class="brand-name">Casium</span>
+      </a>
+      <span class="chead-title">Keys console</span>
+
+      <div class="chead-right">
+        <span class="chead-user" id="whoami"></span>
+        <span class="chip" id="storagechip">storage</span>
+        <button class="btn btn-sm btn-ghost" type="button" id="changepwbtn">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="2.1" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.6v1.7M8 12.7v1.7M14.4 8h-1.7M3.3 8H1.6M12.5 3.5l-1.2 1.2M4.7 11.3l-1.2 1.2M12.5 12.5l-1.2-1.2M4.7 4.7 3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Credentials
+        </button>
+        <button class="btn btn-sm btn-ghost" type="button" id="signoutbtn">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6.4 13.4H3.6a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1h2.8M10.4 11l3-3-3-3M13.2 8H6.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="cmain cshell" id="cmain">
+    <div class="banner" id="banner" data-show="false" role="status">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.9 14.6 13H1.4L8 1.9Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6.2v3.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.3" r=".85" fill="currentColor"/></svg>
+      <span id="bannertext"></span>
+    </div>
+
+    <div class="ctitle-row">
+      <h2>Keys</h2>
+      <span class="count" id="keycount">—</span>
+      <span class="spacer"></span>
+      <button class="btn btn-sm btn-ghost" type="button" id="exportbtn">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 10.4V2.2m0 8.2L5.2 7.6M8 10.4l2.8-2.8M2.6 11.6v1.2a1 1 0 0 0 1 1h8.8a1 1 0 0 0 1-1v-1.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export
+      </button>
+      <button class="btn btn-sm btn-ghost" type="button" id="refreshbtn" title="Reload keys">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13.4 8a5.4 5.4 0 1 1-1.6-3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13.6 2.4v3h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Refresh
+      </button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.4" stroke="currentColor" stroke-width="1.5"/><path d="m10.4 10.4 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <input class="input input-mono" id="search" type="search" placeholder="Filter keys…" aria-label="Filter keys" />
+      </div>
+      <select class="select" id="statusfilter" aria-label="Filter by status">
+        <option value="all">All statuses</option>
+        <option value="active">Active</option>
+        <option value="lifetime">Lifetime</option>
+        <option value="expiring">Expiring ≤ 7 days</option>
+        <option value="expired">Expired</option>
+        <option value="revoked">Revoked</option>
+      </select>
+    </div>
+
+    <div class="tablecard">
+      <div class="tablescroll">
+        <table class="keys-table" id="keystable">
+          <caption class="sr-only">Issued Casium licence keys and their durations</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="sortable" data-sort="key">Keys <span class="arrow">▼</span></th>
+              <th scope="col" class="sortable" data-sort="duration">Duration <span class="arrow">▼</span></th>
+              <th scope="col" class="sortable" data-sort="expires">Expires <span class="arrow">▼</span></th>
+              <th scope="col" class="sortable" data-sort="status">Status <span class="arrow">▼</span></th>
+              <th scope="col" style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="keybody">
+            <tr class="skeleton"><td colspan="5"><div class="bar" style="width:42%"></div></td></tr>
+            <tr class="skeleton"><td colspan="5"><div class="bar" style="width:64%"></div></td></tr>
+            <tr class="skeleton"><td colspan="5"><div class="bar" style="width:31%"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tablefoot">
+        <span id="footcount">0 keys</span>
+        <span>·</span>
+        <span id="footstorage">storage</span>
+        <span style="margin-left:auto" id="footupdated">—</span>
+      </div>
+    </div>
+
+    <div class="newkey-wrap">
+      <button class="btn btn-primary" type="button" id="newkeybtn">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        New Key +
+      </button>
+    </div>
+  </main>
+</div>
+
+<!-- ==================================================================
+     DIALOG — new key
+     ================================================================== -->
+<div class="overlay" id="newkeydialog" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="newkeytitle">
+    <div class="dialog-head">
+      <h3 id="newkeytitle">New key</h3>
+      <button class="icon-btn" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <form id="newkeyform" novalidate>
+      <div class="dialog-body">
+        <div class="field">
+          <label for="keyvalue">Key</label>
+          <div class="keyrow">
+            <input class="input input-mono" id="keyvalue" type="text" readonly aria-describedby="keyhelp" />
+            <button class="btn" type="button" id="regenbtn" title="Generate a different key">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13.4 8a5.4 5.4 0 1 1-1.6-3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13.6 2.4v3h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Reroll
+            </button>
+          </div>
+          <span class="hint" id="keyhelp">Generated for you — keys can’t be edited by hand.</span>
+        </div>
+
+        <div class="field">
+          <label for="duration">Duration</label>
+          <select class="select" id="duration">
+            <option value="lifetime">Lifetime</option>
+            <option value="1y">1 Year</option>
+            <option value="1mo" selected>1 Month</option>
+            <option value="custom">Custom Type</option>
+          </select>
+        </div>
+
+        <div class="dur-grid split-2" id="customrow" hidden>
+          <div class="field">
+            <label for="customamount">Amount</label>
+            <input class="input input-mono" id="customamount" type="number" min="1" step="1" value="12" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="customunit">Unit</label>
+            <select class="select" id="customunit">
+              <option value="seconds">Seconds</option>
+              <option value="minutes">Minutes</option>
+              <option value="hours" selected>Hours</option>
+              <option value="days">Days</option>
+              <option value="months">Months</option>
+              <option value="years">Years</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="keynote">Note <span style="text-transform:none;letter-spacing:0;color:var(--ink-4)">(optional)</span></label>
+          <input class="input" id="keynote" type="text" maxlength="60" placeholder="who it was issued to" autocomplete="off" />
+        </div>
+
+        <dl class="preview">
+          <dt>Expires</dt><dd id="previewexpires">never</dd>
+          <dt>Seconds</dt><dd id="previewseconds" class="dim">—</dd>
+        </dl>
+      </div>
+
+      <div class="dialog-foot">
+        <span class="hint">Esc to cancel</span>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" type="button" data-close>Cancel</button>
+        <button class="btn btn-primary" type="submit" id="createkeybtn">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          Create Key
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================================================================
+     DIALOG — credentials
+     ================================================================== -->
+<div class="overlay" id="pwdialog" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="pwtitle">
+    <div class="dialog-head">
+      <h3 id="pwtitle">Console credentials</h3>
+      <button class="icon-btn" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <form id="pwform" novalidate>
+      <div class="dialog-body">
+        <p class="hint" id="pwmode"></p>
+        <div class="gate-alert" id="pwalert" role="alert" aria-live="assertive">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.4"/><path d="M8 4.9v3.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".85" fill="currentColor"/></svg>
+          <span id="pwalerttext"></span>
+        </div>
+
+        <div class="field" id="pwcurrentfield">
+          <label for="pwcurrent">Current password</label>
+          <input class="input" id="pwcurrent" type="password" autocomplete="current-password" />
+        </div>
+
+        <div class="field">
+          <label for="pwuser">Username</label>
+          <input class="input" id="pwuser" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required />
+        </div>
+
+        <div class="field">
+          <label for="pwnew">New password</label>
+          <input class="input" id="pwnew" type="password" autocomplete="new-password" required minlength="8" />
+          <span class="hint">Minimum 8 characters. Saved hashed — never in plain text.</span>
+        </div>
+      </div>
+
+      <div class="dialog-foot">
+        <span class="hint">Esc to cancel</span>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" type="button" data-close>Cancel</button>
+        <button class="btn btn-primary" type="submit">Save credentials</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================================================================
+     DIALOG — confirm delete
+     ================================================================== -->
+<div class="overlay" id="confirmdialog" hidden>
+  <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmtitle" aria-describedby="confirmtext" style="width:min(420px,100%)">
+    <div class="dialog-head">
+      <h3 id="confirmtitle">Delete key</h3>
+      <button class="icon-btn" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <p id="confirmtext" style="font-size:14px;color:var(--ink-2);line-height:1.6">
+        This removes the key permanently. Anyone using it will be locked out on their next launch.
+      </p>
+      <p class="mono" id="confirmkey" style="font-size:12.5px;color:var(--ink-3);word-break:break-all"></p>
+    </div>
+    <div class="dialog-foot">
+      <span class="spacer"></span>
+      <button class="btn btn-ghost" type="button" data-close>Cancel</button>
+      <button class="btn btn-danger" type="button" id="confirmdeletebtn">Delete key</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<script src="/assets/js/panel.js" defer></script>
+</body>
+</html>

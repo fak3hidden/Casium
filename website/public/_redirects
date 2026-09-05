@@ -1,0 +1,11 @@
+# Pretty URL for the private keys console (the .html file stays reachable too).
+/thisismyveryownkeyspage     /thisismyveryownkeyspage.html   200
+/thisismyveryownkeyspage/    /thisismyveryownkeyspage.html   200
+
+# Keep the API reachable under /.netlify/functions/* as well, in case a build
+# ever ignores the declared paths in the function files.
+/api/status                  /.netlify/functions/status        200
+/api/login                   /.netlify/functions/login         200
+/api/keys                    /.netlify/functions/keys          200
+/api/credentials             /.netlify/functions/credentials   200
+/api/validate                /.netlify/functions/validate      200

@@ -1,0 +1,18 @@
+{
+  "name": "casium-website",
+  "version": "2.4.1",
+  "private": true,
+  "description": "casium.top — product site plus the private keys console (Netlify Functions + Netlify Blobs)",
+  "type": "module",
+  "scripts": {
+    "dev": "node tools/dev-server.mjs",
+    "start": "node tools/dev-server.mjs",
+    "netlify": "netlify dev"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
