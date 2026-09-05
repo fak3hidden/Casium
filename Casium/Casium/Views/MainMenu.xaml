@@ -366,9 +366,25 @@
                                 <Path Data="M9,6 L15,12 L9,18" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" Width="10" Height="10" Stretch="Uniform"/>
                             </Button>
 
-                            <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
-                                <StackPanel x:Name="TabStripPanel" Orientation="Horizontal"/>
-                            </ScrollViewer>
+                            <Grid Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Button x:Name="TabScrollLeft" Grid.Column="0" Style="{StaticResource Button.Icon}" Width="26" Height="42"
+                                        Visibility="Collapsed" Click="TabScrollLeft_Click" ToolTip="Scroll tabs left">
+                                    <Path Data="M15,6 L9,12 L15,18" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" Width="8" Height="10" Stretch="Uniform"/>
+                                </Button>
+                                <ScrollViewer x:Name="TabStripScroll" Grid.Column="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                                              PreviewMouseWheel="TabStripScroll_PreviewMouseWheel" ScrollChanged="TabStripScroll_ScrollChanged" SizeChanged="TabStripScroll_SizeChanged">
+                                    <StackPanel x:Name="TabStripPanel" Orientation="Horizontal"/>
+                                </ScrollViewer>
+                                <Button x:Name="TabScrollRight" Grid.Column="2" Style="{StaticResource Button.Icon}" Width="26" Height="42"
+                                        Visibility="Collapsed" Click="TabScrollRight_Click" ToolTip="Scroll tabs right">
+                                    <Path Data="M9,6 L15,12 L9,18" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" Width="8" Height="10" Stretch="Uniform"/>
+                                </Button>
+                            </Grid>
 
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,10,0">
                                 <Button x:Name="AddTabButton" Style="{StaticResource Button.Icon}" Click="AddTabButton_Click" ToolTip="New script">

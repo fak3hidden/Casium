@@ -310,6 +310,67 @@ namespace Casium.Views
             }
         }
 
+        // ---------- tab strip scrolling -------------------------------------------------
+
+        private void TabStripScroll_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            if (TabStripScroll.ScrollableWidth <= 0)
+            {
+                return;
+            }
+            TabStripScroll.ScrollToHorizontalOffset(TabStripScroll.HorizontalOffset - e.Delta);
+            e.Handled = true;
+        }
+
+        private void TabStripScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            UpdateTabScrollButtons();
+        }
+
+        private void TabStripScroll_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateTabScrollButtons();
+        }
+
+        private void TabScrollLeft_Click(object sender, RoutedEventArgs e)
+        {
+            TabStripScroll.ScrollToHorizontalOffset(TabStripScroll.HorizontalOffset - 120);
+        }
+
+        private void TabScrollRight_Click(object sender, RoutedEventArgs e)
+        {
+            TabStripScroll.ScrollToHorizontalOffset(TabStripScroll.HorizontalOffset + 120);
+        }
+
+        private void UpdateTabScrollButtons()
+        {
+            if (TabStripScroll == null || TabScrollLeft == null || TabScrollRight == null)
+            {
+                return;
+            }
+            bool overflow = TabStripScroll.ScrollableWidth > 0.5;
+            TabScrollLeft.Visibility = overflow ? Visibility.Visible : Visibility.Collapsed;
+            TabScrollRight.Visibility = overflow ? Visibility.Visible : Visibility.Collapsed;
+            TabScrollLeft.IsEnabled = TabStripScroll.HorizontalOffset > 0.5;
+            TabScrollRight.IsEnabled = TabStripScroll.HorizontalOffset < TabStripScroll.ScrollableWidth - 0.5;
+        }
+
+        private void ScrollActiveTabIntoView()
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                foreach (FrameworkElement child in TabStripPanel.Children.OfType<FrameworkElement>())
+                {
+                    if (NavState.GetIsActive(child))
+                    {
+                        child.BringIntoView();
+                        break;
+                    }
+                }
+                UpdateTabScrollButtons();
+            }), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
         private async Task<string> GetMonacoCodeAsync()
         {
             if (_useQuorum)
@@ -1363,6 +1424,7 @@ namespace Casium.Views
                     Geometry.Parse("M12,15.5 A3.5,3.5 0 1,0 12,8.5 A3.5,3.5 0 1,0 12,15.5 Z M12,2 V5 M12,19 V22 M2,12 H5 M19,12 H22 M4.9,4.9 L7,7 M17,17 L19.1,19.1 M4.9,19.1 L7,17 M17,7 L19.1,4.9"),
                     true, SettingsTab_Click, null));
             }
+            ScrollActiveTabIntoView();
         }
 
         private async void SelectTab_Click(object sender, MouseButtonEventArgs e)
