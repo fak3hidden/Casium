@@ -2225,7 +2225,7 @@
 <body>
   <div class="editor-container">
       <div id="tabs-container" class="tabs-container"></div>
-      <div id="container" style="width:100%;height:calc(100% - 35px);"></div>
+      <div id="container" style="width:100%;height:100%;"></div>
   </div>
   <style>
       .editor-container {
@@ -2234,9 +2234,10 @@
           display: flex;
           flex-direction: column;
       }
+      /* Casium: tab strip hidden, Casium provides its own document tabs */
       .tabs-container {
           background-color: #21252b;
-          display: flex;
+          display: none;
           height: 35px;
           overflow-x: auto;
           border-bottom: 1px solid #333;
