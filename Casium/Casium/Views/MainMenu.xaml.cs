@@ -1795,7 +1795,7 @@ namespace Casium.Views
         private void InitQuorumApi()
         {
             _api = new QuorumBridge(Dispatcher, AddLog);
-            if (_api.Init())
+            if (_api.Init(ScriptsDir, AutoExecDir))
             {
                 AddLog("sys", "Quorum API ready.");
             }
