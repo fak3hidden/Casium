@@ -3,3 +3,7 @@ obj/
 .vs/
 *.user
 packages/
+# QuorumMonaco's WebView2 user-data cache (runtime junk)
+Casium/Casium/Libs/Monaco/Webview/
+Casium/Casium/Libs/Monaco/tabs/
+Casium/Casium/Libs/Monaco/Trash/

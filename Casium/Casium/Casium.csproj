@@ -103,7 +103,7 @@
       <Link>QuorumMonaco.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Libs\Monaco\**\*" Exclude="Libs\Monaco\tabs\**;Libs\Monaco\Trash\**">
+    <None Include="Libs\Monaco\**\*" Exclude="Libs\Monaco\tabs\**;Libs\Monaco\Trash\**;Libs\Monaco\Webview\**">
       <Link>Monaco\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -151,7 +151,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2957.106" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
     <EmbeddedResource Include="Resources\Monaco.html" />
     <Resource Include="Assets\casium.ico" />
     <Resource Include="Assets\casium.png" />
