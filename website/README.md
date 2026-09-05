@@ -217,10 +217,11 @@ public static class CasiumKeyCheck
 
 ## 6 · Releases
 
-Drop each build into `public/downloads/` named exactly what the buttons point
-at (`Casium-2.4.1.zip`), then update the version strings in `index.html`
-(search for `2.4.1`) and the spec table (size / SHA-256). Alternatively host
-the zip on GitHub Releases and change the two `href`s.
+`public/downloads/` currently contains a **placeholder zip** so the download
+buttons don’t 404 — replace it with your real build, named exactly what the
+buttons point at (`Casium-2.4.1.zip`), then update the version strings in
+`index.html` (search for `2.4.1`) and the spec table (size / SHA-256).
+Alternatively host the zip on GitHub Releases and change the two `href`s.
 
 ---
 
