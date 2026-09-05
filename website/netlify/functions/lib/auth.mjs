@@ -42,7 +42,7 @@ export function checkLogin(state, username, password) {
 }
 
 export function createSession(state, username) {
-  const secret = sessionSecret(state, credentialsFor(state).record);
+  const secret = sessionSecret(state);
   const token = signToken({ sub: username, scope: "console" }, secret, SESSION_TTL_SECONDS);
   return { token, expiresIn: SESSION_TTL_SECONDS, expiresAt: new Date(Date.now() + SESSION_TTL_SECONDS * 1000).toISOString() };
 }
@@ -53,7 +53,7 @@ export function authenticate(req, state) {
   const token = header.startsWith("Bearer ") ? header.slice(7).trim() : req.headers.get("x-casium-token") || "";
   if (!token) return { ok: false, status: 401, error: "missing_token", message: "Sign in to use the keys console." };
 
-  const secret = sessionSecret(state, credentialsFor(state).record);
+  const secret = sessionSecret(state);
   const payload = verifyToken(token, secret);
   if (!payload || payload.scope !== "console") {
     return { ok: false, status: 401, error: "invalid_token", message: "Session expired or invalid — sign in again." };

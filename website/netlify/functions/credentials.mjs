@@ -53,6 +53,7 @@ export default async (req) => {
 
   await withState(async (fresh) => {
     fresh.credentials = { ...hashPassword(password), username };
+    fresh.sessionEpoch = (fresh.sessionEpoch || 0) + 1; // invalidate old tokens
     return { persist: true };
   });
 

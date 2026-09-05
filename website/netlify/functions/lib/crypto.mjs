@@ -55,8 +55,12 @@ function hmac(value, secret) {
   return crypto.createHmac("sha256", secret).update(value).digest();
 }
 
-export function sessionSecret(state, credentials) {
-  const material = `${state.tokenSalt || ""}|${credentials.username}|${credentials.hash || ""}`;
+export function sessionSecret(state) {
+  /* Derived ONLY from data that lives in shared storage (Blobs / the state
+     file), never from per-instance hashes: every cold start computes the
+     identical secret, so a token minted by one instance verifies on any
+     other. Bumping state.sessionEpoch (password change) kills old tokens. */
+  const material = `${state.tokenSalt || ""}|v${state.sessionEpoch || 0}`;
   const base = process.env.CASIUM_SESSION_SECRET || "casium-development-secret";
   return hmac(material, base);
 }

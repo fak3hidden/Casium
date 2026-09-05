@@ -10,18 +10,7 @@ body.console {
   min-height: 100dvh;
   background: var(--bg);
 }
-body.console::before {
-  content: "";
-  position: fixed;
-  left: 50%;
-  top: 0;
-  width: min(720px, 96vw);
-  height: 340px;
-  transform: translateX(-50%);
-  background: radial-gradient(closest-side, rgba(255, 92, 43, 0.075), transparent 72%);
-  pointer-events: none;
-  z-index: -1;
-}
+
 
 .cshell { width: min(var(--console-max), 100% - 32px); margin-inline: auto; }
 
@@ -38,12 +27,12 @@ body.console::before {
 }
 .gate-card {
   width: min(360px, 100%);
-  background: var(--bg-2);
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
   overflow: hidden;
 }
-.gate-top { height: 1px; background: linear-gradient(90deg, transparent, var(--line-3), transparent); }
+.gate-top { height: 1px; background: var(--line-2); }
 .gate-body { padding: 30px 28px 24px; }
 
 .gate-head { display: flex; flex-direction: column; align-items: center; gap: 0; margin-bottom: 26px; text-align: center; }
@@ -148,7 +137,7 @@ body.console::before {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(6, 7, 8, 0.82);
+  background: rgba(13, 13, 13, 0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
@@ -231,8 +220,8 @@ body.console::before {
   color: var(--ink-4);
   pointer-events: none;
 }
-.search .input { padding-left: 33px; height: 36px; font-size: 13px; border-radius: 999px; }
-.toolbar .select { height: 36px; width: auto; min-width: 140px; font-size: 13px; border-radius: 999px; }
+.search .input { padding-left: 33px; height: 36px; font-size: 13px; border-radius: 5px; }
+.toolbar .select { height: 36px; width: auto; min-width: 140px; font-size: 13px; border-radius: 5px; }
 .toolbar .btn { height: 36px; }
 
 /* ------------------------------------------------------------------ table */
@@ -289,7 +278,7 @@ body.console::before {
 .expires { font-family: var(--mono); font-size: 12px; color: var(--ink-3); white-space: nowrap; }
 
 .rowactions { display: flex; gap: 5px; justify-content: flex-end; }
-.rowactions .icon-btn { width: 28px; height: 28px; border-radius: 999px; background: transparent; }
+.rowactions .icon-btn { width: 28px; height: 28px; border-radius: 5px; background: transparent; }
 .rowactions .icon-btn svg { width: 13px; height: 13px; }
 .rowactions .icon-btn[data-act="delete"]:hover { color: #ff8f92; border-color: rgba(229, 72, 77, 0.5); background: rgba(229, 72, 77, 0.08); }
 .rowactions .icon-btn[data-act="revoke"][data-on="true"] { color: var(--amber); border-color: rgba(223, 164, 58, 0.4); }
@@ -344,7 +333,7 @@ body.console::before {
   width: min(480px, 100%);
   background: var(--bg-2);
   border: 1px solid var(--line-2);
-  border-radius: 14px;
+  border-radius: 8px;
   overflow: hidden;
   animation: pop 0.18s var(--ease);
 }
@@ -363,7 +352,7 @@ body.console::before {
   font-weight: 600;
   letter-spacing: -0.01em;
 }
-.dialog-head .icon-btn { margin-left: auto; border-radius: 999px; background: transparent; }
+.dialog-head .icon-btn { margin-left: auto; border-radius: 5px; background: transparent; }
 .dialog-body { padding: 20px 18px; display: grid; gap: 16px; }
 .dialog-foot {
   display: flex;
@@ -388,7 +377,7 @@ body.console::before {
   gap: 7px 14px;
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 6px;
   background: var(--bg);
   font-family: var(--mono);
   font-size: 12px;
@@ -415,7 +404,7 @@ body.console::before {
   gap: 10px;
   padding: 10px 14px;
   border: 1px solid var(--line-2);
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--surface-2);
   font-size: 12.5px;
   color: var(--ink);
@@ -447,7 +436,7 @@ body.console::before {
 .skeleton td { padding: 15px 14px; }
 .skeleton .bar {
   height: 9px;
-  border-radius: 99px;
+  border-radius: 3px;
   background: linear-gradient(90deg, var(--surface), var(--surface-2), var(--surface));
   background-size: 220% 100%;
   animation: shimmer 1.4s ease-in-out infinite;

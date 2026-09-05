@@ -20,39 +20,34 @@
 <link rel="alternate icon" href="/assets/img/favicon-32.png" />
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
 <link rel="preload" href="/assets/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="stylesheet" href="/assets/css/fonts.css" />
-<link rel="stylesheet" href="/assets/css/base.css" />
-<link rel="stylesheet" href="/assets/css/site.css" />
+<link rel="stylesheet" href="/assets/css/fonts.css?v=2" />
+<link rel="stylesheet" href="/assets/css/base.css?v=2" />
+<link rel="stylesheet" href="/assets/css/site.css?v=2" />
 </head>
 
 <body class="home">
 <a class="skip" href="#faq">Skip to content</a>
 
-<main class="stage">
+<main class="stage" id="top">
   <div class="stage-in">
-    <svg class="stage-mark" viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M22.4 11.1a8.2 8.2 0 1 0 0 9.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-      <circle cx="24.1" cy="16" r="2.2" fill="#ff5c2b"/>
-    </svg>
-
     <h1>Casium</h1>
     <p class="tagline">A powerful Lua executor aimed to give you the best scripting experience.</p>
 
     <nav class="pills" aria-label="Primary">
       <!-- EDIT: point Download at your real build; swap the Discord invite -->
-      <a class="pill-link pill-solid" href="/downloads/Casium-2.4.1.zip" download>Download</a>
+      <a class="pill-link" href="/downloads/Casium-2.4.1.zip" download>Download</a>
       <a class="pill-link" href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Discord</a>
       <a class="pill-link" href="#faq">FAQ</a>
     </nav>
 
-    <p class="tiny">
-      Windows 10 / 11 x64 &nbsp;·&nbsp; v2.4.1 &nbsp;·&nbsp; some antiviruses flag executors — add an exclusion, never disable protection
-    </p>
   </div>
 
   <footer class="stage-foot">
-    <span>© 2026 Casium</span>
-    <span>not affiliated with or endorsed by Roblox Corporation</span>
+    <span>© 2026 casium.top. All rights reserved.</span>
+    <span class="foot-links">
+      <a href="/legal#terms">Terms of Service</a>
+      <a href="/legal#privacy">Privacy Policy</a>
+    </span>
   </footer>
 </main>
 
@@ -89,6 +84,12 @@
       <summary>Mac, mobile or Microsoft Store client?</summary>
       <p>No. Windows 10/11 x64 with the web-download Roblox client only.</p>
     </details>
+
+    <p class="faq-note">
+      Windows 10 / 11 x64 · some antiviruses flag executors as false positives — add an
+      exclusion for the Casium folder, never disable protection entirely.<br />
+      Casium is not affiliated with or endorsed by Roblox Corporation.
+    </p>
 
     <p class="faq-top"><a href="#top" aria-label="Back to top">↑</a></p>
   </div>

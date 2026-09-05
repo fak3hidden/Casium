@@ -5,20 +5,20 @@
 
 :root {
   /* surfaces */
-  --bg:            #060708;
-  --bg-2:          #0a0b0d;
-  --surface:       #0d0f12;
-  --surface-2:     #121418;
-  --surface-3:     #181b20;
-  --line:          #191c21;
-  --line-2:        #262a30;
-  --line-3:        #363c44;
+  --bg:            #0d0d0d;
+  --bg-2:          #111112;
+  --surface:       #141416;
+  --surface-2:     #19191b;
+  --surface-3:     #202023;
+  --line:          #232326;
+  --line-2:        #3a3a3e;
+  --line-3:        #4c4c52;
 
   /* ink */
-  --ink:           #eef0f3;
-  --ink-2:         #a3a9b3;
-  --ink-3:         #767c86;
-  --ink-4:         #50565f;
+  --ink:           #ffffff;
+  --ink-2:         #b9b9bc;
+  --ink-3:         #9a9a9e;
+  --ink-4:         #6b6b70;
 
   /* signal */
   --ember:         #ff5c2b;
@@ -127,27 +127,27 @@ table { border-collapse: collapse; width: 100%; }
 /* ------------------------------------------------------------------ buttons */
 
 .btn {
-  --btn-bg: var(--surface-2);
+  --btn-bg: transparent;
   --btn-line: var(--line-2);
   --btn-ink: var(--ink);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 9px;
-  height: 40px;
-  padding: 0 18px;
+  height: 44px;
+  padding: 0 20px;
   border: 1px solid var(--btn-line);
-  border-radius: 999px;
+  border-radius: 5px;
   background: var(--btn-bg);
   color: var(--btn-ink);
-  font: 600 13.5px/1 var(--cond);
-  letter-spacing: 0.02em;
+  font: 700 13.5px/1 var(--sans);
+  letter-spacing: 0.01em;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s var(--ease), border-color 0.15s var(--ease),
               color 0.15s var(--ease), transform 0.15s var(--ease);
 }
-.btn:hover { background: var(--surface-3); border-color: var(--line-3); }
+.btn:hover { background: var(--surface-2); border-color: var(--line-3); }
 .btn:active { transform: translateY(1px); }
 .btn[disabled], .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
 .btn svg { width: 15px; height: 15px; flex: none; }
@@ -159,8 +159,8 @@ table { border-collapse: collapse; width: 100%; }
 }
 .btn-primary:hover { --btn-bg: #ffffff; --btn-line: #ffffff; }
 
-.btn-lg { height: 44px; padding: 0 24px; font-size: 13.5px; }
-.btn-sm { height: 30px; padding: 0 14px; font-size: 12px; }
+.btn-lg { height: 48px; padding: 0 26px; font-size: 14px; }
+.btn-sm { height: 32px; padding: 0 14px; font-size: 12px; }
 .btn-ghost { --btn-bg: transparent; --btn-line: var(--line-2); --btn-ink: var(--ink-2); }
 .btn-ghost:hover { --btn-ink: var(--ink); }
 .btn-danger:hover { --btn-bg: rgba(229, 72, 77, 0.12); --btn-line: rgba(229, 72, 77, 0.5); --btn-ink: #ff8f92; }
@@ -249,10 +249,10 @@ table { border-collapse: collapse; width: 100%; }
   height: 42px;
   padding: 0 12px;
   border: 1px solid var(--line-2);
-  border-radius: var(--r-md);
-  background: var(--bg-2);
+  border-radius: 5px;
+  background: var(--bg);
   color: var(--ink);
-  font-size: 14.5px;
+  font-size: 14px;
   transition: border-color 0.15s var(--ease), background 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
 .input::placeholder { color: var(--ink-4); }
@@ -261,7 +261,7 @@ table { border-collapse: collapse; width: 100%; }
   outline: none;
   border-color: var(--ember);
   box-shadow: 0 0 0 3px var(--ember-glow);
-  background: #0c0e11;
+  background: var(--bg);
 }
 .input[readonly] { color: var(--ink-2); background: var(--surface); cursor: default; }
 .input[readonly]:focus { border-color: var(--line-3); box-shadow: none; }

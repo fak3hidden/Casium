@@ -146,67 +146,53 @@ def grid(size, step, colour, fade_from):
 
 # ---------------------------------------------------------------- og card
 def build_og(fonts: dict[str, str], path: str) -> None:
-    """One black screen: mark, name, sentence, three pills — same as the site."""
+    """Flat black, one word, one sentence, three boxed buttons, footer bar —
+    the same composition as the live page (and potassium.pro)."""
     W, H = 1200 * SS, 630 * SS
-    img = Image.new("RGBA", (W, H), BG + (255,))
-    img.alpha_composite(glow((W, H), (W // 2, int(H * 0.42)), int(W * 0.34), EMBER, 0.22))
+    img = Image.new("RGBA", (W, H), (13, 13, 13, 255))
     d = ImageDraw.Draw(img)
-
     cx = W // 2
 
-    # mark
-    ms = 52 * SS
-    mark(d, (cx - ms // 2, int(H * 0.20) - ms // 2, cx + ms // 2, int(H * 0.20) + ms // 2),
-         (6, 7, 8), INK, EMBER, int(3.4 * SS))
-
-    # name
-    f_name = load(fonts["archivo-600"], 78 * SS)
+    # word
+    f_name = load(fonts["archivo-700"], 96 * SS)
     name = "Casium"
     nw = d.textlength(name, font=f_name)
-    d.text((cx - nw / 2, int(H * 0.30)), name, font=f_name, fill=INK)
+    d.text((cx - nw / 2, int(H * 0.235)), name, font=f_name, fill=(255, 255, 255))
 
-    # tagline
+    # sentence
     f_tag = load(fonts["sans-400"], 26 * SS)
     tag = "A powerful Lua executor aimed to give you the best scripting experience."
-    tw = tracked_len(d, tag, f_tag, tracking=int(0.4 * SS))
-    if tw > W - 180 * SS:
-        f_tag = load(fonts["sans-400"], 23 * SS)
-        tw = d.textlength(tag, font=f_tag)
-        tracked_plain = True
-    else:
-        tracked_plain = False
-    if tracked_plain:
-        d.text((cx - tw / 2, int(H * 0.475)), tag, font=f_tag, fill=INK_3)
-    else:
-        tracked(d, (cx - tw / 2, int(H * 0.475)), tag, f_tag, INK_3, tracking=int(0.4 * SS))
+    tw = d.textlength(tag, font=f_tag)
+    d.text((cx - tw / 2, int(H * 0.455)), tag, font=f_tag, fill=(154, 154, 158))
 
-    # pills
-    pill_labels = [("Download", True), ("Discord", False), ("FAQ", False)]
-    f_pill = load(fonts["sans-400"], 22 * SS)
-    pad_x = 34 * SS
-    height = 56 * SS
-    gap = 14 * SS
-    widths = [tracked_len(d, t, f_pill, tracking=int(1.2 * SS)) + pad_x * 2 for t, _ in pill_labels]
-    total = sum(widths) + gap * (len(pill_labels) - 1)
+    # boxed buttons
+    labels = ["Download", "Discord", "FAQ"]
+    f_btn = load(fonts["sans-400"], 21 * SS)
+    height = 52 * SS
+    gap = 18 * SS
+    pad_x = 44 * SS
+    widths = []
+    for t in labels:
+        w = d.textlength(t, font=f_btn)
+        widths.append(max(w + pad_x * 2, 176 * SS))
+    total = sum(widths) + gap * (len(labels) - 1)
     x = cx - total / 2
-    y = int(H * 0.60)
-    for (label, solid), w in zip(pill_labels, widths):
-        d.rounded_rectangle(
-            [x, y, x + w, y + height],
-            radius=height // 2,
-            fill=(242, 243, 245, 255) if solid else (6, 7, 8, 255),
-            outline=None if solid else LINE_2,
-            width=1 * SS,
-        )
-        tracked(d, (x + pad_x, y + height / 2 - 13 * SS), label, f_pill,
-                (10, 11, 12) if solid else INK_2, tracking=int(1.2 * SS))
+    y = int(H * 0.585)
+    for t, w in zip(labels, widths):
+        d.rounded_rectangle([x, y, x + w, y + height], radius=5 * SS,
+                            outline=(58, 58, 62), width=1 * SS)
+        tw2 = d.textlength(t, font=f_btn)
+        d.text((x + (w - tw2) / 2, y + height / 2 - 13 * SS), t, font=f_btn, fill=(255, 255, 255))
         x += w + gap
 
-    # footer
-    f_foot = load(fonts["mono-400"], 16 * SS)
-    foot = "casium.top  ·  windows 10 / 11 x64"
-    fw = tracked_len(d, foot, f_foot, tracking=int(2.4 * SS))
-    tracked(d, (cx - fw / 2, int(H * 0.865)), foot, f_foot, INK_4, tracking=int(2.4 * SS))
+    # footer bar
+    fy = int(H * 0.905)
+    d.line([(22 * SS, fy), (W - 22 * SS, fy)], fill=(35, 35, 38), width=1 * SS)
+    f_foot = load(fonts["sans-400"], 16 * SS)
+    d.text((22 * SS, fy + 16 * SS), "© 2026 casium.top. All rights reserved.", font=f_foot, fill=(154, 154, 158))
+    right = "Terms of Service      Privacy Policy"
+    rw = d.textlength(right, font=f_foot)
+    d.text((W - 22 * SS - rw, fy + 16 * SS), right, font=f_foot, fill=(154, 154, 158))
 
     img.convert("RGB").save(path, "PNG", optimize=True)
     print(f"  wrote {os.path.relpath(path, SITE)}  ({os.path.getsize(path) // 1024} KB)")
