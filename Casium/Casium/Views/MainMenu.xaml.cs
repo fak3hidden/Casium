@@ -77,6 +77,7 @@ namespace Casium.Views
         private double _consoleHeight = 170;
 
         private bool _attached;
+        private QuorumBridge _api;
         private bool _attaching;
         private bool _monacoReady;
         private bool _useMonaco;
@@ -135,6 +136,7 @@ namespace Casium.Views
             {
                 _ = InitMonacoAsync();
             }
+            InitQuorumApi();
 
             StartUserRun.Text = string.Format("Signed in as {0}.", _username);
             AccountNameText.Text = _username;
@@ -1688,7 +1690,7 @@ namespace Casium.Views
             };
 
             _allLogs.Add(entry);
-            if (!_outputOnly || category == "exec" || category == "ok" || category == "err")
+            if (!_outputOnly || category == "exec" || category == "ok" || category == "err" || category == "out")
             {
                 _visibleLogs.Add(entry);
                 LogList.ScrollIntoView(entry);
@@ -1700,7 +1702,7 @@ namespace Casium.Views
             _visibleLogs.Clear();
             foreach (var entry in _allLogs)
             {
-                if (!_outputOnly || entry.Category == "exec" || entry.Category == "ok" || entry.Category == "err")
+                if (!_outputOnly || entry.Category == "exec" || entry.Category == "ok" || entry.Category == "err" || entry.Category == "out")
                 {
                     _visibleLogs.Add(entry);
                 }
@@ -1783,6 +1785,29 @@ namespace Casium.Views
 
         // ---------- attach / execute ---------------------------------------------------------
 
+        private void InitQuorumApi()
+        {
+            _api = new QuorumBridge(Dispatcher, AddLog);
+            if (_api.Init(ScriptsDir, AutoExecDir))
+            {
+                AddLog("sys", "Quorum API ready.");
+            }
+            else
+            {
+                _api = null;
+            }
+        }
+
+        private void RefreshAttachState()
+        {
+            bool on = _api != null && _api.IsAttached();
+            if (on != _attached)
+            {
+                _attached = on;
+                SetAttachedUi(on);
+            }
+        }
+
         private async Task AttachSequence()
         {
             if (_attached || _attaching)
@@ -1794,11 +1819,25 @@ namespace Casium.Views
             try
             {
                 AddLog("sys", "Attaching to Roblox...");
-                await Task.Delay(650);
-                AddLog("ok", "Attached.");
-
-                _attached = true;
-                SetAttachedUi(true);
+                if (_api == null)
+                {
+                    AddLog("err", "Quorum API is not available (QuorumAPI.dll missing?).");
+                    return;
+                }
+                string result = await _api.AttachAsync();
+                bool ok = result == "Attached" || result == "Attaching" || _api.IsAttached();
+                if (ok)
+                {
+                    AddLog("ok", "Attached.");
+                    _attached = true;
+                    SetAttachedUi(true);
+                }
+                else
+                {
+                    AddLog("err", "Attach failed: " + result);
+                    _attached = false;
+                    SetAttachedUi(false);
+                }
             }
             finally
             {
@@ -1852,14 +1891,17 @@ namespace Casium.Views
                 return;
             }
             await SyncMonacoToTabAsync();
+            RefreshAttachState();
             if (!_attached)
             {
                 AddLog("err", "No client attached. Press Attach first.");
                 return;
             }
             AddLog("exec", string.Format("Executing '{0}'...", _selectedTab.Title));
-            await Task.Delay(300);
-            AddLog("ok", "Executed.");
+            if (_api != null && _api.Execute(_selectedTab.Content))
+            {
+                AddLog("ok", "Executed.");
+            }
         }
 
         // ---------- open / save ---------------------------------------------------------------
@@ -2122,6 +2164,7 @@ namespace Casium.Views
                 case "err": return RedBrush;
                 case "warn": return YellowBrush;
                 case "exec": return WhiteBrush;
+                case "out": return WhiteBrush;
                 case "cmd": return PurpleBrush;
                 default: return GrayBrush;
             }
@@ -2148,6 +2191,10 @@ namespace Casium.Views
                     break;
                 case "autoattach":
                     _autoAttach = on;
+                    if (_api != null)
+                    {
+                        _api.SetAutoAttach(on);
+                    }
                     if (on && !_attached)
                     {
                         await AttachSequence();

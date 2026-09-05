@@ -16,6 +16,8 @@
     <Deterministic>true</Deterministic>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <ApplicationIcon>Assets\casium.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -24,6 +26,25 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -54,6 +75,11 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="QuorumAPI">
+      <HintPath>Libs\QuorumAPI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="WindowsFormsIntegration" />
     <!-- QuorumMonaco.dll is loaded at runtime via reflection (it bundles its own copy of WebView2,
          so a compile-time reference would clash with the NuGet WebView2 types). -->
@@ -98,6 +124,7 @@
     <Compile Include="Services\ThemeManager.cs" />
     <Compile Include="Services\NavState.cs" />
     <Compile Include="Services\QuorumEditorHost.cs" />
+    <Compile Include="Services\QuorumBridge.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Libs\QuorumMonaco.dll" Condition="Exists('$(MSBuildProjectDirectory)\Libs\QuorumMonaco.dll')">
@@ -150,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
