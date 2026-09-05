@@ -142,7 +142,14 @@ namespace Casium.Views
             AccountNameText.Text = _username;
             ThemeStatusText.Text = ThemeManager.CurrentName;
             ThemeManager.ThemeChanged += OnThemeChanged;
-            Closed += (ss, ee) => ThemeManager.ThemeChanged -= OnThemeChanged;
+            Closed += (ss, ee) =>
+            {
+                ThemeManager.ThemeChanged -= OnThemeChanged;
+                if (_api != null)
+                {
+                    _api.Shutdown();
+                }
+            };
             StateChanged += (ss, ee) => MaximizeButton.Content = WindowState == WindowState.Maximized ? "\uE923" : "\uE922";
             PreviewKeyDown += MainMenu_PreviewKeyDown;
 
@@ -1788,7 +1795,7 @@ namespace Casium.Views
         private void InitQuorumApi()
         {
             _api = new QuorumBridge(Dispatcher, AddLog);
-            if (_api.Init(ScriptsDir, AutoExecDir))
+            if (_api.Init())
             {
                 AddLog("sys", "Quorum API ready.");
             }

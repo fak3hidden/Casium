@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using QuorumAPI;
@@ -7,8 +6,8 @@ using QuorumAPI;
 namespace Casium.Services
 {
     /// <summary>
-    /// Wraps the QuorumAPI module (credit: Salad, discord.gg/YwwFwjetq2) and forwards its
-    /// output logger into Casium's console. All callbacks are marshalled to the UI thread.
+    /// Wraps the QuorumAPI module (credit: Salad, discord.gg/YwwFwjetq2).
+    /// Requires QuorumAPI.dll + its "bin" folder next to Casium.exe and an x64 build.
     /// </summary>
     public sealed class QuorumBridge
     {
@@ -24,47 +23,14 @@ namespace Casium.Services
             _log = log;
         }
 
-        public bool Init(string workspacePath, string autoexecPath)
+        public bool Init()
         {
             try
             {
                 QuorumModule._AutoUpdateLogs = true;
-                QuorumModule.UseAutoUpdate = true;
-                QuorumModule.UseAutoUpdateAPI = true;
-                QuorumModule.DumbMode = false;   // errors go to our console instead of MessageBoxes
-
                 _quorum = new QuorumModule();
-
-                try { QuorumModule.SetWorkspacePath(workspacePath); } catch { }
-                try { QuorumModule.SetAutoexecPath(autoexecPath); } catch { }
-
-                // ---- output -> Casium console ----
-                QuorumModule.UseOutput(true);
-                QuorumModule.Logger.OnLog += OnQuorumLog;
-                try
-                {
-                    QuorumModule.Logger.SetTheme(new COP.LogTheme
-                    {
-                        Info = System.Drawing.Color.White,
-                        Success = System.Drawing.Color.LimeGreen,
-                        Warning = System.Drawing.Color.Orange,
-                        Error = System.Drawing.Color.Red,
-                        System = System.Drawing.Color.Gray
-                    });
-                    QuorumModule.Logger.SetFormat(new COP.LogFormat
-                    {
-                        InfoTag = "",
-                        SuccessTag = "",
-                        WarningTag = "",
-                        ErrorTag = "",
-                        SystemTag = ""
-                    });
-                    QuorumModule.Logger.SetLogSource(COP.LogSource.All);
-                    QuorumModule.Logger.StartRobloxLogWatcher(1000);
-                }
-                catch { }
-
-                _quorum.AutoUpdate();
+                _quorum.StartCommunication();   // must be called before anything else
+                try { QuorumModule.SetAttachNotify("Casium", "Successfully attached."); } catch { }
                 return true;
             }
             catch (Exception ex)
@@ -75,15 +41,10 @@ namespace Casium.Services
             }
         }
 
-        private void OnQuorumLog(string message, System.Drawing.Color color)
+        public void Shutdown()
         {
-            if (string.IsNullOrWhiteSpace(message)) return;
-            string cat = "sys";
-            if (color.ToArgb() == System.Drawing.Color.Red.ToArgb()) cat = "err";
-            else if (color.ToArgb() == System.Drawing.Color.Orange.ToArgb()) cat = "warn";
-            else if (color.ToArgb() == System.Drawing.Color.LimeGreen.ToArgb()) cat = "ok";
-            else if (color.ToArgb() == System.Drawing.Color.White.ToArgb()) cat = "out";
-            Log(cat, message.TrimEnd());
+            try { if (_quorum != null) _quorum.StopCommunication(); } catch { }
+            _quorum = null;
         }
 
         private void Log(string cat, string msg)
@@ -92,43 +53,18 @@ namespace Casium.Services
             else _ui.BeginInvoke(new Action(() => _log(cat, msg)));
         }
 
-        /// <summary>Invoke a QuorumModule method by name; awaits it if it returns a Task.</summary>
-        private async Task<object> CallAsync(string name, params object[] args)
-        {
-            var method = typeof(QuorumModule).GetMethods()
-                .FirstOrDefault(m => m.Name == name && m.GetParameters().Length == args.Length);
-            if (method == null)
-            {
-                throw new MissingMethodException("QuorumModule." + name);
-            }
-            object result = method.Invoke(method.IsStatic ? null : _quorum, args);
-            var task = result as Task;
-            if (task == null)
-            {
-                return result;
-            }
-            await task;
-            var type = task.GetType();
-            if (type.IsGenericType)
-            {
-                var prop = type.GetProperty("Result");
-                return prop != null ? prop.GetValue(task) : null;
-            }
-            return null;
-        }
-
+        /// <summary>Attach to all Roblox clients. Returns the Quorum state name.</summary>
         public async Task<string> AttachAsync()
         {
             if (_quorum == null) return "Error";
             try
             {
-                object r = await CallAsync("AttachAPI");
-                if (r != null) return r.ToString();
-                return IsAttached() ? "Attached" : "NotAttached";
+                var result = await _quorum.AttachAPI();
+                return result.ToString();
             }
             catch (Exception ex)
             {
-                Log("err", "Attach failed: " + (ex.InnerException ?? ex).Message);
+                Log("err", "Attach failed: " + ex.Message);
                 return "Error";
             }
         }
@@ -139,20 +75,13 @@ namespace Casium.Services
             catch { return false; }
         }
 
+        /// <summary>Execute in all attached clients.</summary>
         public bool Execute(string script)
         {
             if (_quorum == null) return false;
             try
             {
-                object result = CallAsync("ExecuteScript", script ?? string.Empty).GetAwaiter().GetResult();
-                string text = result == null ? "" : result.ToString();
-                if (text.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    text.Equals("false", StringComparison.OrdinalIgnoreCase) ||
-                    text.IndexOf("NotAttached", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    Log("err", "Execute result: " + text);
-                    return false;
-                }
+                _quorum.ExecuteScript(script ?? string.Empty);
                 return true;
             }
             catch (Exception ex)
