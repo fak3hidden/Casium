@@ -135,8 +135,12 @@
       <Link>Monaco\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Libs\bin\**\*" Condition="Exists('$(MSBuildProjectDirectory)\Libs\bin')">
-      <Link>bin\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <None Include="Libs\Bin\**\*" Condition="Exists('$(MSBuildProjectDirectory)\Libs\Bin')">
+      <Link>Bin\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Libs\Workspace\**\*" Condition="Exists('$(MSBuildProjectDirectory)\Libs\Workspace')">
+      <Link>Workspace\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Libs\runtimes\**\*">

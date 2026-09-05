@@ -1,6 +1,12 @@
-Put QuorumMonaco.dll (and its dependencies, e.g. index.html / any WebView2 files that ship with it) in this folder.
+Third-party components (credit: Salad, discord.gg/YwwFwjetq2)
 
-When the DLL is present the project defines the QUORUM symbol and Casium uses QuorumMonaco as the editor.
-When it is missing, Casium falls back to its own WebView2 Monaco page / built-in editor and still builds.
+Copy the contents of the QuorumAPI download here:
+  Libs\QuorumAPI.dll     - referenced by the project (Private=True, copied next to Casium.exe)
+  Libs\Bin\...           - copied to <output>\Bin
+  Libs\Workspace\...     - copied to <output>\Workspace
+  (AutoExec / Scripts folders are not needed: Casium uses <output>\autoexec and <output>\scripts)
 
-Credits: Salad (discord.gg/YwwFwjetq2)
+  Libs\QuorumMonaco.dll  - editor, loaded at runtime by reflection
+  Libs\Monaco\...        - editor assets, copied to <output>\Monaco
+
+Build with platform x64. The app manifest requests administrator.

@@ -89,10 +89,14 @@ namespace Casium.Services
 
         // ---------- lifecycle -----------------------------------------------------------------
 
-        public bool Init(string workspacePath, string autoexecPath)
+        public bool Init(string workspacePath = null, string autoexecPath = null)
         {
             try
             {
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                if (string.IsNullOrEmpty(workspacePath)) workspacePath = System.IO.Path.Combine(baseDir, "scripts");
+                if (string.IsNullOrEmpty(autoexecPath)) autoexecPath = System.IO.Path.Combine(baseDir, "autoexec");
+
                 SetStatic("_AutoUpdateLogs", true);
                 SetStatic("DumbMode", false);
 
