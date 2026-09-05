@@ -4,9 +4,11 @@
 
 import crypto from "node:crypto";
 import { envCredentials, usingDefaultPassword, SESSION_TTL_SECONDS, MAX_LOGIN_ATTEMPTS, LOCKOUT_SECONDS } from "./config.mjs";
-import { hashPassword, verifyPassword, signToken, verifyToken, sessionSecret } from "./crypto.mjs";
+import { hashPassword, verifyPassword, signToken, verifyToken, sessionSecret, envSaltHex } from "./crypto.mjs";
 
-/* Environment passwords are hashed once per warm instance — scrypt is not free. */
+/* Environment passwords are hashed once per warm instance — scrypt is not free.
+   The salt is derived from the password itself so EVERY instance (and every
+   cold start) produces the identical hash → identical session secrets. */
 let envCache = null;
 
 export function credentialsFor(state) {
@@ -15,7 +17,7 @@ export function credentialsFor(state) {
   }
   const { username, password } = envCredentials();
   if (!envCache || envCache.password !== password) {
-    envCache = { password, record: hashPassword(password) };
+    envCache = { password, record: hashPassword(password, null, envSaltHex(password)) };
   }
   return {
     username,

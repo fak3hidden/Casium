@@ -78,6 +78,7 @@ def prepare_fonts(tmp: str) -> dict[str, str]:
     paths["archivo-600"] = static_from_variable(os.path.join(FONTS, "archivo-var.woff2"), 600, tmp)
     for weight in (400, 500):
         paths[f"mono-{weight}"] = ttf(os.path.join(FONTS, f"plex-mono-{weight}.woff2"), tmp)
+    paths["sans-400"] = ttf(os.path.join(FONTS, "plex-sans-400.woff2"), tmp)
     for weight in (500, 600):
         paths[f"cond-{weight}"] = ttf(os.path.join(FONTS, f"plex-cond-{weight}.woff2"), tmp)
     return paths
@@ -145,82 +146,67 @@ def grid(size, step, colour, fade_from):
 
 # ---------------------------------------------------------------- og card
 def build_og(fonts: dict[str, str], path: str) -> None:
+    """One black screen: mark, name, sentence, three pills — same as the site."""
     W, H = 1200 * SS, 630 * SS
     img = Image.new("RGBA", (W, H), BG + (255,))
-
-    img.alpha_composite(grid((W, H), 64 * SS, (255, 255, 255, 5), int(H * 0.68)))
-    img.alpha_composite(glow((W, H), (int(W * 0.88), int(H * 0.0)), int(W * 0.40), EMBER, 0.26))
-
-    # oversized watermark mark, bottom-right, barely there
-    wm = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    wd = ImageDraw.Draw(wm)
-    box = [int(W * 0.72), int(H * 0.42), int(W * 1.06), int(H * 1.10)]
-    wd.arc(box, 50, 310, fill=(255, 92, 43, 26), width=int(26 * SS))
-    img.alpha_composite(wm.filter(ImageFilter.GaussianBlur(1.2 * SS)))
-
+    img.alpha_composite(glow((W, H), (W // 2, int(H * 0.42)), int(W * 0.34), EMBER, 0.22))
     d = ImageDraw.Draw(img)
 
-    # ---- wordmark
-    mx, my = 96 * SS, 74 * SS
-    mark(d, (mx, my, mx + 50 * SS, my + 50 * SS), LINE_2, INK, EMBER, int(5.2 * SS))
-    f_word = load(fonts["archivo-700"], 38 * SS)
-    word_end = tracked(d, (mx + 70 * SS, my + 7 * SS), "CASIUM", f_word, INK, tracking=int(7 * SS))
-    d.line([(word_end + 18 * SS, my + 8 * SS), (word_end + 18 * SS, my + 42 * SS)], fill=LINE_2, width=1 * SS)
-    tracked(
-        d,
-        (word_end + 38 * SS, my + 19 * SS),
-        "WINDOWS EXECUTOR",
-        load(fonts["mono-400"], 18 * SS),
-        INK_4,
-        tracking=int(3.4 * SS),
-    )
+    cx = W // 2
 
-    # ---- headline (measured so it can never overflow)
-    max_w = W - 2 * 96 * SS
-    size = 84 * SS
-    f_big = load(fonts["archivo-700"], size)
-    line1 = "Injection is the easy part."
-    line2 = "Staying attached isn’t."
-    while max(d.textlength(line1, font=f_big), d.textlength(line2, font=f_big)) > max_w and size > 40 * SS:
-        size -= 2 * SS
-        f_big = load(fonts["archivo-700"], size)
+    # mark
+    ms = 52 * SS
+    mark(d, (cx - ms // 2, int(H * 0.20) - ms // 2, cx + ms // 2, int(H * 0.20) + ms // 2),
+         (6, 7, 8), INK, EMBER, int(3.4 * SS))
 
-    hx, hy = 96 * SS, 188 * SS
-    lh = int(size * 1.16)
-    d.text((hx, hy), line1, font=f_big, fill=INK)
-    d.text((hx, hy + lh), line2, font=f_big, fill=INK_2)
-    d.rectangle([hx, hy + lh + int(size * 1.02), hx + d.textlength(line2, font=f_big), hy + lh + int(size * 1.02) + 7 * SS], fill=EMBER)
+    # name
+    f_name = load(fonts["archivo-600"], 78 * SS)
+    name = "Casium"
+    nw = d.textlength(name, font=f_name)
+    d.text((cx - nw / 2, int(H * 0.30)), name, font=f_name, fill=INK)
 
-    # ---- terminal strip
-    ty = hy + lh * 2 + int(size * 0.92)
-    f_mono = load(fonts["mono-400"], 19 * SS)
-    snippet = "casium --attach"
-    result = "session ok · key expires 2027-09-05"
-    pad = 16 * SS
-    inner_w = int(d.textlength("$ ", font=f_mono) + d.textlength(snippet, font=f_mono)
-                  + 34 * SS + d.textlength(result, font=f_mono) + pad * 2)
-    strip_h = 52 * SS
-    d.rounded_rectangle([hx, ty, hx + inner_w, ty + strip_h], radius=8 * SS, fill=BG_2 + (255,), outline=LINE_2, width=1 * SS)
-    x = hx + pad
-    d.text((x, ty + 14 * SS), "$ ", font=f_mono, fill=INK_4)
-    x += d.textlength("$ ", font=f_mono)
-    d.text((x, ty + 14 * SS), snippet, font=f_mono, fill=INK)
-    x += d.textlength(snippet, font=f_mono) + 14 * SS
-    tracked(d, (x, ty + 14 * SS), "->", load(fonts["mono-400"], 19 * SS), EMBER)
-    x += d.textlength("->", font=f_mono) + 14 * SS
-    d.ellipse([x, ty + 21 * SS, x + 9 * SS, ty + 30 * SS], fill=MINT)
-    x += 18 * SS
-    d.text((x, ty + 14 * SS), result, font=f_mono, fill=INK_2)
+    # tagline
+    f_tag = load(fonts["sans-400"], 26 * SS)
+    tag = "A powerful Lua executor aimed to give you the best scripting experience."
+    tw = tracked_len(d, tag, f_tag, tracking=int(0.4 * SS))
+    if tw > W - 180 * SS:
+        f_tag = load(fonts["sans-400"], 23 * SS)
+        tw = d.textlength(tag, font=f_tag)
+        tracked_plain = True
+    else:
+        tracked_plain = False
+    if tracked_plain:
+        d.text((cx - tw / 2, int(H * 0.475)), tag, font=f_tag, fill=INK_3)
+    else:
+        tracked(d, (cx - tw / 2, int(H * 0.475)), tag, f_tag, INK_3, tracking=int(0.4 * SS))
 
-    # ---- footer strip
-    fy = 560 * SS
-    d.line([(96 * SS, fy - 30 * SS), (W - 96 * SS, fy - 30 * SS)], fill=LINE, width=1 * SS)
-    d.rectangle([96 * SS, fy - 31 * SS, 96 * SS + 46 * SS, fy - 30 * SS], fill=EMBER)
-    tracked(d, (96 * SS, fy), "casium.top", load(fonts["mono-500"], 22 * SS), INK, tracking=int(1.5 * SS))
-    right = "BUBBLEAPI CORE · MONACO · KEY LICENSING"
-    f_small = load(fonts["mono-400"], 15 * SS)
-    rw = tracked_len(d, right, f_small, tracking=int(2.2 * SS))
-    tracked(d, (W - 96 * SS - rw, fy + 4 * SS), right, f_small, INK_4, tracking=int(2.2 * SS))
+    # pills
+    pill_labels = [("Download", True), ("Discord", False), ("FAQ", False)]
+    f_pill = load(fonts["sans-400"], 22 * SS)
+    pad_x = 34 * SS
+    height = 56 * SS
+    gap = 14 * SS
+    widths = [tracked_len(d, t, f_pill, tracking=int(1.2 * SS)) + pad_x * 2 for t, _ in pill_labels]
+    total = sum(widths) + gap * (len(pill_labels) - 1)
+    x = cx - total / 2
+    y = int(H * 0.60)
+    for (label, solid), w in zip(pill_labels, widths):
+        d.rounded_rectangle(
+            [x, y, x + w, y + height],
+            radius=height // 2,
+            fill=(242, 243, 245, 255) if solid else (6, 7, 8, 255),
+            outline=None if solid else LINE_2,
+            width=1 * SS,
+        )
+        tracked(d, (x + pad_x, y + height / 2 - 13 * SS), label, f_pill,
+                (10, 11, 12) if solid else INK_2, tracking=int(1.2 * SS))
+        x += w + gap
+
+    # footer
+    f_foot = load(fonts["mono-400"], 16 * SS)
+    foot = "casium.top  ·  windows 10 / 11 x64"
+    fw = tracked_len(d, foot, f_foot, tracking=int(2.4 * SS))
+    tracked(d, (cx - fw / 2, int(H * 0.865)), foot, f_foot, INK_4, tracking=int(2.4 * SS))
 
     img.convert("RGB").save(path, "PNG", optimize=True)
     print(f"  wrote {os.path.relpath(path, SITE)}  ({os.path.getsize(path) // 1024} KB)")

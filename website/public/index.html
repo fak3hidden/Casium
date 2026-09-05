@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Casium — Lua executor for Windows</title>
-<meta name="description" content="Casium is a clean, stable Lua executor for Windows. Monaco editor, one-click attach, built-in script hub and a simple key system. Free download." />
+<title>Casium</title>
+<meta name="description" content="Casium — a powerful Lua executor for Windows, aimed to give you the best scripting experience." />
 <link rel="canonical" href="https://casium.top/" />
 
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Casium" />
-<meta property="og:title" content="Casium — Lua executor for Windows" />
-<meta property="og:description" content="Monaco editor, one-click attach, built-in script hub and a simple key system." />
+<meta property="og:title" content="Casium" />
+<meta property="og:description" content="A powerful Lua executor aimed to give you the best scripting experience." />
 <meta property="og:url" content="https://casium.top/" />
 <meta property="og:image" content="https://casium.top/assets/img/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="theme-color" content="#0b0c0e" />
+<meta name="theme-color" content="#060708" />
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="alternate icon" href="/assets/img/favicon-32.png" />
@@ -25,216 +25,74 @@
 <link rel="stylesheet" href="/assets/css/site.css" />
 </head>
 
-<body>
-<a class="skip" href="#main">Skip to content</a>
+<body class="home">
+<a class="skip" href="#faq">Skip to content</a>
 
-<header class="topbar" id="topbar">
-  <div class="wrap topbar-in">
-    <a class="brand" href="/">
-      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M22.4 11.1a8.2 8.2 0 1 0 0 9.8" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/>
-        <circle cx="24.1" cy="16" r="2.2" fill="#ff5c2b"/>
-      </svg>
-      <span class="brand-name">Casium</span>
-    </a>
+<main class="stage">
+  <div class="stage-in">
+    <svg class="stage-mark" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M22.4 11.1a8.2 8.2 0 1 0 0 9.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="24.1" cy="16" r="2.2" fill="#ff5c2b"/>
+    </svg>
 
-    <nav class="nav" aria-label="Primary">
-      <a href="#features">Features</a>
-      <a href="#setup">Setup</a>
-      <a href="#faq">FAQ</a>
+    <h1>Casium</h1>
+    <p class="tagline">A powerful Lua executor aimed to give you the best scripting experience.</p>
+
+    <nav class="pills" aria-label="Primary">
+      <!-- EDIT: point Download at your real build; swap the Discord invite -->
+      <a class="pill-link pill-solid" href="/downloads/Casium-2.4.1.zip" download>Download</a>
+      <a class="pill-link" href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Discord</a>
+      <a class="pill-link" href="#faq">FAQ</a>
     </nav>
 
-    <div class="topbar-right">
-      <!-- EDIT: your invite link -->
-      <a class="link" href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Discord</a>
-      <a class="btn btn-primary btn-sm" href="#download">Download</a>
-    </div>
+    <p class="tiny">
+      Windows 10 / 11 x64 &nbsp;·&nbsp; v2.4.1 &nbsp;·&nbsp; some antiviruses flag executors — add an exclusion, never disable protection
+    </p>
   </div>
-</header>
 
-<main id="main">
-
-  <!-- ============================== hero ============================== -->
-  <section class="hero">
-    <div class="wrap">
-      <svg class="hero-mark" viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M22.4 11.1a8.2 8.2 0 1 0 0 9.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-        <circle cx="24.1" cy="16" r="2.2" fill="#ff5c2b"/>
-      </svg>
-
-      <h1>Casium</h1>
-      <p class="tagline">A clean, stable Lua executor for Windows.</p>
-      <p class="sub">
-        Monaco editor, one-click attach and a built-in script hub —
-        in a client that stays out of your way.
-      </p>
-
-      <div class="cta-row">
-        <!-- EDIT: point this at your real build (see /downloads) -->
-        <a class="btn btn-primary btn-lg" href="/downloads/Casium-2.4.1.zip" download>Download for Windows</a>
-        <a class="btn btn-lg btn-ghost" href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Join the Discord</a>
-      </div>
-
-      <!-- EDIT: bump on every release -->
-      <p class="meta">v2.4.1 &nbsp;·&nbsp; Windows 10 / 11 x64 &nbsp;·&nbsp; .NET Framework 4.8 &nbsp;·&nbsp; key required</p>
-    </div>
-  </section>
-
-  <!-- ============================== facts ============================== -->
-  <section class="facts">
-    <div class="wrap facts-in">
-      <div><dt>Core</dt><dd>BubbleAPI internal</dd></div>
-      <div><dt>Editor</dt><dd>Monaco · Lua 5.1</dd></div>
-      <div><dt>Script hub</dt><dd>Built in, searchable</dd></div>
-      <div><dt>Licensing</dt><dd>Keys from casium.top</dd></div>
-    </div>
-  </section>
-
-  <!-- ============================== features ============================== -->
-  <section class="section" id="features">
-    <div class="wrap-narrow">
-      <h2 class="section-title">Features</h2>
-
-      <ul class="feature-grid">
-        <li>
-          <h3>One-click attach</h3>
-          <p>Injects into the running Roblox client and holds the session across teleports.</p>
-        </li>
-        <li>
-          <h3>Real editor</h3>
-          <p>Monaco — the VS Code engine — with Lua highlighting, tabs, find and <span class="mono">.lua</span> save/load.</p>
-        </li>
-        <li>
-          <h3>Script hub</h3>
-          <p>Search the built-in library, open a script into a tab, run it. Your workspace sits underneath.</p>
-        </li>
-        <li>
-          <h3>Key system</h3>
-          <p>Lifetime, yearly, monthly or custom-duration keys, validated online and revocable at any time.</p>
-        </li>
-        <li>
-          <h3>Auto-exec</h3>
-          <p>Mark a workspace script to run itself the moment attach succeeds.</p>
-        </li>
-        <li>
-          <h3>Small footprint</h3>
-          <p>One executable. No bundled runtimes, no telemetry, nothing left in the registry.</p>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- ============================== setup ============================== -->
-  <section class="section" id="setup">
-    <div class="wrap-narrow">
-      <h2 class="section-title">Setup</h2>
-
-      <ol class="steps">
-        <li>
-          <span class="step-num">01</span>
-          <div>
-            <h3>Download and extract</h3>
-            <p>Grab the zip below and extract it to its own folder — don’t run it from inside the archive.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-num">02</span>
-          <div>
-            <h3>Run as administrator</h3>
-            <p>Right-click <span class="mono">Casium.exe</span> → Run as administrator. First launch asks for your key; free keys are handed out in the Discord.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-num">03</span>
-          <div>
-            <h3>Attach</h3>
-            <p>Open Roblox, join any experience, wait for your character to load, then press <b>Attach</b>.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-num">04</span>
-          <div>
-            <h3>Execute</h3>
-            <p>Paste Lua into the editor or load something from the hub, and press <b>Execute</b>. That’s it.</p>
-          </div>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- ============================== download ============================== -->
-  <section class="section" id="download">
-    <div class="wrap-narrow download-box">
-      <h2 class="section-title">Download</h2>
-      <p class="download-sub">Current stable build. Free — access is gated by a licence key.</p>
-
-      <!-- EDIT: point this at your real build -->
-      <a class="btn btn-primary btn-lg" href="/downloads/Casium-2.4.1.zip" download>
-        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.8v8.4m0 0L4.9 7.1M8 10.2l3.1-3.1M2.2 12.4v1a1 1 0 0 0 1 1h9.6a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Casium-2.4.1.zip
-      </a>
-
-      <p class="meta">Windows 10 / 11 x64 &nbsp;·&nbsp; 18.4 MB &nbsp;·&nbsp; SHA-256 published on Discord</p>
-
-      <p class="note">
-        Antivirus vendors flag executors as false positives. If Windows Defender blocks the
-        file, restore it and add an exclusion for the Casium folder — never disable your
-        antivirus entirely.
-      </p>
-    </div>
-  </section>
-
-  <!-- ============================== faq ============================== -->
-  <section class="section" id="faq">
-    <div class="wrap-narrow">
-      <h2 class="section-title">FAQ</h2>
-
-      <div class="faq">
-        <details>
-          <summary>Is Casium free?</summary>
-          <p>Yes. The client costs nothing; access runs through licence keys with a duration
-          (lifetime, one year, one month or custom). Keys are checked against casium.top on launch.</p>
-        </details>
-        <details>
-          <summary>How do I get a key?</summary>
-          <p>In the Discord. Paste it into the client on first launch — it’s saved locally, so
-          you only enter it once per machine.</p>
-        </details>
-        <details>
-          <summary>My key says expired, but I just got it.</summary>
-          <p>Check your Windows clock: expiry is compared against system time, and a drifted
-          clock fails validation. Otherwise the key may be mistyped or revoked — keys are
-          case-sensitive.</p>
-        </details>
-        <details>
-          <summary>Windows Defender removed the file.</summary>
-          <p>Injection tools get flagged heuristically. Restore it from Defender’s protection
-          history and exclude the Casium folder. Verify your download against the SHA-256 we
-          publish with each release.</p>
-        </details>
-        <details>
-          <summary>Which games work?</summary>
-          <p>Casium targets the standard Windows Roblox client. Games with their own client-side
-          protections may block execution — that’s per-game, not a broken install.</p>
-        </details>
-        <details>
-          <summary>Mac, mobile or Microsoft Store client?</summary>
-          <p>No. Windows 10/11 x64 with the web-download Roblox client only, and no plans for
-          other platforms.</p>
-        </details>
-      </div>
-    </div>
-  </section>
+  <footer class="stage-foot">
+    <span>© 2026 Casium</span>
+    <span>not affiliated with or endorsed by Roblox Corporation</span>
+  </footer>
 </main>
 
-<footer class="footer">
-  <div class="wrap footer-in">
-    <span>© 2026 Casium · use at your own risk</span>
-    <span>Not affiliated with or endorsed by Roblox Corporation.</span>
-    <a href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Discord</a>
-  </div>
-</footer>
+<section class="faq" id="faq" aria-labelledby="faqtitle">
+  <div class="faq-in">
+    <h2 id="faqtitle">FAQ</h2>
 
-<script src="/assets/js/site.js" defer></script>
+    <details>
+      <summary>Is Casium free?</summary>
+      <p>Yes. Access runs through licence keys with a duration — lifetime, one year, one month
+      or custom — checked against casium.top on launch. Free keys are handed out in the Discord.</p>
+    </details>
+    <details>
+      <summary>How do I get a key?</summary>
+      <p>In the Discord. Paste it into the client on first launch; it’s saved locally, so you
+      only enter it once per machine.</p>
+    </details>
+    <details>
+      <summary>My key says expired, but I just got it.</summary>
+      <p>Check your Windows clock — expiry is compared against system time. Otherwise the key
+      may be mistyped or revoked; keys are case-sensitive.</p>
+    </details>
+    <details>
+      <summary>Windows Defender removed the file.</summary>
+      <p>Injection tools get flagged heuristically. Restore it from protection history and
+      exclude the Casium folder. Verify downloads against the SHA-256 published with each release.</p>
+    </details>
+    <details>
+      <summary>Which games work?</summary>
+      <p>Casium targets the standard Windows Roblox client. Games with their own client-side
+      protections may block execution — that’s per-game, not a broken install.</p>
+    </details>
+    <details>
+      <summary>Mac, mobile or Microsoft Store client?</summary>
+      <p>No. Windows 10/11 x64 with the web-download Roblox client only.</p>
+    </details>
+
+    <p class="faq-top"><a href="#top" aria-label="Back to top">↑</a></p>
+  </div>
+</section>
+
 </body>
 </html>

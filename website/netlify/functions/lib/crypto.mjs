@@ -8,8 +8,12 @@ import crypto from "node:crypto";
 const SCRYPT = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const KEY_LENGTH = 64;
 
-export function hashPassword(password, existing = null) {
-  const salt = existing?.salt ? Buffer.from(existing.salt, "hex") : crypto.randomBytes(16);
+export function hashPassword(password, existing = null, fixedSaltHex = null) {
+  const salt = fixedSaltHex
+    ? Buffer.from(fixedSaltHex, "hex")
+    : existing?.salt
+      ? Buffer.from(existing.salt, "hex")
+      : crypto.randomBytes(16);
   const derived = crypto.scryptSync(String(password), salt, KEY_LENGTH, SCRYPT);
   return {
     algorithm: "scrypt",
@@ -18,6 +22,16 @@ export function hashPassword(password, existing = null) {
     hash: derived.toString("hex"),
     updatedAt: new Date().toISOString(),
   };
+}
+
+/**
+ * Deterministic salt for environment-provided passwords.
+ * Serverless instances must agree on the same hash without sharing state —
+ * a random salt here would mint a different session secret on every cold
+ * start and invalidate tokens between requests (the "kicked out" bug).
+ */
+export function envSaltHex(password) {
+  return crypto.createHash("sha256").update(`casium-env-v1:${String(password)}`).digest("hex").slice(0, 32);
 }
 
 export function verifyPassword(password, record) {

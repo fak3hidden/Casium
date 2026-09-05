@@ -23,6 +23,36 @@
   const KEY_GROUPS = 7;
   const KEY_GROUP_LENGTH = 5;
 
+  /* Storage can throw (sandboxed iframes, private mode, blocked cookies).
+     Fall back to memory so a blocked cookie can never kick anyone out. */
+  function safeStore(getter) {
+    let backing = null;
+    const memory = new Map();
+    try {
+      backing = getter();
+      backing.setItem("__casium_probe", "1");
+      backing.removeItem("__casium_probe");
+    } catch {
+      backing = null;
+    }
+    return {
+      get(key) {
+        try { return backing ? backing.getItem(key) : memory.get(key) ?? null; }
+        catch { return memory.get(key) ?? null; }
+      },
+      set(key, value) {
+        try { backing ? backing.setItem(key, value) : memory.set(key, value); }
+        catch { memory.set(key, value); }
+      },
+      remove(key) {
+        try { backing ? backing.removeItem(key) : memory.delete(key); }
+        catch { memory.delete(key); }
+      },
+    };
+  }
+  const sessionStore = safeStore(() => window.sessionStorage);
+  const localStore = safeStore(() => window.localStorage);
+
   const UNITS = {
     seconds: { label: "Seconds", seconds: 1, max: 315360000 },
     minutes: { label: "Minutes", seconds: 60, max: 5256000 },
@@ -225,7 +255,7 @@
 
   function localRead() {
     try {
-      const parsed = JSON.parse(localStorage.getItem(LOCAL_KEY) || "null");
+      const parsed = JSON.parse(localStore.get(LOCAL_KEY) || "null");
       if (parsed && typeof parsed === "object") {
         return {
           credentials: parsed.credentials || { username: DEFAULT_USER, password: DEFAULT_PASS },
@@ -237,7 +267,7 @@
   }
 
   function localWrite(data) {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
+    localStore.set(LOCAL_KEY, JSON.stringify(data));
   }
 
   function localDecorate(record) {
@@ -608,20 +638,20 @@
   }
 
   function storeToken(token, remember) {
-    const store = remember ? localStorage : sessionStorage;
-    const other = remember ? sessionStorage : localStorage;
-    store.setItem(TOKEN_KEY, token);
-    other.removeItem(TOKEN_KEY);
+    const store = remember ? localStore : sessionStore;
+    const other = remember ? sessionStore : localStore;
+    store.set(TOKEN_KEY, token);
+    other.remove(TOKEN_KEY);
   }
 
   function readToken() {
-    return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+    return sessionStore.get(TOKEN_KEY) || localStore.get(TOKEN_KEY);
   }
 
   function signOut(message) {
     state.token = null;
-    sessionStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(TOKEN_KEY);
+    sessionStore.remove(TOKEN_KEY);
+    localStore.remove(TOKEN_KEY);
     showGate();
     $("#password").value = "";
     $("#loginalert").dataset.show = "false";
@@ -846,7 +876,7 @@
     }
     if (res.data.token && res.data.token !== "local") {
       state.token = res.data.token;
-      storeToken(state.token, localStorage.getItem(TOKEN_KEY) !== null);
+      storeToken(state.token, localStore.get(TOKEN_KEY) !== null);
     }
     state.username = res.data.username || payload.username;
     state.usingDefaults = false;
@@ -969,8 +999,8 @@
         return;
       }
       state.token = null;
-      sessionStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(TOKEN_KEY);
+      sessionStore.remove(TOKEN_KEY);
+      localStore.remove(TOKEN_KEY);
     }
 
     showGate();

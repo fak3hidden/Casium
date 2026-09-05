@@ -5,14 +5,14 @@
 
 :root {
   /* surfaces */
-  --bg:            #0b0c0e;
-  --bg-2:          #0e1013;
-  --surface:       #111317;
-  --surface-2:     #15181d;
-  --surface-3:     #1b1f26;
-  --line:          #1f2329;
-  --line-2:        #2b313a;
-  --line-3:        #3a424d;
+  --bg:            #060708;
+  --bg-2:          #0a0b0d;
+  --surface:       #0d0f12;
+  --surface-2:     #121418;
+  --surface-3:     #181b20;
+  --line:          #191c21;
+  --line-2:        #262a30;
+  --line-3:        #363c44;
 
   /* ink */
   --ink:           #eef0f3;
@@ -137,7 +137,7 @@ table { border-collapse: collapse; width: 100%; }
   height: 40px;
   padding: 0 18px;
   border: 1px solid var(--btn-line);
-  border-radius: var(--r-md);
+  border-radius: 999px;
   background: var(--btn-bg);
   color: var(--btn-ink);
   font: 600 13.5px/1 var(--cond);
@@ -153,14 +153,14 @@ table { border-collapse: collapse; width: 100%; }
 .btn svg { width: 15px; height: 15px; flex: none; }
 
 .btn-primary {
-  --btn-bg: var(--ember);
-  --btn-line: var(--ember);
-  --btn-ink: var(--ember-ink);
+  --btn-bg: #f2f3f5;
+  --btn-line: #f2f3f5;
+  --btn-ink: #0a0b0c;
 }
-.btn-primary:hover { --btn-bg: var(--ember-2); --btn-line: var(--ember-2); }
+.btn-primary:hover { --btn-bg: #ffffff; --btn-line: #ffffff; }
 
-.btn-lg { height: 46px; padding: 0 22px; font-size: 14px; }
-.btn-sm { height: 32px; padding: 0 12px; font-size: 12.5px; border-radius: var(--r-sm); }
+.btn-lg { height: 44px; padding: 0 24px; font-size: 13.5px; }
+.btn-sm { height: 30px; padding: 0 14px; font-size: 12px; }
 .btn-ghost { --btn-bg: transparent; --btn-line: var(--line-2); --btn-ink: var(--ink-2); }
 .btn-ghost:hover { --btn-ink: var(--ink); }
 .btn-danger:hover { --btn-bg: rgba(229, 72, 77, 0.12); --btn-line: rgba(229, 72, 77, 0.5); --btn-ink: #ff8f92; }
