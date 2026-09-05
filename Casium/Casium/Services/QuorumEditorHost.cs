@@ -48,7 +48,10 @@ namespace Casium.Services
                     return false;
                 }
 
-                Assembly asm = Assembly.LoadFrom(path);
+                // Downloaded DLLs carry a "from the internet" zone mark which makes LoadFrom
+                // refuse them. Strip the mark and use UnsafeLoadFrom (trusted local component).
+                Unblock(path);
+                Assembly asm = Assembly.UnsafeLoadFrom(path);
 
                 Type core = asm.GetTypes().FirstOrDefault(t => t.Name == "CoreFunctions");
                 if (core == null)
@@ -122,6 +125,14 @@ namespace Casium.Services
         }
 
         private object _coreInstance;
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
+        private static extern bool DeleteFile(string name);
+
+        private static void Unblock(string path)
+        {
+            try { DeleteFile(path + ":Zone.Identifier"); } catch { }
+        }
 
         public void SetText(string code)
         {
