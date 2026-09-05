@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using QuorumAPI;
@@ -91,17 +92,43 @@ namespace Casium.Services
             else _ui.BeginInvoke(new Action(() => _log(cat, msg)));
         }
 
+        /// <summary>Invoke a QuorumModule method by name; awaits it if it returns a Task.</summary>
+        private async Task<object> CallAsync(string name, params object[] args)
+        {
+            var method = typeof(QuorumModule).GetMethods()
+                .FirstOrDefault(m => m.Name == name && m.GetParameters().Length == args.Length);
+            if (method == null)
+            {
+                throw new MissingMethodException("QuorumModule." + name);
+            }
+            object result = method.Invoke(method.IsStatic ? null : _quorum, args);
+            var task = result as Task;
+            if (task == null)
+            {
+                return result;
+            }
+            await task;
+            var type = task.GetType();
+            if (type.IsGenericType)
+            {
+                var prop = type.GetProperty("Result");
+                return prop != null ? prop.GetValue(task) : null;
+            }
+            return null;
+        }
+
         public async Task<string> AttachAsync()
         {
             if (_quorum == null) return "Error";
             try
             {
-                var result = await _quorum.AttachAPI();
-                return result.ToString();
+                object r = await CallAsync("AttachAPI");
+                if (r != null) return r.ToString();
+                return IsAttached() ? "Attached" : "NotAttached";
             }
             catch (Exception ex)
             {
-                Log("err", "Attach failed: " + ex.Message);
+                Log("err", "Attach failed: " + (ex.InnerException ?? ex).Message);
                 return "Error";
             }
         }
@@ -117,7 +144,7 @@ namespace Casium.Services
             if (_quorum == null) return false;
             try
             {
-                object result = _quorum.ExecuteScript(script ?? string.Empty);
+                object result = CallAsync("ExecuteScript", script ?? string.Empty).GetAwaiter().GetResult();
                 string text = result == null ? "" : result.ToString();
                 if (text.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0 ||
                     text.Equals("false", StringComparison.OrdinalIgnoreCase) ||
