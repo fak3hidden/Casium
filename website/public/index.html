@@ -3,20 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Casium — Windows executor built on the BubbleAPI core</title>
-<meta name="description" content="Casium is a lightweight Windows executor: Monaco-backed Lua editor, one-click attach, built-in script hub and a licence key system. Free download for Windows 10 and 11." />
+<title>Casium — Lua executor for Windows</title>
+<meta name="description" content="Casium is a clean, stable Lua executor for Windows. Monaco editor, one-click attach, built-in script hub and a simple key system. Free download." />
 <link rel="canonical" href="https://casium.top/" />
 
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Casium" />
-<meta property="og:title" content="Casium — Injection is the easy part." />
-<meta property="og:description" content="A Windows executor built on the BubbleAPI core. Monaco editor, one-click attach, script hub and built-in key licensing." />
+<meta property="og:title" content="Casium — Lua executor for Windows" />
+<meta property="og:description" content="Monaco editor, one-click attach, built-in script hub and a simple key system." />
 <meta property="og:url" content="https://casium.top/" />
 <meta property="og:image" content="https://casium.top/assets/img/og.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="theme-color" content="#0a0b0d" />
+<meta name="theme-color" content="#0b0c0e" />
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="alternate icon" href="/assets/img/favicon-32.png" />
@@ -25,652 +23,215 @@
 <link rel="stylesheet" href="/assets/css/fonts.css" />
 <link rel="stylesheet" href="/assets/css/base.css" />
 <link rel="stylesheet" href="/assets/css/site.css" />
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "Casium",
-  "applicationCategory": "DeveloperApplication",
-  "operatingSystem": "Windows 10, Windows 11",
-  "url": "https://casium.top/",
-  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-}
-</script>
 </head>
 
 <body>
-<div class="bg-field" aria-hidden="true"></div>
 <a class="skip" href="#main">Skip to content</a>
 
-<!-- ============================== header ============================== -->
 <header class="topbar" id="topbar">
-  <div class="shell topbar-in">
-    <a class="brand" href="/" aria-label="Casium — home">
+  <div class="wrap topbar-in">
+    <a class="brand" href="/">
       <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
-        <rect x="1.25" y="1.25" width="29.5" height="29.5" rx="7.5" fill="#101317" stroke="#2c323b"/>
         <path d="M22.4 11.1a8.2 8.2 0 1 0 0 9.8" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/>
         <circle cx="24.1" cy="16" r="2.2" fill="#ff5c2b"/>
       </svg>
       <span class="brand-name">Casium</span>
-      <span class="brand-sub">Executor</span>
     </a>
 
     <nav class="nav" aria-label="Primary">
-      <a href="#core">Core</a>
-      <a href="#scripting">Scripting</a>
-      <a href="#download">Download</a>
+      <a href="#features">Features</a>
+      <a href="#setup">Setup</a>
       <a href="#faq">FAQ</a>
     </nav>
 
     <div class="topbar-right">
-      <!-- EDIT: bump on every release -->
-      <span class="chip"><i class="dot"></i> Build 2.4.1</span>
-      <a class="btn btn-primary btn-sm" href="#download">
-        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.8v8.4m0 0L4.9 7.1M8 10.2l3.1-3.1M2.2 12.4v1a1 1 0 0 0 1 1h9.6a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Download
-      </a>
-      <button class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="mobilenav" aria-label="Menu"><span></span></button>
+      <!-- EDIT: your invite link -->
+      <a class="link" href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Discord</a>
+      <a class="btn btn-primary btn-sm" href="#download">Download</a>
     </div>
   </div>
 </header>
-
-<div class="mobile-nav" id="mobilenav">
-  <div class="shell">
-    <ul>
-      <li><a href="#core">Core</a></li>
-      <li><a href="#scripting">Scripting</a></li>
-      <li><a href="#download">Download</a></li>
-      <li><a href="#faq">FAQ</a></li>
-      <li><a href="#discord">Discord</a></li>
-    </ul>
-  </div>
-</div>
 
 <main id="main">
 
   <!-- ============================== hero ============================== -->
   <section class="hero">
-    <div class="shell hero-in">
-      <div class="hero-copy">
-        <p class="eyebrow reveal">Casium <b>//</b> Windows x64 <b>//</b> BubbleAPI core</p>
+    <div class="wrap">
+      <svg class="hero-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M22.4 11.1a8.2 8.2 0 1 0 0 9.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="24.1" cy="16" r="2.2" fill="#ff5c2b"/>
+      </svg>
 
-        <h1 class="reveal" data-delay="1">
-          Injection is the<br />easy part.
-          <span class="l2"><span class="accent">Staying attached</span> isn’t.</span>
-        </h1>
+      <h1>Casium</h1>
+      <p class="tagline">A clean, stable Lua executor for Windows.</p>
+      <p class="sub">
+        Monaco editor, one-click attach and a built-in script hub —
+        in a client that stays out of your way.
+      </p>
 
-        <p class="lede reveal" data-delay="2">
-          Casium is a compact executor for people who actually write scripts. A Monaco-backed Lua
-          editor with real tooling, a one-click injector that holds its session, a script hub that
-          opens instantly — and licensing keys validated straight against
-          <span class="mono">casium.top</span>.
-        </p>
-
-        <div class="cta-row reveal" data-delay="3">
-          <!-- EDIT: point this at your real build (see /downloads) -->
-          <a class="btn btn-primary btn-lg" href="#download">
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.8v8.4m0 0L4.9 7.1M8 10.2l3.1-3.1M2.2 12.4v1a1 1 0 0 0 1 1h9.6a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Download for Windows
-          </a>
-          <a class="btn btn-lg btn-ghost" href="#scripting">See the scripting API</a>
-          <span class="cta-note">Free · No installer bloat</span>
-        </div>
-
-        <ul class="hero-facts reveal" data-delay="3">
-          <li><dt>Core</dt><dd>BubbleAPI internal</dd></li>
-          <li><dt>Editor</dt><dd>Monaco · Lua 5.1</dd></li>
-          <li><dt>Licensing</dt><dd>Key system built in</dd></li>
-          <li><dt>Platform</dt><dd>Windows 10 – 11 x64</dd></li>
-        </ul>
+      <div class="cta-row">
+        <!-- EDIT: point this at your real build (see /downloads) -->
+        <a class="btn btn-primary btn-lg" href="/downloads/Casium-2.4.1.zip" download>Download for Windows</a>
+        <a class="btn btn-lg btn-ghost" href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Join the Discord</a>
       </div>
 
-      <!-- App mock: pure HTML/CSS render of the client, no screenshots needed -->
-      <div class="hero-app reveal" data-delay="2">
-        <div class="app" role="img" aria-label="The Casium client: script hub sidebar, Monaco Lua editor with main.lua open, and attach / execute / save / clear controls">
-          <div class="app-bar">
-            <svg class="brandmark" viewBox="0 0 32 32" aria-hidden="true">
-              <path d="M22.4 11.1a8.2 8.2 0 1 0 0 9.8" fill="none" stroke="#eef0f3" stroke-width="3.4" stroke-linecap="round"/>
-              <circle cx="24.1" cy="16" r="2.6" fill="#ff5c2b"/>
-            </svg>
-            <span class="app-title">casium — <b>main.lua</b></span>
-            <div class="app-win"><i aria-hidden="true">—</i><i class="close" aria-hidden="true">✕</i></div>
-          </div>
-
-          <div class="app-body">
-            <aside class="app-side">
-              <div class="side-search">
-                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.4" stroke="currentColor" stroke-width="1.5"/><path d="m10.4 10.4 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                search hub
-              </div>
-              <div class="side-label">Script hub</div>
-              <ul>
-                <li class="side-item on">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 2.6h5.2L12.4 5.8v7.6a.8.8 0 0 1-.8.8H4a.8.8 0 0 1-.8-.8V3.4a.8.8 0 0 1 .8-.8Z" stroke="currentColor" stroke-width="1.3"/><path d="M9 2.8v3.2h3.2" stroke="currentColor" stroke-width="1.3"/></svg>
-                  Infinite Yield <span class="k">↵</span>
-                </li>
-                <li class="side-item">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 2.6h5.2L12.4 5.8v7.6a.8.8 0 0 1-.8.8H4a.8.8 0 0 1-.8-.8V3.4a.8.8 0 0 1 .8-.8Z" stroke="currentColor" stroke-width="1.3"/><path d="M9 2.8v3.2h3.2" stroke="currentColor" stroke-width="1.3"/></svg>
-                  Dex Explorer
-                </li>
-                <li class="side-item">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 2.6h5.2L12.4 5.8v7.6a.8.8 0 0 1-.8.8H4a.8.8 0 0 1-.8-.8V3.4a.8.8 0 0 1 .8-.8Z" stroke="currentColor" stroke-width="1.3"/><path d="M9 2.8v3.2h3.2" stroke="currentColor" stroke-width="1.3"/></svg>
-                  Owl Hub
-                </li>
-                <li class="side-item">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 2.6h5.2L12.4 5.8v7.6a.8.8 0 0 1-.8.8H4a.8.8 0 0 1-.8-.8V3.4a.8.8 0 0 1 .8-.8Z" stroke="currentColor" stroke-width="1.3"/><path d="M9 2.8v3.2h3.2" stroke="currentColor" stroke-width="1.3"/></svg>
-                  Auto-farm preset
-                </li>
-              </ul>
-              <div class="side-label">Workspace</div>
-              <ul>
-                <li class="side-item">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.8 3.6h10.4M2.8 8h10.4M2.8 12.4h6.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                  main.lua
-                </li>
-                <li class="side-item">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.8 3.6h10.4M2.8 8h10.4M2.8 12.4h6.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                  autofarm.lua
-                </li>
-              </ul>
-            </aside>
-
-            <div class="app-main">
-              <div class="app-tabs">
-                <span class="app-tab on">main.lua <i>✕</i></span>
-                <span class="app-tab">autofarm.lua <i>✕</i></span>
-              </div>
-
-              <div class="editor">
-                <div class="gutter" aria-hidden="true">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14</div>
-<pre class="code" aria-hidden="true"><span class="c">-- casium / main.lua</span>
-<span class="k">local</span> Hub = <span class="f">loadstring</span>(<span class="g">game</span>:<span class="f">HttpGet</span>(
-    <span class="s">"https://casium.top/loader.lua"</span>))()
-
-Hub:<span class="f">Auth</span>(CASIUM_KEY, <span class="k">function</span>(session)
-    <span class="f">print</span>(<span class="s">"[casium] expires"</span>, session.expiresAt)
-    Hub:<span class="f">Load</span>(<span class="s">"Infinite Yield"</span>)
-<span class="k">end</span>)
-
-<span class="g">task</span>.<span class="f">spawn</span>(<span class="k">function</span>()
-    <span class="k">while</span> <span class="g">task</span>.<span class="f">wait</span>(<span class="n">0.25</span>) <span class="k">do</span>
-        Hub:<span class="f">Tick</span>()  <span class="c">-- keep-alive</span>
-    <span class="k">end</span>
-<span class="k">end</span>)<span class="caret"></span></pre>
-              </div>
-
-              <div class="app-actions">
-                <span class="app-btn">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.9v4.4M8 9.7v4.4M4.6 8h6.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                  Attach
-                </span>
-                <span class="app-btn go">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4.4 2.9 8 5.1-8 5.1V2.9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                  Execute
-                </span>
-                <span class="app-btn">Save</span>
-                <span class="app-btn">Clear</span>
-                <span class="app-status"><i class="dot" aria-hidden="true"></i> attached · session 04:12</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- EDIT: bump on every release -->
+      <p class="meta">v2.4.1 &nbsp;·&nbsp; Windows 10 / 11 x64 &nbsp;·&nbsp; .NET Framework 4.8 &nbsp;·&nbsp; key required</p>
     </div>
   </section>
 
-  <!-- ============================== ticker ============================== -->
-  <div class="ticker" aria-hidden="true">
-    <div class="ticker-track">
-      <div class="ticker-group">
-        <span>Monaco editor</span><span>BubbleAPI core</span><span>One-click attach</span><span>Script hub</span><span>Key licensing</span><span>Lua 5.1</span><span>Auto-exec</span><span>HWID lock</span>
-      </div>
-      <div class="ticker-group">
-        <span>Monaco editor</span><span>BubbleAPI core</span><span>One-click attach</span><span>Script hub</span><span>Key licensing</span><span>Lua 5.1</span><span>Auto-exec</span><span>HWID lock</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============================== core ============================== -->
-  <section class="section" id="core">
-    <div class="shell">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow reveal">01 <b>/</b> Core</p>
-          <h2 class="h-section reveal" data-delay="1" style="margin-top:18px">
-            Five things that have to work,<br />or the rest doesn’t matter.
-          </h2>
-        </div>
-        <p class="aside reveal" data-delay="2">
-          Every release is tested against a live Roblox client before it ships. If injection,
-          execution or the editor regresses, the build doesn’t go out.
-        </p>
-      </div>
-
-      <div class="core-list">
-        <article class="core-row reveal">
-          <div class="core-num">01</div>
-          <h3>Injector that holds<span class="tagline">BubbleAPI internal</span></h3>
-          <div>
-            <p>
-              Attach once and stay attached. Casium hooks the running client through the BubbleAPI
-              internal core, keeps the session alive across place teleports, and reports state in the
-              status bar instead of silently failing.
-            </p>
-            <div class="core-specs">
-              <span class="tag">Auto-attach</span><span class="tag">Session keep-alive</span><span class="tag">Teleport safe</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="core-row reveal">
-          <div class="core-num">02</div>
-          <h3>A real editor<span class="tagline">Monaco · Lua 5.1</span></h3>
-          <div>
-            <p>
-              The same editor engine as VS Code, tuned for Lua: syntax colouring, bracket matching,
-              find and replace, multi-tab workspaces, and <span class="mono">.lua</span> save / load
-              that keeps your formatting intact.
-            </p>
-            <div class="core-specs">
-              <span class="tag">Tabs</span><span class="tag">Ctrl+F</span><span class="tag">Save as .lua</span><span class="tag">Auto-indent</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="core-row reveal">
-          <div class="core-num">03</div>
-          <h3>Script hub<span class="tagline">Search · one-click execute</span></h3>
-          <div>
-            <p>
-              A curated library lives in the sidebar — search it, open it into a tab, run it. Your own
-              workspace scripts sit underneath, so the hub never gets in the way of what you wrote.
-            </p>
-            <div class="core-specs">
-              <span class="tag">Searchable</span><span class="tag">Opens in tab</span><span class="tag">Local workspace</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="core-row reveal">
-          <div class="core-num">04</div>
-          <h3>Key licensing<span class="tagline">Validated against casium.top</span></h3>
-          <div>
-            <p>
-              Keys are issued from the Casium console with a lifetime, yearly, monthly or fully custom
-              duration. The client checks them server-side on launch, so a key can be revoked without
-              shipping a new build.
-            </p>
-            <div class="core-specs">
-              <span class="tag">Lifetime</span><span class="tag">Timed</span><span class="tag">Revocable</span><span class="tag">POST /api/validate</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="core-row reveal">
-          <div class="core-num">05</div>
-          <h3>Small footprint<span class="tagline">.NET Framework 4.8 · WPF</span></h3>
-          <div>
-            <p>
-              No bundled runtimes, no browser-based bloat, no telemetry. The client is a single
-              executable that starts fast on older hardware and stays out of the way while you play.
-            </p>
-            <div class="core-specs">
-              <span class="tag">Single .exe</span><span class="tag">No telemetry</span><span class="tag">Windows 10 / 11</span>
-            </div>
-          </div>
-        </article>
-      </div>
+  <!-- ============================== facts ============================== -->
+  <section class="facts">
+    <div class="wrap facts-in">
+      <div><dt>Core</dt><dd>BubbleAPI internal</dd></div>
+      <div><dt>Editor</dt><dd>Monaco · Lua 5.1</dd></div>
+      <div><dt>Script hub</dt><dd>Built in, searchable</dd></div>
+      <div><dt>Licensing</dt><dd>Keys from casium.top</dd></div>
     </div>
   </section>
 
-  <!-- ============================== scripting ============================== -->
-  <section class="section" id="scripting">
-    <div class="shell">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow reveal">02 <b>/</b> Scripting</p>
-          <h2 class="h-section reveal" data-delay="1" style="margin-top:18px">
-            Written for people who read<br />their own code.
-          </h2>
-        </div>
-        <p class="aside reveal" data-delay="2">
-          The loader, the key gate and the hub API are all plain Lua. Copy a snippet, paste it into a
-          tab, run it — nothing is hidden behind a UI you can’t script around.
-        </p>
-      </div>
+  <!-- ============================== features ============================== -->
+  <section class="section" id="features">
+    <div class="wrap-narrow">
+      <h2 class="section-title">Features</h2>
 
-      <div class="split">
-        <div class="reveal">
-          <p class="lede">
-            Casium exposes a small, stable surface: authenticate a key, load a hub script, and keep a
-            session alive. Everything else is your Lua.
-          </p>
-          <ul class="bullet-list">
-            <li>
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.4 3.2 3.2L13 4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span><b>Server-side key checks.</b> The client posts the key to <span class="mono">/api/validate</span> and gets back validity, expiry and remaining time — revocation takes effect immediately.</span>
-            </li>
-            <li>
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.4 3.2 3.2L13 4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span><b>Standard request stack.</b> <span class="mono">request</span>, <span class="mono">HttpGet</span> and <span class="mono">loadstring</span> behave the way every hub script expects.</span>
-            </li>
-            <li>
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.4 3.2 3.2L13 4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span><b>No obfuscation games.</b> Scripts run as written; the executor doesn’t rewrite your source before handing it to the VM.</span>
-            </li>
-            <li>
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.4 3.2 3.2L13 4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span><b>Integrating the core?</b> The BubbleAPI bridge used by the WPF client is documented in the last tab — attach, execute, save, clear.</span>
-            </li>
-          </ul>
-        </div>
+      <ul class="feature-grid">
+        <li>
+          <h3>One-click attach</h3>
+          <p>Injects into the running Roblox client and holds the session across teleports.</p>
+        </li>
+        <li>
+          <h3>Real editor</h3>
+          <p>Monaco — the VS Code engine — with Lua highlighting, tabs, find and <span class="mono">.lua</span> save/load.</p>
+        </li>
+        <li>
+          <h3>Script hub</h3>
+          <p>Search the built-in library, open a script into a tab, run it. Your workspace sits underneath.</p>
+        </li>
+        <li>
+          <h3>Key system</h3>
+          <p>Lifetime, yearly, monthly or custom-duration keys, validated online and revocable at any time.</p>
+        </li>
+        <li>
+          <h3>Auto-exec</h3>
+          <p>Mark a workspace script to run itself the moment attach succeeds.</p>
+        </li>
+        <li>
+          <h3>Small footprint</h3>
+          <p>One executable. No bundled runtimes, no telemetry, nothing left in the registry.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
 
-        <div class="panel codewrap reveal" data-delay="1">
-          <div class="codewrap-head" role="tablist" aria-label="Code samples">
-            <button class="codetab" role="tab" id="tab-loader" aria-controls="pane-loader" aria-selected="true">loader.lua</button>
-            <button class="codetab" role="tab" id="tab-key" aria-controls="pane-key" aria-selected="false" tabindex="-1">key gate</button>
-            <button class="codetab" role="tab" id="tab-hub" aria-controls="pane-hub" aria-selected="false" tabindex="-1">hub api</button>
-            <button class="codetab" role="tab" id="tab-core" aria-controls="pane-core" aria-selected="false" tabindex="-1">bubbleapi (c#)</button>
-            <div class="codewrap-tools">
-              <button class="icon-btn" id="copycode" type="button" aria-label="Copy visible snippet" title="Copy snippet">
-                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.4" y="5.4" width="8.2" height="8.2" rx="1.6" stroke="currentColor" stroke-width="1.4"/><path d="M10.6 3.2A1.6 1.6 0 0 0 9.1 2.4H4a1.6 1.6 0 0 0-1.6 1.6v5.1c0 .62.35 1.15.86 1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              </button>
-            </div>
+  <!-- ============================== setup ============================== -->
+  <section class="section" id="setup">
+    <div class="wrap-narrow">
+      <h2 class="section-title">Setup</h2>
+
+      <ol class="steps">
+        <li>
+          <span class="step-num">01</span>
+          <div>
+            <h3>Download and extract</h3>
+            <p>Grab the zip below and extract it to its own folder — don’t run it from inside the archive.</p>
           </div>
-
-          <div class="codewrap-panel" role="tabpanel" id="pane-loader" aria-labelledby="tab-loader" tabindex="0"><pre><span class="c">-- casium loader · paste into a tab and execute</span>
-<span class="k">local</span> Hub = <span class="f">loadstring</span>(<span class="g">game</span>:<span class="f">HttpGet</span>(
-    <span class="s">"https://casium.top/loader.lua"</span>
-))()
-
-Hub:<span class="f">Auth</span>(CASIUM_KEY)
-Hub:<span class="f">Load</span>(<span class="s">"Infinite Yield"</span>)</pre></div>
-
-          <div class="codewrap-panel" role="tabpanel" id="pane-key" aria-labelledby="tab-key" tabindex="0" hidden><pre><span class="c">-- key gate: what the client runs on launch</span>
-<span class="k">local</span> Http = <span class="g">game</span>:<span class="f">GetService</span>(<span class="s">"HttpService"</span>)
-
-<span class="k">local</span> res = <span class="f">request</span>({
-    Url    = <span class="s">"https://casium.top/api/validate"</span>,
-    Method = <span class="s">"POST"</span>,
-    Headers = { [<span class="s">"Content-Type"</span>] = <span class="s">"application/json"</span> },
-    Body   = Http:<span class="f">JSONEncode</span>({ key = CASIUM_KEY })
-})
-
-<span class="k">local</span> data = Http:<span class="f">JSONDecode</span>(res.Body)
-<span class="k">if not</span> data.valid <span class="k">then</span>
-    <span class="k">return</span> <span class="f">warn</span>(<span class="s">"[casium] key rejected: "</span> .. (data.reason <span class="k">or</span> <span class="s">"unknown"</span>))
-<span class="k">end</span>
-
-<span class="f">print</span>(<span class="s">"[casium] ok · expires"</span>, data.expiresAt <span class="k">or</span> <span class="s">"never"</span>)</pre></div>
-
-          <div class="codewrap-panel" role="tabpanel" id="pane-hub" aria-labelledby="tab-hub" tabindex="0" hidden><pre><span class="c">-- hub api surface</span>
-<span class="k">local</span> Casium = <span class="f">require</span>(<span class="g">game</span>.ReplicatedStorage.Casium)
-
-Casium.<span class="f">Notify</span>(<span class="s">"Attached"</span>, <span class="s">"core online"</span>)   <span class="c">-- toast in-client</span>
-Casium.<span class="f">IsAttached</span>()                          <span class="c">-- boolean</span>
-Casium.<span class="f">Session</span>()                             <span class="c">-- { key, expiresAt }</span>
-Casium.<span class="f">Run</span>(<span class="s">"autofarm.lua"</span>)                   <span class="c">-- from workspace</span>
-
-<span class="k">for</span> _, script <span class="k">in</span> Casium.<span class="f">Hub</span>() <span class="k">do</span>
-    <span class="f">print</span>(script.name, script.version)
-<span class="k">end</span></pre></div>
-
-          <div class="codewrap-panel" role="tabpanel" id="pane-core" aria-labelledby="tab-core" tabindex="0" hidden><pre><span class="c">// BubbleAPI bridge used by the WPF client</span>
-BubbleAPI.Internal.<span class="f">Inject</span>();                  <span class="c">// attach</span>
-BubbleAPI.Internal.<span class="f">Execute</span>(Editor.Text);     <span class="c">// run current tab</span>
-BubbleAPI.Internal.<span class="f">SaveTextAsLua</span>();           <span class="c">// export .lua</span>
-BubbleAPI.Internal.<span class="f">ClearCode</span>();               <span class="c">// reset editor</span>
-
-<span class="c">// window chrome</span>
-BubbleAPI.Internal.<span class="f">MinimizeWindow</span>();
-BubbleAPI.Internal.<span class="f">ExitApplication</span>();</pre></div>
-        </div>
-      </div>
+        </li>
+        <li>
+          <span class="step-num">02</span>
+          <div>
+            <h3>Run as administrator</h3>
+            <p>Right-click <span class="mono">Casium.exe</span> → Run as administrator. First launch asks for your key; free keys are handed out in the Discord.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">03</span>
+          <div>
+            <h3>Attach</h3>
+            <p>Open Roblox, join any experience, wait for your character to load, then press <b>Attach</b>.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">04</span>
+          <div>
+            <h3>Execute</h3>
+            <p>Paste Lua into the editor or load something from the hub, and press <b>Execute</b>. That’s it.</p>
+          </div>
+        </li>
+      </ol>
     </div>
   </section>
 
   <!-- ============================== download ============================== -->
   <section class="section" id="download">
-    <div class="shell">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow reveal">03 <b>/</b> Download</p>
-          <h2 class="h-section reveal" data-delay="1" style="margin-top:18px">
-            One file. Run it as admin,<br />attach, execute.
-          </h2>
-        </div>
-        <p class="aside reveal" data-delay="2">
-          Casium ships as a portable executable — nothing to install, nothing left behind in the
-          registry when you delete it.
-        </p>
-      </div>
+    <div class="wrap-narrow download-box">
+      <h2 class="section-title">Download</h2>
+      <p class="download-sub">Current stable build. Free — access is gated by a licence key.</p>
 
-      <div class="download">
-        <div class="panel dl-card reveal">
-          <h3>Casium 2.4.1</h3>
-          <p class="lede">
-            Current stable build for Windows. Includes the Monaco editor, script hub, auto-attach and
-            the key system. Requires a valid licence key on launch.
-          </p>
+      <!-- EDIT: point this at your real build -->
+      <a class="btn btn-primary btn-lg" href="/downloads/Casium-2.4.1.zip" download>
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.8v8.4m0 0L4.9 7.1M8 10.2l3.1-3.1M2.2 12.4v1a1 1 0 0 0 1 1h9.6a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Casium-2.4.1.zip
+      </a>
 
-          <div class="dl-actions">
-            <!-- EDIT: replace with your hosted build (or drop the zip in website/public/downloads/) -->
-            <a class="btn btn-primary btn-lg" href="/downloads/Casium-2.4.1.zip" download>
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.8v8.4m0 0L4.9 7.1M8 10.2l3.1-3.1M2.2 12.4v1a1 1 0 0 0 1 1h9.6a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Download Casium-2.4.1.zip
-            </a>
-            <!-- EDIT: your invite link -->
-            <a class="btn btn-lg btn-ghost" id="discord" href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">
-              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M13.1 3.6A12 12 0 0 0 10.1 2.7l-.16.33a9 9 0 0 1 2.6.9 10.5 10.5 0 0 0-9 -.02 8.7 8.7 0 0 1 2.63-.9L6 2.68a12 12 0 0 0-3 .9C1.5 6.2 1.1 8.7 1.3 11.2a12 12 0 0 0 3.6 1.8l.72-1.2a8 8 0 0 1-1.2-.6l.26-.2a8.6 8.6 0 0 0 7.3 0l.27.2a8 8 0 0 1-1.2.6l.72 1.2a12 12 0 0 0 3.6-1.8c.3-2.9-.4-5.4-1.8-7.6ZM5.9 9.9c-.6 0-1.1-.6-1.1-1.3s.5-1.3 1.1-1.3 1.1.6 1.1 1.3-.5 1.3-1.1 1.3Zm4.2 0c-.6 0-1.1-.6-1.1-1.3s.5-1.3 1.1-1.3 1.1.6 1.1 1.3-.5 1.3-1.1 1.3Z"/></svg>
-              Discord
-            </a>
-          </div>
+      <p class="meta">Windows 10 / 11 x64 &nbsp;·&nbsp; 18.4 MB &nbsp;·&nbsp; SHA-256 published on Discord</p>
 
-          <div class="notice">
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.9 14.6 13H1.4L8 1.9Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6.2v3.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.3" r=".85" fill="currentColor"/></svg>
-            <span>
-              Some antivirus vendors flag executors as a false positive. If Windows Defender blocks
-              the file, add an exclusion for the Casium folder — never disable your antivirus entirely.
-            </span>
-          </div>
-        </div>
-
-        <div class="reveal" data-delay="1">
-          <table class="spec-table">
-            <caption>Build details</caption>
-            <tbody>
-              <tr><th scope="row">Version</th><td>2.4.1 <span class="tag">stable</span></td></tr>
-              <tr><th scope="row">File</th><td>Casium-2.4.1.zip</td></tr>
-              <!-- EDIT: real size + checksum per release -->
-              <tr><th scope="row">Size</th><td>18.4 MB</td></tr>
-              <tr><th scope="row">SHA-256</th><td style="word-break:break-all">published with each release on Discord</td></tr>
-              <tr><th scope="row">Platform</th><td>Windows 10 / 11 · x64</td></tr>
-              <tr><th scope="row">Runtime</th><td>.NET Framework 4.8</td></tr>
-              <tr><th scope="row">Requirements</th><td>Run as administrator</td></tr>
-              <tr><th scope="row">Licence</th><td>Key required · free keys via Discord</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <p class="note">
+        Antivirus vendors flag executors as false positives. If Windows Defender blocks the
+        file, restore it and add an exclusion for the Casium folder — never disable your
+        antivirus entirely.
+      </p>
     </div>
   </section>
 
   <!-- ============================== faq ============================== -->
   <section class="section" id="faq">
-    <div class="shell">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow reveal">04 <b>/</b> FAQ</p>
-          <h2 class="h-section reveal" data-delay="1" style="margin-top:18px">Questions, answered plainly.</h2>
-        </div>
-        <p class="aside reveal" data-delay="2">
-          Anything missing? Ask in the Discord — support is handled there, not by email.
-        </p>
+    <div class="wrap-narrow">
+      <h2 class="section-title">FAQ</h2>
+
+      <div class="faq">
+        <details>
+          <summary>Is Casium free?</summary>
+          <p>Yes. The client costs nothing; access runs through licence keys with a duration
+          (lifetime, one year, one month or custom). Keys are checked against casium.top on launch.</p>
+        </details>
+        <details>
+          <summary>How do I get a key?</summary>
+          <p>In the Discord. Paste it into the client on first launch — it’s saved locally, so
+          you only enter it once per machine.</p>
+        </details>
+        <details>
+          <summary>My key says expired, but I just got it.</summary>
+          <p>Check your Windows clock: expiry is compared against system time, and a drifted
+          clock fails validation. Otherwise the key may be mistyped or revoked — keys are
+          case-sensitive.</p>
+        </details>
+        <details>
+          <summary>Windows Defender removed the file.</summary>
+          <p>Injection tools get flagged heuristically. Restore it from Defender’s protection
+          history and exclude the Casium folder. Verify your download against the SHA-256 we
+          publish with each release.</p>
+        </details>
+        <details>
+          <summary>Which games work?</summary>
+          <p>Casium targets the standard Windows Roblox client. Games with their own client-side
+          protections may block execution — that’s per-game, not a broken install.</p>
+        </details>
+        <details>
+          <summary>Mac, mobile or Microsoft Store client?</summary>
+          <p>No. Windows 10/11 x64 with the web-download Roblox client only, and no plans for
+          other platforms.</p>
+        </details>
       </div>
-
-      <div class="faq reveal" id="faqlist">
-        <div class="faq-item">
-          <button class="faq-q" aria-expanded="false">
-            <span class="idx">01</span> Is Casium free?
-            <svg class="sign" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </button>
-          <div class="faq-a"><div>
-            The client is free to download. Access is gated by a licence key: keys are issued with a
-            duration (lifetime, one year, one month, or a custom length) and are checked against
-            casium.top every time the client starts.
-          </div></div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-q" aria-expanded="false">
-            <span class="idx">02</span> How do I get a key?
-            <svg class="sign" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </button>
-          <div class="faq-a"><div>
-            Keys are distributed through the Discord. Paste the key into the client on first launch;
-            it’s saved locally afterwards so you only enter it once per machine.
-          </div></div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-q" aria-expanded="false">
-            <span class="idx">03</span> My key says expired, but I just got it.
-            <svg class="sign" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </button>
-          <div class="faq-a"><div>
-            Check your Windows clock — key expiry is compared against your system time, and a drifted
-            clock will fail validation. If the clock is correct, the key may have been revoked or
-            mistyped; keys are case-sensitive and follow the
-            <span class="mono">casium-xxxxx-xxxxx-…</span> format.
-          </div></div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-q" aria-expanded="false">
-            <span class="idx">04</span> Windows Defender removed the file.
-            <svg class="sign" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </button>
-          <div class="faq-a"><div>
-            Injection tools are heuristically flagged by most vendors. Restore the file from Defender’s
-            protection history and add an exclusion for the folder you keep Casium in. We publish a
-            SHA-256 checksum with every release so you can verify what you downloaded.
-          </div></div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-q" aria-expanded="false">
-            <span class="idx">05</span> Which games work?
-            <svg class="sign" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </button>
-          <div class="faq-a"><div>
-            Casium targets the standard Windows Roblox client. Games running under Hyperion/Byfron
-            anti-cheat or with their own client-side protections may block execution — that is a
-            per-game limitation, not a broken install.
-          </div></div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-q" aria-expanded="false">
-            <span class="idx">06</span> Does it work on Mac, mobile or the Microsoft Store client?
-            <svg class="sign" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </button>
-          <div class="faq-a"><div>
-            No. Casium is Windows-only (10 and 11, x64) and requires the web-download Roblox client.
-            There are no plans for other platforms.
-          </div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================== cta band ============================== -->
-  <section class="band">
-    <div class="shell band-in">
-      <div class="reveal">
-        <p class="eyebrow">Get started</p>
-        <h2 style="margin-top:18px">Download it, attach, and stop fighting your executor.</h2>
-        <div class="cta-row">
-          <a class="btn btn-primary btn-lg" href="/downloads/Casium-2.4.1.zip" download>Download 2.4.1</a>
-          <a class="btn btn-lg btn-ghost" href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Join the Discord</a>
-        </div>
-      </div>
-      <p class="mono reveal" data-delay="1" style="font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);line-height:2">
-        Windows 10 / 11 x64<br />
-        .NET Framework 4.8<br />
-        Run as administrator
-      </p>
     </div>
   </section>
 </main>
 
-<!-- ============================== footer ============================== -->
 <footer class="footer">
-  <div class="shell">
-    <div class="footer-grid">
-      <div>
-        <a class="brand" href="/" aria-label="Casium — home">
-          <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
-            <rect x="1.25" y="1.25" width="29.5" height="29.5" rx="7.5" fill="#101317" stroke="#2c323b"/>
-            <path d="M22.4 11.1a8.2 8.2 0 1 0 0 9.8" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/>
-            <circle cx="24.1" cy="16" r="2.2" fill="#ff5c2b"/>
-          </svg>
-          <span class="brand-name">Casium</span>
-        </a>
-        <p class="footer-note">
-          A Windows executor built on the BubbleAPI injection core. Independent project — not
-          affiliated with, endorsed by, or connected to Roblox Corporation.
-        </p>
-      </div>
-
-      <div>
-        <h4>Product</h4>
-        <ul>
-          <li><a href="#core">Core</a></li>
-          <li><a href="#scripting">Scripting API</a></li>
-          <li><a href="#download">Download</a></li>
-          <li><a href="#faq">FAQ</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h4>Community</h4>
-        <ul>
-          <!-- EDIT: your links -->
-          <li><a href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Discord</a></li>
-          <li><a href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Key requests</a></li>
-          <li><a href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Bug reports</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h4>Legal</h4>
-        <ul>
-          <li><a href="#disclaimer">Disclaimer</a></li>
-          <li><a href="#privacy">Privacy</a></li>
-          <li><a href="#terms">Terms</a></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="footer-base">
-      <span id="disclaimer">© 2026 Casium · Use at your own risk</span>
-      <span id="privacy">No analytics · No cookies · No third-party scripts</span>
-      <span><a href="/">casium.top</a></span>
-    </div>
+  <div class="wrap footer-in">
+    <span>© 2026 Casium · use at your own risk</span>
+    <span>Not affiliated with or endorsed by Roblox Corporation.</span>
+    <a href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Discord</a>
   </div>
 </footer>
 
