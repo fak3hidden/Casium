@@ -311,81 +311,89 @@ namespace Casium.Views
         }
 
         // ---------- tab strip scrolling -------------------------------------------------
+        // The strip is a clipped panel moved with an animated TranslateTransform, which gives
+        // buttery, GPU-composited motion (a ScrollViewer + timer looked steppy).
 
-        private double _tabScrollTarget = -1;
-        private System.Windows.Threading.DispatcherTimer _tabScrollTimer;
+        private double _tabScrollTarget;
 
-        private void SmoothScrollTabsTo(double target)
+        private double TabScrollMax
         {
-            double max = TabStripScroll.ScrollableWidth;
-            _tabScrollTarget = Math.Max(0, Math.Min(max, target));
-            if (_tabScrollTimer == null)
+            get { return Math.Max(0, TabStripPanel.ActualWidth - TabStripScroll.ActualWidth); }
+        }
+
+        private double TabScrollCurrent
+        {
+            get { return -TabStripOffset.X; }
+        }
+
+        private void SmoothScrollTabsTo(double target, bool animate = true)
+        {
+            _tabScrollTarget = Math.Max(0, Math.Min(TabScrollMax, target));
+            if (!animate)
             {
-                _tabScrollTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Render)
-                {
-                    Interval = TimeSpan.FromMilliseconds(16)
-                };
-                _tabScrollTimer.Tick += (s2, e2) =>
-                {
-                    double cur = TabStripScroll.HorizontalOffset;
-                    double diff = _tabScrollTarget - cur;
-                    if (Math.Abs(diff) < 0.5)
-                    {
-                        TabStripScroll.ScrollToHorizontalOffset(_tabScrollTarget);
-                        _tabScrollTimer.Stop();
-                        return;
-                    }
-                    TabStripScroll.ScrollToHorizontalOffset(cur + diff * 0.25);
-                };
+                TabStripOffset.BeginAnimation(TranslateTransform.XProperty, null);
+                TabStripOffset.X = -_tabScrollTarget;
+                UpdateTabScrollButtons();
+                return;
             }
-            if (!_tabScrollTimer.IsEnabled)
+            var anim = new System.Windows.Media.Animation.DoubleAnimation
             {
-                _tabScrollTimer.Start();
-            }
+                To = -_tabScrollTarget,
+                Duration = TimeSpan.FromMilliseconds(260),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase
+                {
+                    EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut
+                }
+            };
+            anim.Completed += (s2, e2) => UpdateTabScrollButtons();
+            TabStripOffset.BeginAnimation(TranslateTransform.XProperty, anim,
+                System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
+            UpdateTabScrollButtons(_tabScrollTarget);
         }
 
         private void TabStripScroll_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            if (TabStripScroll.ScrollableWidth <= 0)
+            if (TabScrollMax <= 0)
             {
                 return;
             }
-            double from = _tabScrollTimer != null && _tabScrollTimer.IsEnabled ? _tabScrollTarget : TabStripScroll.HorizontalOffset;
-            SmoothScrollTabsTo(from - e.Delta * 0.6);
+            SmoothScrollTabsTo(_tabScrollTarget - e.Delta * 0.8);
             e.Handled = true;
-        }
-
-        private void TabStripScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            UpdateTabScrollButtons();
         }
 
         private void TabStripScroll_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            // clamp when the strip grows/shrinks (tab closed, window resized)
+            if (_tabScrollTarget > TabScrollMax)
+            {
+                SmoothScrollTabsTo(TabScrollMax);
+            }
             UpdateTabScrollButtons();
         }
 
         private void TabScrollLeft_Click(object sender, RoutedEventArgs e)
         {
-            SmoothScrollTabsTo(TabStripScroll.HorizontalOffset - 160);
+            SmoothScrollTabsTo(_tabScrollTarget - 180);
         }
 
         private void TabScrollRight_Click(object sender, RoutedEventArgs e)
         {
-            SmoothScrollTabsTo(TabStripScroll.HorizontalOffset + 160);
+            SmoothScrollTabsTo(_tabScrollTarget + 180);
         }
 
-        private void UpdateTabScrollButtons()
+        private void UpdateTabScrollButtons(double? offset = null)
         {
             if (TabStripScroll == null || TabScrollLeft == null || TabScrollRight == null)
             {
                 return;
             }
-            bool overflow = TabStripScroll.ScrollableWidth > 0.5;
+            double max = TabScrollMax;
+            double off = offset ?? TabScrollCurrent;
+            bool overflow = max > 0.5;
             TabScrollLeft.Visibility = overflow ? Visibility.Visible : Visibility.Collapsed;
             TabScrollRight.Visibility = overflow ? Visibility.Visible : Visibility.Collapsed;
-            TabScrollLeft.IsEnabled = TabStripScroll.HorizontalOffset > 0.5;
-            TabScrollRight.IsEnabled = TabStripScroll.HorizontalOffset < TabStripScroll.ScrollableWidth - 0.5;
+            TabScrollLeft.IsEnabled = off > 0.5;
+            TabScrollRight.IsEnabled = off < max - 0.5;
         }
 
         private void ScrollActiveTabIntoView()
@@ -396,15 +404,19 @@ namespace Casium.Views
                 {
                     if (NavState.GetIsActive(child))
                     {
-                        double left = child.TranslatePoint(new Point(0, 0), TabStripPanel).X;
-                        double right = left + child.ActualWidth;
-                        double off = TabStripScroll.HorizontalOffset;
-                        double view = TabStripScroll.ViewportWidth;
-                        if (left < off)
+                        double left = 0;
+                        foreach (FrameworkElement c in TabStripPanel.Children.OfType<FrameworkElement>())
+                        {
+                            if (c == child) break;
+                            left += c.ActualWidth + c.Margin.Left + c.Margin.Right;
+                        }
+                        double right = left + child.ActualWidth + child.Margin.Left + child.Margin.Right;
+                        double view = TabStripScroll.ActualWidth;
+                        if (left < _tabScrollTarget)
                         {
                             SmoothScrollTabsTo(left);
                         }
-                        else if (right > off + view)
+                        else if (right > _tabScrollTarget + view)
                         {
                             SmoothScrollTabsTo(right - view);
                         }
