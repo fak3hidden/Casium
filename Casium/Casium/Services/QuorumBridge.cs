@@ -36,13 +36,46 @@ namespace Casium.Services
 
         private static MethodInfo Find(string name, int argCount)
         {
-            return typeof(QuorumModule).GetMethods(Any)
-                .FirstOrDefault(m => m.Name == name && m.GetParameters().Length == argCount);
+            var all = typeof(QuorumModule).GetMethods(Any).Where(m => m.Name == name).ToList();
+            return all.FirstOrDefault(m => m.GetParameters().Length == argCount)
+                ?? all.OrderBy(m => m.GetParameters().Length).FirstOrDefault(m => m.GetParameters().Length > argCount);
+        }
+
+        /// <summary>Pads the supplied args with defaults for any extra parameters of the overload.</summary>
+        private static object[] FillArgs(MethodInfo m, object[] args)
+        {
+            var ps = m.GetParameters();
+            if (ps.Length == args.Length) return args;
+            var full = new object[ps.Length];
+            for (int i = 0; i < ps.Length; i++)
+            {
+                if (i < args.Length) { full[i] = args[i]; continue; }
+                var p = ps[i];
+                if (p.HasDefaultValue) full[i] = p.DefaultValue;
+                else if (p.ParameterType == typeof(bool)) full[i] = true;          // e.g. nocmd = true
+                else if (p.ParameterType == typeof(string)) full[i] = string.Empty;
+                else if (p.ParameterType.IsValueType) full[i] = Activator.CreateInstance(p.ParameterType);
+                else full[i] = null;
+            }
+            return full;
+        }
+
+        public static string DescribeApi()
+        {
+            try
+            {
+                var names = typeof(QuorumModule).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                    .Select(m => m.Name + "(" + string.Join(", ", m.GetParameters().Select(p => p.ParameterType.Name + " " + p.Name)) + ")" +
+                                 (m.ReturnType == typeof(void) ? "" : " : " + m.ReturnType.Name))
+                    .Distinct().OrderBy(n => n);
+                return string.Join("; ", names);
+            }
+            catch (Exception ex) { return ex.Message; }
         }
 
         private static bool Has(string name, int argCount)
         {
-            return Find(name, argCount) != null;
+            return typeof(QuorumModule).GetMethods(Any).Any(m => m.Name == name && m.GetParameters().Length == argCount);
         }
 
         private static void SetStatic(string name, object value)
@@ -61,7 +94,7 @@ namespace Casium.Services
             {
                 throw new MissingMethodException("QuorumModule." + name);
             }
-            object result = method.Invoke(method.IsStatic ? null : _quorum, args);
+            object result = method.Invoke(method.IsStatic ? null : _quorum, FillArgs(method, args));
             var task = result as Task;
             if (task == null)
             {
@@ -84,7 +117,7 @@ namespace Casium.Services
             {
                 throw new MissingMethodException("QuorumModule." + name);
             }
-            return method.Invoke(method.IsStatic ? null : _quorum, args);
+            return method.Invoke(method.IsStatic ? null : _quorum, FillArgs(method, args));
         }
 
         // ---------- lifecycle -----------------------------------------------------------------
@@ -101,6 +134,7 @@ namespace Casium.Services
                 SetStatic("DumbMode", false);
 
                 _quorum = new QuorumModule();
+                Log("sys", "Quorum API: " + DescribeApi());
 
                 if (Has("StartCommunication", 0)) Call("StartCommunication");
                 else if (Has("AutoUpdate", 0)) Call("AutoUpdate");
@@ -139,8 +173,28 @@ namespace Casium.Services
             if (_quorum == null) return "Error";
             try
             {
-                object r = await CallAsync("AttachAPI");
-                if (r != null) return r.ToString();
+                object r;
+                if (Has("AttachAPI", 0) || Find("AttachAPI", 0) != null)
+                {
+                    r = await CallAsync("AttachAPI");
+                }
+                else if (Find("Attach", 1) != null)
+                {
+                    var procs = System.Diagnostics.Process.GetProcessesByName("RobloxPlayerBeta");
+                    if (procs.Length == 0) return "NoProcessFound";
+                    r = null;
+                    foreach (var p in procs)
+                    {
+                        r = await CallAsync("Attach", p.Id);
+                    }
+                }
+                else
+                {
+                    Log("err", "This QuorumAPI build has no AttachAPI/Attach method. API: " + DescribeApi());
+                    return "Error";
+                }
+                if (r != null && !(r is bool)) return r.ToString();
+                if (r is bool && (bool)r) return "Attached";
 
                 // void/Task builds: give the injector a moment, then ask
                 for (int i = 0; i < 20 && !IsAttached(); i++)
@@ -173,7 +227,23 @@ namespace Casium.Services
             if (_quorum == null) return false;
             try
             {
-                object r = Call("ExecuteScript", script ?? string.Empty);
+                object r = null;
+                if (Find("ExecuteScript", 1) != null)
+                {
+                    r = Call("ExecuteScript", script ?? string.Empty);
+                }
+                else if (Find("Execute", 2) != null)
+                {
+                    foreach (var p in System.Diagnostics.Process.GetProcessesByName("RobloxPlayerBeta"))
+                    {
+                        r = Call("Execute", p.Id, script ?? string.Empty);
+                    }
+                }
+                else
+                {
+                    Log("err", "This QuorumAPI build has no ExecuteScript/Execute method.");
+                    return false;
+                }
                 string text = r == null ? "" : r.ToString();
                 if (text.Equals("False", StringComparison.OrdinalIgnoreCase) ||
                     text.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0 ||
