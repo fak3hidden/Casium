@@ -60,6 +60,46 @@
 .modern-button:active { transform: translateY(1px); }
 .modern-button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
+/* ------------------------------------------------------------------ taped-up WIP button */
+
+.taped {
+  position: relative;
+  display: inline-block;
+}
+
+.taped .modern-button {
+  cursor: not-allowed;
+  color: #8f8f8f;
+}
+
+.taped .modern-button:hover { background-color: rgb(18, 18, 18); }
+.taped .modern-button:active { transform: none; }
+
+.tape {
+  position: absolute;
+  left: 50%;
+  width: 134%;
+  height: 20px;
+  background: linear-gradient(180deg, #f6cf27, #e9b900 60%, #f2c200);
+  color: #141414;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  line-height: 20px;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+  opacity: 0.96;
+  pointer-events: none;
+  user-select: none;
+}
+
+.tape-1 { top: 6px;    transform: translateX(-50%) rotate(-6deg); }
+.tape-2 { bottom: 6px; transform: translateX(-50%) rotate(-5deg); }
+
 /* ------------------------------------------------------------------ footer bar */
 
 .footer {

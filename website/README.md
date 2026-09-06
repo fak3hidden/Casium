@@ -235,11 +235,13 @@ public static class CasiumKeyCheck
 
 ## 6 · Releases
 
-`public/downloads/` currently contains a **placeholder zip** so the download
-buttons don’t 404 — replace it with your real build, named exactly what the
-buttons point at (`Casium-2.4.1.zip`), then update the version strings in
-`index.html` (search for `2.4.1`) and the spec table (size / SHA-256).
-Alternatively host the zip on GitHub Releases and change the two `href`s.
+The landing's **Purchase button is intentionally taped up (WIP)** — it's a
+disabled button with two yellow tape straps until your shop exists; point it
+at your payment link in `index.html` (search for `taped`) and delete the two
+`<span class="tape">` lines when ready. There is no download button any more;
+`public/downloads/Casium-2.4.1.zip` stays hosted as a placeholder for direct
+links — replace it with your real build (same filename) or move it to GitHub
+Releases and update the key-system docs accordingly.
 
 ---
 

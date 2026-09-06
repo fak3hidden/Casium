@@ -172,7 +172,7 @@ def build_og(fonts: dict[str, str], path: str) -> None:
     d.text((cx - tw / 2, int(H * 0.545)), tag, font=f_tag, fill=(170, 170, 170))
 
     # slab buttons: filled #121212, 1px #454545 outline, 3px radius
-    labels = ["Download", "Discord"]
+    labels = ["Purchase", "Discord"]
     f_btn = load(fonts["work-700"], 21 * SS)
     height = 50 * SS
     gap = 10 * SS
@@ -184,8 +184,25 @@ def build_og(fonts: dict[str, str], path: str) -> None:
         d.rounded_rectangle([x, y, x + width, y + height], radius=3 * SS,
                             fill=(18, 18, 18), outline=(69, 69, 69), width=1 * SS)
         tw2 = d.textlength(t, font=f_btn)
-        d.text((x + (width - tw2) / 2, y + height / 2 - 13 * SS), t, font=f_btn, fill=(255, 255, 255))
+        d.text((x + (width - tw2) / 2, y + height / 2 - 13 * SS), t, font=f_btn,
+               fill=(255, 255, 255) if t != "Purchase" else (143, 143, 143))
         x += width + gap
+
+    # two yellow WIP tape straps over the Purchase button
+    btn_cx = cx - total / 2 + width / 2
+    btn_cy = y + height / 2
+    f_tape = load(fonts["work-700"], 12 * SS)
+    for angle, dy in ((-6, -height * 0.26), (-5, height * 0.28)):
+        tl = int(width * 1.16)
+        th = int(20 * SS)
+        strip = Image.new("RGBA", (tl, th), (0, 0, 0, 0))
+        sd = ImageDraw.Draw(strip)
+        sd.rectangle([0, 0, tl, th], fill=(242, 194, 0, 245))
+        text = "WIP · WIP · WIP · WIP · WIP"
+        tw3 = sd.textlength(text, font=f_tape)
+        sd.text(((tl - tw3) / 2, th / 2 - 8 * SS), text, font=f_tape, fill=(20, 20, 20))
+        strip = strip.rotate(angle, expand=True, resample=Image.BICUBIC)
+        img.alpha_composite(strip, (int(btn_cx - strip.width / 2), int(btn_cy + dy - strip.height / 2)))
 
     # footer bar
     fy = int(H * 0.905)
