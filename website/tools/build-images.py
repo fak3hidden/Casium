@@ -191,18 +191,21 @@ def build_og(fonts: dict[str, str], path: str) -> None:
     # two yellow WIP tape straps over the Purchase button
     btn_cx = cx - total / 2 + width / 2
     btn_cy = y + height / 2
-    f_tape = load(fonts["work-700"], 12 * SS)
-    for angle, dy in ((16, 0), (-16, 0)):  # crossed X over the button
+    # plain yellow straps, crossed X over the button
+    for angle, dy in ((16, 0), (-16, 0)):
         tl = int(width * 1.2)
         th = int(20 * SS)
         strip = Image.new("RGBA", (tl, th), (0, 0, 0, 0))
         sd = ImageDraw.Draw(strip)
         sd.rectangle([0, 0, tl, th], fill=(242, 194, 0, 245))
-        text = "WIP · WIP · WIP · WIP · WIP"
-        tw3 = sd.textlength(text, font=f_tape)
-        sd.text(((tl - tw3) / 2, th / 2 - 8 * SS), text, font=f_tape, fill=(20, 20, 20))
         strip = strip.rotate(angle, expand=True, resample=Image.BICUBIC)
         img.alpha_composite(strip, (int(btn_cx - strip.width / 2), int(btn_cy + dy - strip.height / 2)))
+
+    # WIP label above the taped button
+    f_wip = load(fonts["work-700"], 15 * SS)
+    wip = "W I P"
+    ww = d.textlength(wip, font=f_wip)
+    d.text((btn_cx - ww / 2, y - 30 * SS), wip, font=f_wip, fill=(242, 194, 0))
 
     # footer bar
     fy = int(H * 0.905)

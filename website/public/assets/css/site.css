@@ -63,6 +63,24 @@
 /* ------------------------------------------------------------------ taped-up WIP button */
 
 .taped {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+.wip-tag {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.38em;
+  text-indent: 0.38em; /* balance the tracking so it centres optically */
+  text-transform: uppercase;
+  color: #f2c200;
+  user-select: none;
+}
+
+.taped-btn {
   position: relative;
   display: inline-block;
 }
@@ -81,16 +99,6 @@
   width: 134%;
   height: 20px;
   background: linear-gradient(180deg, #f6cf27, #e9b900 60%, #f2c200);
-  color: #141414;
-  font-family: var(--sans);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.42em;
-  line-height: 20px;
-  text-align: center;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
   opacity: 0.96;
   pointer-events: none;
