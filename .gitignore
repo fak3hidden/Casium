@@ -19,3 +19,6 @@ BubbleAPI/**/obj/
 
 # ---- local build helpers ----
 .tooling/
+
+# local design-reference captures (not project files)
+image-search/

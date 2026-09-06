@@ -79,6 +79,8 @@ def prepare_fonts(tmp: str) -> dict[str, str]:
     for weight in (400, 500):
         paths[f"mono-{weight}"] = ttf(os.path.join(FONTS, f"plex-mono-{weight}.woff2"), tmp)
     paths["sans-400"] = ttf(os.path.join(FONTS, "plex-sans-400.woff2"), tmp)
+    paths["work-400"] = ttf(os.path.join(FONTS, "work-sans-400.woff2"), tmp)
+    paths["work-700"] = ttf(os.path.join(FONTS, "work-sans-700.woff2"), tmp)
     for weight in (500, 600):
         paths[f"cond-{weight}"] = ttf(os.path.join(FONTS, f"plex-cond-{weight}.woff2"), tmp)
     return paths
@@ -146,53 +148,49 @@ def grid(size, step, colour, fade_from):
 
 # ---------------------------------------------------------------- og card
 def build_og(fonts: dict[str, str], path: str) -> None:
-    """Flat black, one word, one sentence, three boxed buttons, footer bar —
-    the same composition as the live page (and potassium.pro)."""
+    """Flat #0f0f0f stage, word + sentence + three slab buttons + footer bar —
+    the same composition as the live landing page."""
     W, H = 1200 * SS, 630 * SS
-    img = Image.new("RGBA", (W, H), (13, 13, 13, 255))
+    img = Image.new("RGBA", (W, H), (15, 15, 15, 255))
     d = ImageDraw.Draw(img)
     cx = W // 2
 
     # word
-    f_name = load(fonts["archivo-700"], 96 * SS)
+    f_name = load(fonts["work-700"], 96 * SS)
     name = "Casium"
     nw = d.textlength(name, font=f_name)
     d.text((cx - nw / 2, int(H * 0.235)), name, font=f_name, fill=(255, 255, 255))
 
     # sentence
-    f_tag = load(fonts["sans-400"], 26 * SS)
+    f_tag = load(fonts["work-400"], 26 * SS)
     tag = "A powerful Lua executor aimed to give you the best scripting experience."
     tw = d.textlength(tag, font=f_tag)
-    d.text((cx - tw / 2, int(H * 0.455)), tag, font=f_tag, fill=(154, 154, 158))
+    d.text((cx - tw / 2, int(H * 0.455)), tag, font=f_tag, fill=(170, 170, 170))
 
-    # boxed buttons
+    # slab buttons: filled #121212, 1px #454545 outline, 3px radius
     labels = ["Download", "Discord", "FAQ"]
-    f_btn = load(fonts["sans-400"], 21 * SS)
-    height = 52 * SS
-    gap = 18 * SS
-    pad_x = 44 * SS
-    widths = []
-    for t in labels:
-        w = d.textlength(t, font=f_btn)
-        widths.append(max(w + pad_x * 2, 176 * SS))
-    total = sum(widths) + gap * (len(labels) - 1)
+    f_btn = load(fonts["work-700"], 21 * SS)
+    height = 50 * SS
+    gap = 10 * SS
+    width = 220 * SS
+    total = width * len(labels) + gap * (len(labels) - 1)
     x = cx - total / 2
     y = int(H * 0.585)
-    for t, w in zip(labels, widths):
-        d.rounded_rectangle([x, y, x + w, y + height], radius=5 * SS,
-                            outline=(58, 58, 62), width=1 * SS)
+    for t in labels:
+        d.rounded_rectangle([x, y, x + width, y + height], radius=3 * SS,
+                            fill=(18, 18, 18), outline=(69, 69, 69), width=1 * SS)
         tw2 = d.textlength(t, font=f_btn)
-        d.text((x + (w - tw2) / 2, y + height / 2 - 13 * SS), t, font=f_btn, fill=(255, 255, 255))
-        x += w + gap
+        d.text((x + (width - tw2) / 2, y + height / 2 - 13 * SS), t, font=f_btn, fill=(255, 255, 255))
+        x += width + gap
 
     # footer bar
     fy = int(H * 0.905)
-    d.line([(22 * SS, fy), (W - 22 * SS, fy)], fill=(35, 35, 38), width=1 * SS)
-    f_foot = load(fonts["sans-400"], 16 * SS)
-    d.text((22 * SS, fy + 16 * SS), "© 2026 casium.top. All rights reserved.", font=f_foot, fill=(154, 154, 158))
+    d.line([(0, fy), (W, fy)], fill=(51, 51, 51), width=1 * SS)
+    f_foot = load(fonts["work-400"], 16 * SS)
+    d.text((22 * SS, fy + 16 * SS), "© 2026 casium.top. All rights reserved.", font=f_foot, fill=(102, 102, 102))
     right = "Terms of Service      Privacy Policy"
     rw = d.textlength(right, font=f_foot)
-    d.text((W - 22 * SS - rw, fy + 16 * SS), right, font=f_foot, fill=(154, 154, 158))
+    d.text((W - 22 * SS - rw, fy + 16 * SS), right, font=f_foot, fill=(102, 102, 102))
 
     img.convert("RGB").save(path, "PNG", optimize=True)
     print(f"  wrote {os.path.relpath(path, SITE)}  ({os.path.getsize(path) // 1024} KB)")

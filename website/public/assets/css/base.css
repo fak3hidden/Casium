@@ -5,20 +5,20 @@
 
 :root {
   /* surfaces */
-  --bg:            #0d0d0d;
-  --bg-2:          #111112;
-  --surface:       #141416;
-  --surface-2:     #19191b;
-  --surface-3:     #202023;
-  --line:          #232326;
-  --line-2:        #3a3a3e;
-  --line-3:        #4c4c52;
+  --bg:            #0f0f0f;
+  --bg-2:          #121212;
+  --surface:       #1e1e1e;
+  --surface-2:     #262626;
+  --surface-3:     #2c2c2c;
+  --line:          #333333;
+  --line-2:        #454545;
+  --line-3:        #555555;
 
   /* ink */
   --ink:           #ffffff;
-  --ink-2:         #b9b9bc;
-  --ink-3:         #9a9a9e;
-  --ink-4:         #6b6b70;
+  --ink-2:         #bbbbbb;
+  --ink-3:         #aaaaaa;
+  --ink-4:         #666666;
 
   /* signal */
   --ember:         #ff5c2b;
@@ -31,12 +31,12 @@
   --sky:           #7fb2e8;
 
   /* metrics */
-  --r-sm:          4px;
-  --r-md:          7px;
+  --r-sm:          3px;
+  --r-md:          8px;
   --r-lg:          10px;
   --header-h:      60px;
 
-  --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans: "Work Sans", "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --cond: "IBM Plex Sans Condensed", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --disp: "Archivo", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
