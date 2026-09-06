@@ -202,10 +202,10 @@ def build_og(fonts: dict[str, str], path: str) -> None:
         img.alpha_composite(strip, (int(btn_cx - strip.width / 2), int(btn_cy + dy - strip.height / 2)))
 
     # WIP label above the taped button
-    f_wip = load(fonts["work-700"], 15 * SS)
+    f_wip = load(fonts["work-700"], 21 * SS)
     wip = "W I P"
     ww = d.textlength(wip, font=f_wip)
-    d.text((btn_cx - ww / 2, y - 30 * SS), wip, font=f_wip, fill=(242, 194, 0))
+    d.text((btn_cx - ww / 2, y - 36 * SS), wip, font=f_wip, fill=(255, 255, 255))
 
     # footer bar
     fy = int(H * 0.905)

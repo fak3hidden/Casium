@@ -36,6 +36,7 @@
   gap: 9px;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: flex-end; /* slabs share a baseline; the WIP tag floats above */
 }
 
 .modern-button {
@@ -71,12 +72,12 @@
 
 .wip-tag {
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: 17px;
   font-weight: 700;
   letter-spacing: 0.38em;
   text-indent: 0.38em; /* balance the tracking so it centres optically */
   text-transform: uppercase;
-  color: #f2c200;
+  color: #ffffff;
   user-select: none;
 }
 
