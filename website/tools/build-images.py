@@ -192,8 +192,8 @@ def build_og(fonts: dict[str, str], path: str) -> None:
     btn_cx = cx - total / 2 + width / 2
     btn_cy = y + height / 2
     f_tape = load(fonts["work-700"], 12 * SS)
-    for angle, dy in ((-6, -height * 0.26), (-5, height * 0.28)):
-        tl = int(width * 1.16)
+    for angle, dy in ((16, 0), (-16, 0)):  # crossed X over the button
+        tl = int(width * 1.2)
         th = int(20 * SS)
         strip = Image.new("RGBA", (tl, th), (0, 0, 0, 0))
         sd = ImageDraw.Draw(strip)

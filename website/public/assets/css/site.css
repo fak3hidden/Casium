@@ -97,8 +97,9 @@
   user-select: none;
 }
 
-.tape-1 { top: 6px;    transform: translateX(-50%) rotate(-6deg); }
-.tape-2 { bottom: 6px; transform: translateX(-50%) rotate(-5deg); }
+/* crossed like taped-over boards: one \ and one / through the centre */
+.tape-1 { top: 50%; width: 122%; transform: translate(-50%, -50%) rotate(16deg); }
+.tape-2 { top: 50%; width: 122%; transform: translate(-50%, -50%) rotate(-16deg); }
 
 /* ------------------------------------------------------------------ footer bar */
 
