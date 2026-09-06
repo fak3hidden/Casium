@@ -155,27 +155,31 @@ def build_og(fonts: dict[str, str], path: str) -> None:
     d = ImageDraw.Draw(img)
     cx = W // 2
 
+    # logo tile
+    tile = int(H * 0.17)
+    draw_logo(d, [cx - tile / 2, int(H * 0.10), cx + tile / 2, int(H * 0.10) + tile])
+
     # word
     f_name = load(fonts["work-700"], 96 * SS)
     name = "Casium"
     nw = d.textlength(name, font=f_name)
-    d.text((cx - nw / 2, int(H * 0.235)), name, font=f_name, fill=(255, 255, 255))
+    d.text((cx - nw / 2, int(H * 0.335)), name, font=f_name, fill=(255, 255, 255))
 
     # sentence
     f_tag = load(fonts["work-400"], 26 * SS)
     tag = "A powerful Lua executor aimed to give you the best scripting experience."
     tw = d.textlength(tag, font=f_tag)
-    d.text((cx - tw / 2, int(H * 0.455)), tag, font=f_tag, fill=(170, 170, 170))
+    d.text((cx - tw / 2, int(H * 0.545)), tag, font=f_tag, fill=(170, 170, 170))
 
     # slab buttons: filled #121212, 1px #454545 outline, 3px radius
-    labels = ["Download", "Discord", "FAQ"]
+    labels = ["Download", "Discord"]
     f_btn = load(fonts["work-700"], 21 * SS)
     height = 50 * SS
     gap = 10 * SS
     width = 220 * SS
     total = width * len(labels) + gap * (len(labels) - 1)
     x = cx - total / 2
-    y = int(H * 0.585)
+    y = int(H * 0.665)
     for t in labels:
         d.rounded_rectangle([x, y, x + width, y + height], radius=3 * SS,
                             fill=(18, 18, 18), outline=(69, 69, 69), width=1 * SS)
@@ -197,30 +201,26 @@ def build_og(fonts: dict[str, str], path: str) -> None:
 
 
 # ---------------------------------------------------------------- icons
+def draw_logo(d, box, radius_frac=0.22):
+    """The executor's real mark: dark rounded tile + thick open C."""
+    x0, y0, x1, y1 = box
+    S = x1 - x0
+    d.rounded_rectangle(box, radius=int(S * radius_frac), fill=(18, 20, 26))
+    inset = S * 0.258  # ring radius = 0.242 * S around the tile centre
+    d.arc(
+        [x0 + inset, y0 + inset, x1 - inset, y1 - inset],
+        38,
+        322,
+        fill=(233, 237, 243),
+        width=max(1, int(S * 0.16)),
+    )
+
+
 def build_icon(fonts: dict[str, str], path: str, size: int, rounded_bg: bool) -> None:
     S = size * SS
     img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-
-    if rounded_bg:
-        d.rounded_rectangle([0, 0, S, S], radius=int(S * 0.22), fill=(15, 17, 21))
-    else:
-        d.rectangle([0, 0, S, S], fill=(15, 17, 21))
-
-    pad = S * 0.19
-    inset = pad
-    d.arc(
-        [inset, inset, S - inset, S - inset],
-        50,
-        310,
-        fill=INK,
-        width=int(S * 0.115),
-    )
-    r = S * 0.085
-    cx = S * 0.755
-    cy = S / 2
-    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=EMBER)
-
+    draw_logo(d, [0, 0, S, S])
     img.convert("RGBA").resize((size, size), Image.LANCZOS).save(path, "PNG", optimize=True)
     print(f"  wrote {os.path.relpath(path, SITE)}  ({os.path.getsize(path) // 1024} KB)")
 

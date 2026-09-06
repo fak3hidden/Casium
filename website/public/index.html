@@ -22,14 +22,12 @@
 <link rel="preload" href="/assets/fonts/work-sans-700.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="/assets/css/fonts.css?v=4" />
 <link rel="stylesheet" href="/assets/css/base.css?v=4" />
-<link rel="stylesheet" href="/assets/css/site.css?v=4" />
-<script>document.documentElement.classList.add("js");</script>
+<link rel="stylesheet" href="/assets/css/site.css?v=5" />
 </head>
 
 <body class="home">
-<a class="skip" href="#features">Skip to content</a>
 
-<main class="hero" id="top">
+<main class="hero">
   <h1 class="fade-in">Casium</h1>
   <p class="fade-in fade-in-delay-1">A powerful Lua executor aimed to give you the best scripting experience.</p>
 
@@ -37,82 +35,8 @@
     <!-- EDIT: point Download at your real build; swap the Discord invite -->
     <a class="modern-button" href="/downloads/Casium-2.4.1.zip" download>Download</a>
     <a class="modern-button" href="https://discord.gg/casium" rel="noopener noreferrer" target="_blank">Discord</a>
-    <a class="modern-button" href="#faq">FAQ</a>
   </nav>
 </main>
-
-<section class="features" id="features" aria-labelledby="featuretitle">
-  <h2 id="featuretitle" class="reveal">Features</h2>
-
-  <div class="features-grid reveal">
-    <div class="feature-item">
-      <h3><span class="icon" aria-hidden="true">⚡</span>Fast execution</h3>
-      <p>Optimised injection pipeline with near-instant attach on supported Roblox builds.</p>
-    </div>
-    <div class="feature-item">
-      <h3><span class="icon" aria-hidden="true">🧩</span>Modern Luau</h3>
-      <p>Current Luau syntax and broad compatibility with popular script hubs and libraries.</p>
-    </div>
-    <div class="feature-item">
-      <h3><span class="icon" aria-hidden="true">🔑</span>Flexible keys</h3>
-      <p>Lifetime, yearly, monthly or custom-duration keys — free keys are handed out in the Discord.</p>
-    </div>
-    <div class="feature-item">
-      <h3><span class="icon" aria-hidden="true">🛡️</span>Stability first</h3>
-      <p>Clean attach and detach: a misbehaving script shouldn’t take your Roblox client with it.</p>
-    </div>
-    <div class="feature-item">
-      <h3><span class="icon" aria-hidden="true">🔁</span>Kept current</h3>
-      <p>Patches follow Roblox client updates, with release notes published on every drop.</p>
-    </div>
-    <div class="feature-item">
-      <h3><span class="icon" aria-hidden="true">💬</span>Community</h3>
-      <p>A Discord that actually answers — support, script sharing and status updates.</p>
-    </div>
-  </div>
-</section>
-
-<section class="faq" id="faq" aria-labelledby="faqtitle">
-  <h2 id="faqtitle" class="reveal">FAQ</h2>
-
-  <div class="reveal">
-    <details>
-      <summary>Is Casium free?</summary>
-      <p>Yes. Access runs through licence keys with a duration — lifetime, one year, one month
-      or custom — checked against casium.top on launch. Free keys are handed out in the Discord.</p>
-    </details>
-    <details>
-      <summary>How do I get a key?</summary>
-      <p>In the Discord. Paste it into the client on first launch; it’s saved locally, so you
-      only enter it once per machine.</p>
-    </details>
-    <details>
-      <summary>My key says expired, but I just got it.</summary>
-      <p>Check your Windows clock — expiry is compared against system time. Otherwise the key
-      may be mistyped or revoked; keys are case-sensitive.</p>
-    </details>
-    <details>
-      <summary>Windows Defender removed the file.</summary>
-      <p>Injection tools get flagged heuristically. Restore it from protection history and
-      exclude the Casium folder. Verify downloads against the SHA-256 published with each release.</p>
-    </details>
-    <details>
-      <summary>Which games work?</summary>
-      <p>Casium targets the standard Windows Roblox client. Games with their own client-side
-      protections may block execution — that’s per-game, not a broken install.</p>
-    </details>
-    <details>
-      <summary>Mac, mobile or Microsoft Store client?</summary>
-      <p>No. Windows 10/11 x64 with the web-download Roblox client only.</p>
-    </details>
-  </div>
-
-  <p class="faq-note reveal">
-    Windows 10 / 11 x64 · some antiviruses flag executors as false positives — add an
-    exclusion for the Casium folder, never disable protection entirely.<br />
-    Casium is not affiliated with or endorsed by Roblox Corporation.
-  </p>
-</section>
 
 <footer class="footer">
   <span>© 2026 casium.top. All rights reserved.</span>
@@ -121,24 +45,6 @@
     <a href="/legal#privacy">Privacy Policy</a>
   </span>
 </footer>
-
-<script>
-  /* reveal below-the-fold blocks once they scroll into view */
-  const targets = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("in");
-          io.unobserve(entry.target);
-        }
-      }
-    }, { threshold: 0.15 });
-    targets.forEach((el) => io.observe(el));
-  } else {
-    targets.forEach((el) => el.classList.add("in"));
-  }
-</script>
 
 </body>
 </html>

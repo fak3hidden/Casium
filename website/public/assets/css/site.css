@@ -1,7 +1,7 @@
 /* ==================================================================
    Casium — landing page
-   Flat #0f0f0f stage, outlined slab buttons, feature grid, fixed
-   footer bar. Everything above the fold fades in up, staggered.
+   One flat #0f0f0f stage: word, sentence, two slab buttons, fixed
+   footer bar. Hero fades in up, staggered. Nothing else on purpose.
    ================================================================== */
 
 /* ------------------------------------------------------------------ hero */
@@ -60,101 +60,6 @@
 .modern-button:active { transform: translateY(1px); }
 .modern-button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
-/* ------------------------------------------------------------------ features */
-
-.features {
-  text-align: center;
-  padding: 40px 20px 60px;
-}
-
-.features h2 {
-  font-size: 2.5rem;
-  font-weight: 600;
-  margin: 0 0 40px;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 15px 19px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.feature-item {
-  background: #1e1e1e;
-  padding: 25px 20px;
-  border-radius: 8px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-  transition: background-color 0.3s ease;
-  text-align: left;
-}
-
-.feature-item:hover { background-color: #2c2c2c; }
-
-.feature-item h3 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin: 0 0 8px;
-  color: #fff;
-}
-
-.feature-item h3 .icon {
-  font-size: 1.1rem;
-  margin-right: 6px;
-}
-
-.feature-item p {
-  font-size: 1rem;
-  color: #bbb;
-  line-height: 1.4;
-  margin: 0;
-}
-
-/* ------------------------------------------------------------------ faq */
-
-.faq {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 20px 20px 110px; /* clear the fixed footer bar */
-}
-
-.faq h2 {
-  font-size: 2rem;
-  font-weight: 600;
-  text-align: center;
-  margin: 0 0 26px;
-}
-
-.faq details {
-  border-bottom: 1px solid #333;
-  padding: 14px 4px;
-}
-
-.faq summary {
-  cursor: pointer;
-  font-weight: 600;
-  color: #fff;
-  list-style-position: inside;
-}
-
-.faq summary:hover { color: #ddd; }
-
-.faq details p {
-  margin: 10px 0 0;
-  color: #bbb;
-  line-height: 1.5;
-  font-size: 0.98rem;
-}
-
-.faq-note {
-  margin: 30px 0 0;
-  color: #666;
-  font-size: 0.88rem;
-  line-height: 1.6;
-  text-align: center;
-}
-
 /* ------------------------------------------------------------------ footer bar */
 
 .footer {
@@ -198,40 +103,10 @@
 
 .fade-in-delay-1 { animation-delay: 0.2s; }
 .fade-in-delay-2 { animation-delay: 0.4s; }
-.fade-in-delay-3 { animation-delay: 0.5s; }
-.fade-in-delay-4 { animation-delay: 0.6s; }
-
-/* below-the-fold blocks reveal on scroll (only when JS is running) */
-.js .reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
-}
-
-.js .reveal.in { opacity: 1; transform: none; }
-
-.js .features-grid .feature-item {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease, transform 0.6s ease, background-color 0.3s ease;
-}
-
-.js .features-grid.in .feature-item { opacity: 1; transform: none; }
-.js .features-grid.in .feature-item:nth-child(2) { transition-delay: 0.08s, 0.08s, 0s; }
-.js .features-grid.in .feature-item:nth-child(3) { transition-delay: 0.16s, 0.16s, 0s; }
-.js .features-grid.in .feature-item:nth-child(4) { transition-delay: 0.24s, 0.24s, 0s; }
-.js .features-grid.in .feature-item:nth-child(5) { transition-delay: 0.32s, 0.32s, 0s; }
-.js .features-grid.in .feature-item:nth-child(6) { transition-delay: 0.40s, 0.40s, 0s; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .fade-in { animation: none; opacity: 1; }
-  .js .reveal,
-  .js .features-grid .feature-item {
-    transition: none;
-    opacity: 1;
-    transform: none;
-  }
 }
 
 /* ------------------------------------------------------------------ small screens */
