@@ -163,6 +163,24 @@ curl -X POST https://casium.top/api/validate \
 `valid: false` comes with `reason` ∈ `unknown_key`, `revoked`, `expired`,
 `missing_key`, `rate_limited`. Revocation and expiry take effect on the *next*
 launch — no client update needed. `GET /api/validate?key=…` also works.
+Every successful check bumps the key's `uses` counter and `lastSeen`, which the
+console shows under each key ("api: N checks · last …"), so you can watch the
+executor phone home in real time.
+
+Full lifecycle in four curls (token from `/api/login`):
+
+```bash
+T=$(curl -s -X POST https://casium.top/api/login -H 'content-type: application/json' \
+     -d '{"username":"admin","password":"YOUR-PASSWORD"}' | jq -r .token)
+curl -s -X POST https://casium.top/api/keys -H "authorization: Bearer $T" \
+     -H 'content-type: application/json' \
+     -d '{"key":"casium-9WuY7-tEfsc-HTydZ-jv6vR-RPQVV-W9jZY-ezdiM","duration":{"preset":"1mo"}}'
+curl -s -X PATCH https://casium.top/api/keys -H "authorization: Bearer $T" \
+     -H 'content-type: application/json' \
+     -d '{"key":"casium-9WuY7-tEfsc-HTydZ-jv6vR-RPQVV-W9jZY-ezdiM","revoked":true}'   # kill-switch
+curl -s -X DELETE "https://casium.top/api/keys?key=casium-9WuY7-tEfsc-HTydZ-jv6vR-RPQVV-W9jZY-ezdiM" \
+     -H "authorization: Bearer $T"                                                    # erase
+```
 
 ### Console endpoints (Bearer token from `/api/login`)
 

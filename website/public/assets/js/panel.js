@@ -592,7 +592,12 @@
         <tr data-key="${escapeHtml(key.key)}" data-state="${status}"${state.lastCreated === key.key ? ' data-flash="true"' : ""}>
           <td>
             <div class="keycell">
-              <span class="keytext" title="${escapeHtml(key.key)}">${escapeHtml(key.key)}</span>
+              <span class="keymain">
+                <span class="keytext" title="${escapeHtml(key.key)}">${escapeHtml(key.key)}</span>
+                <span class="sub keyapi">${key.uses
+                  ? `api: ${key.uses} check${key.uses === 1 ? "" : "s"}${key.lastSeen ? ` · last ${relativeTime(key.lastSeen)}` : ""}`
+                  : "api: not checked yet"}</span>
+              </span>
               ${key.note ? `<span class="tag" title="Note">${escapeHtml(key.note)}</span>` : ""}
             </div>
           </td>

@@ -284,7 +284,8 @@ body.console .field .input { padding-left: 36px; }
   white-space: nowrap;
 }
 .dur { color: var(--ink-2); font-size: 13.5px; }
-.dur .sub { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--ink-4); margin-top: 3px; }
+.dur .sub, .keycell .sub { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--ink-4); margin-top: 3px; }
+.keymain { display: flex; flex-direction: column; min-width: 0; }
 .expires { font-family: var(--mono); font-size: 12px; color: var(--ink-3); white-space: nowrap; }
 
 .rowactions { display: flex; gap: 5px; justify-content: flex-end; }
